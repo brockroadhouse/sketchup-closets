@@ -6,16 +6,23 @@ require "su_closets/export.rb"
 module Closets
 
   @@thickness = 0.75.inch
+  @@defaultW  = 610.mm
   @@offset    = 4.inch
   @@cleat     = 5.inch
   @@move      = true
+  @@drawer    = 10.inch
+  @@hangDepth = 12.inch
+  @@lhHeight  = 12.inch
+  @@dhHeight  = 48.inch
+
+  @@nameCount = 0
 
   @@currentEnt
   @@selection
   @currentGroup
   @@model
 
-  def self.buildWalls (width, depth, left, right, closetHeight, name = "", wallHeight)
+  def self.buildWalls (name, width, depth, left, right, closetHeight, wallHeight)
 
     leftWall = [
       Geom::Point3d.new(0, 0, 0),
@@ -77,7 +84,7 @@ module Closets
     if (floor)
       spacing = (height-@@cleat-@@thickness)/(shelves - 1)
     else
-      spacing = (height-@@thickness-drawers*10)/(shelves - 1)
+      spacing = (height-@@thickness-drawers*@@drawer)/(shelves - 1)
     end
 
     # Add gable when in center
@@ -108,8 +115,8 @@ module Closets
       drawerHeight = @@thickness/2
       drawers.times do |n|
         addShelf(width, depth, [posX, posY, posZ+@@thickness]) if n==0
-        addDrawer(width+@@thickness, 10, [posX-@@thickness/2, posY, posZ+drawerHeight])
-        drawerHeight += 10
+        addDrawer(width+@@thickness, @@drawer, [posX-@@thickness/2, posY, posZ+drawerHeight])
+        drawerHeight += @@drawer
       end
 
       if (floor)
@@ -132,7 +139,7 @@ module Closets
     shelfWidth = (width - (sections+1)*@@thickness)/sections
 
     pos = 0
-    depth = 12
+    depth = @@hangDepth
     height = 10
     # Left gable
     addGable(12, height)
@@ -150,7 +157,6 @@ module Closets
   end
 
   def self.buildLH (type, width, depth, placement, location = [0,0,0])
-
     if (placement == "Center")
       numGables = 2
     elsif (placement == "Shelves")
@@ -160,7 +166,7 @@ module Closets
     end
 
     width = (width - numGables * @@thickness) if (type == "Total")
-    height = 24
+    height = @@lhHeight
 
     posX = location[0]
     posY = location[1]
@@ -191,7 +197,7 @@ module Closets
 
     numGables = (placement == "Center") ? 2 : 1
     width = (width - numGables * @@thickness) if (type == "Total")
-    height = 48
+    height = @@dhHeight
 
     posX = location[0]
     posY = location[1]
@@ -221,17 +227,17 @@ module Closets
     @@move        = false
     build         = Array.new
     buildHeight   = 0
-    buildDepth    = 12
+    buildDepth    = @@hangDepth
     totalStack    = 0
     hangSections  = 0
     types.each do |type|
       unless (type == "N/A")
         case type
         when "LH"
-          typeHeight = 24
+          typeHeight = @@lhHeight
           hangSections += 1
         when "DH"
-          typeHeight = 48
+          typeHeight = @@dhHeight
           hangSections += 1
         when "Shelves"
           typeHeight = height
@@ -255,13 +261,13 @@ module Closets
       case buildOpts[:type]
       when "LH"
         y = buildDepth
-        z = 24
+        z = @@lhHeight
         placement = buildOpts[:placement]
         lh = buildLH(widthType, hangWidth, y, placement, [pos, 0,  buildHeight-z])
         offset = hangWidth
       when "DH"
         y = buildDepth
-        z = 48
+        z = @@dhHeight
         placement = buildOpts[:placement]
         dh = buildDH(widthType, hangWidth, y, placement, [pos, 0,  buildHeight-z])
         offset = hangWidth

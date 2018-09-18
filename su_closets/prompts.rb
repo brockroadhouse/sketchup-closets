@@ -2,23 +2,24 @@
 module Closets
 
   def self.createWalls
-    startOperation('Build Walls')
 
-    prompts = ["Width", "Depth", "Return Left", "Return Right", "Closet Height", "Name", "Wall Height"]
-    defaults = [50.to_l, 24.to_l, 6.to_l, 6.to_l, 84.to_l, "", 96.to_l]
+    prompts = ["Name", "Width", "Depth", "Return Left", "Return Right", "Closet Height", "Wall Height"]
+    defaults = ["Closet" + @@nameCount.to_s, 50.to_l, 24.inch.to_l, 6.to_l, 6.to_l, 84.to_l, 96.to_l]
     input = UI.inputbox(prompts, defaults, "Enter Parameters")
 
     return if (input == false)
 
-    width = input[0]*unit_length
-    depth = input[1]*unit_length
-    left  = input[2]*unit_length
-    right = input[3]*unit_length
-    closet = input[4]*unit_length
-    name  = input[5]
-    wall = input[6]*unit_length
+    name  = input[0]
+    width = input[1]
+    depth = input[2]
+    left  = input[3]
+    right = input[4]
+    closet = input[5]
+    wall = input[6]
 
-    buildWalls(width, depth, left, right, closet, name, wall)
+    startOperation('Build Walls', true, name)
+
+    buildWalls(name, width, depth, left, right, closet, wall)
 
     endOperation
   end
@@ -48,24 +49,17 @@ module Closets
   def self.createLH
     startOperation('Long Hang')
 
-    if(selectionIsEdge)
-      defaultWidth = (@@selection[0].length)
-    else
-      defaultWidth = 25.5
-    end
-
     prompts = ["Width Type", "Width", "Depth", "Placement"]
-    defaults = ["Total", defaultWidth.to_l, 12, "Center"]
+    defaults = ["Total", defaultWidth.to_l, @@hangDepth.to_l, "Center"]
     list = ["Total|Shelf", "", "", "Left|Center|Right"]
     input = UI.inputbox(prompts, defaults, list, "Enter Parameters")
 
     return if (input == false)
 
     type  = input[0]
-    width = input[1]*unit_length
-    depth = input[2]*unit_length
+    width = input[1]
+    depth = input[2]
     placement  = input[3]
-
     buildLH(type, width, depth, placement)
 
     endOperation
@@ -114,13 +108,13 @@ module Closets
 
     return if (input == false)
 
-    width     = input[0]*unit_length
+    width     = input[0]
     types     = input[1..5]
     shelves   = input[6]
     drawers   = input[7]
-    height    = input[8]*unit_length
-    depth     = input[9]*unit_length
-    stWidth   = input[10]*unit_length
+    height    = input[8]
+    depth     = input[9]
+    stWidth   = input[10]
 
     buildMixed(width, types, shelves, drawers, height, depth, stWidth)
 
@@ -194,7 +188,9 @@ module Closets
     shapes_menu.add_item("Shelf Stack") {createShelfStack}
     shapes_menu.add_item("Mixed Hang Space") {createMixed}
     shapes_menu.add_item("Export Cut List") {exportCutList}
-    shapes_menu.add_item("Reload (DEV)") {FVCC::Closets.reload}
+    shapes_menu.add_item("Set to mm") {setModelmm}
+    shapes_menu.add_item("Set to 1/16\"") {setModelInch}
+    #shapes_menu.add_item("Reload (DEV)") {FVCC::Closets.reload}
     file_loaded(__FILE__)
   end
 
