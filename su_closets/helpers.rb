@@ -24,10 +24,10 @@ module Closets
         unit_length = 1.feet
       when 2
         ## model is using metric units - millimetres
-        unit_length = 10.mm
+        unit_length = 1.mm
       when 3
         ## model is using metric units - centimetres
-        unit_length = 10.cm
+        unit_length = 1.cm
       when 4
         ## model is using metric units - metres
         unit_length =  1.m
@@ -38,27 +38,55 @@ module Closets
     end # if
   end
 
+  def self.setUnits(unit, precision = 0, lengthFormat = 0)
+    model = Sketchup.active_model
+    manager = model.options
+    if provider = manager["UnitsOptions"]
+      provider["LengthUnit"]      = unit
+      provider["LengthPrecision"] = precision
+      provider["LengthFormat"]    = lengthFormat
+    end
+  end
+
+  def self.setModelmm
+    setUnits(2) ## Decimal/0mm
+  end
+
+  def self.setModelInch
+    setUnits(0, 4, 3) ## Fractional / 1/16" / Inches
+  end
+
   def self.currentEnt
     @@currentEnt
   end
 
-  def self.startOperation (name, newGroup = true)
+  def self.defaultWidth
+    if(selectionIsEdge)
+      defaultWidth = (@@selection[0].length)
+    else
+      defaultWidth = @@defaultW
+    end
+  end
+
+  def self.startOperation (name, newGroup = true, groupName = "")
     @@model = Sketchup.active_model
     @@model.start_operation(name, true)
     @@selection = Sketchup.active_model.selection
-    addGroup if (newGroup == true)
+    addGroup(groupName) if (newGroup == true)
   end
 
   def self.endOperation
     @@model.commit_operation
   end
 
-  def self.addGroup
+  def self.addGroup(name = "")
     @currentGroup = @@model.active_entities.add_group
+    @currentGroup.name = name
     @@currentEnt = @currentGroup.entities
+    @@nameCount += 1
   end
 
-  def self.addFace (addition, push = 0, material = nil)
+  def self.addFace (addition, push = 0, material = nil, test = 0)
     group = @@currentEnt.add_group
     face = group.entities.add_face(addition)
 
@@ -260,6 +288,12 @@ module Closets
   end
 
   def self.setMixedParams(build)
+    if (build.length == 1)
+      build[0][:placement] = "Center"
+      build[0][:offset]    = @@thickness * 2
+      return
+    end
+
     build.map.with_index do |buildOpts, i|
       # Placements
       if (i == 0) # First
