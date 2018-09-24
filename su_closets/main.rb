@@ -130,6 +130,7 @@ module Closets
 
       # Right gable
       addGable(depth, height, [posX, posY, posZ]) unless (i == (sections - 1) && placement == "Left")
+      posX += @@thickness
       moveToSelection(depth, height)
     end
   end
