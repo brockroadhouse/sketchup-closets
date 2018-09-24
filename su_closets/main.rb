@@ -12,7 +12,7 @@ module Closets
   @@move      = true
   @@drawer    = 10.inch
   @@hangDepth = 12.inch
-  @@lhHeight  = 12.inch
+  @@lhHeight  = 24.inch
   @@dhHeight  = 48.inch
 
   @@nameCount = 0
