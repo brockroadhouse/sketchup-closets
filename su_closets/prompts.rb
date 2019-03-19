@@ -19,7 +19,7 @@ module Closets
 
     startOperation('Build Walls', true, name)
 
-    buildWalls(name, width, depth, left, right, closet, wall)
+    buildWalls(name, width, depth, depth, left, right, closet, wall)
 
     endOperation
   end
@@ -82,10 +82,10 @@ module Closets
   def self.createMixed
     startOperation('Mixed Hang')
 
-    prompts = ["Total Width", "#1", "#2", "#3", "#4", "#5", "Shelves/Stack", "Drawers/Stack", "Stack Height", "Stack Depth", "Stack Width"]
-    defaults = [defaultWidth.to_l, "LH", "DH", "N/A", "N/A", "N/A", 5, 0, 72.to_l, 14.to_l, 24.to_l]
-    options = "LH|DH|Shelves|N/A"
-    list = ["", options, options, options, options, options, "", "", "", "", ""]
+    prompts = ["Total Width", "#1", "#2", "#3", "#4", "#5", "Shelves/Stack", "Drawers/Stack", "Stack Height", "Stack Depth", "Stack Width", "Floor Mount"]
+    defaults = [defaultWidth.to_l, "Shelves", "-", "-", "-", "-", 5, 0, 72.to_l, 14.to_l, 24.to_l, "No"]
+    options = "LH|DH|Shelves|-"
+    list = ["", options, options, options, options, options, "", "", "", "", "", "Yes|No"]
     input = UI.inputbox(prompts, defaults, list, "Enter Sections (Left to Right)")
 
     return if (input == false)
@@ -97,8 +97,9 @@ module Closets
     height    = input[8]
     depth     = input[9]
     stWidth   = input[10]
+    floor     = input[11]=='Yes'
 
-    buildMixed(width, types, shelves, drawers, height, depth, stWidth)
+    buildMixed(width, types, shelves, drawers, height, depth, stWidth, floor)
 
     endOperation
   end
@@ -154,18 +155,23 @@ module Closets
   # Add a menu for creating 3D shapes
   # Checks if this script file has been loaded before in this SU session
   unless file_loaded?(__FILE__) # If not, create menu entries
-    shapes_menu = UI.menu("Plugins").add_submenu("Closets")
+    extMenu = UI.menu("Plugins").add_submenu("Closets")
     #shapes_menu.add_item("Poop") {fartBox}
-    shapes_menu.add_item("Create Walls") {createWalls}
-    shapes_menu.add_item("Simple Long Hang") {createSimpleLH}
-    shapes_menu.add_item("Long Hang") {createLH}
-    shapes_menu.add_item("Double Hang") {createDH}
-    #shapes_menu.add_item("Add Shelf") {createShelf}
-    shapes_menu.add_item("Shelf Stack") {createShelfStack}
-    shapes_menu.add_item("Mixed Hang Space") {createMixed}
-    shapes_menu.add_item("Export Cut List") {exportCutList}
-    shapes_menu.add_item("Set to mm") {setModelmm}
-    shapes_menu.add_item("Set to 1/16\"") {setModelInch}
+    extMenu.add_item("Create Walls") {createWalls}
+    #extMenu.add_item("Simple Long Hang") {createSimpleLH}
+    #extMenu.add_item("Long Hang") {createLH}
+    #extMenu.add_item("Double Hang") {createDH}
+    #extMenu.add_item("Add Shelf") {createShelf}
+    #extMenu.add_item("Shelf Stack") {createShelfStack}
+    #extMenu.add_item("Floor Double Hang") {buildFloorDH}
+    extMenu.add_item("Build Closet") {createMixed}
+    #extMenu.add_item("Dialog") {show_dialog}
+    extMenu.add_item("Export Cut List") {exportCutList}
+    #extMenu.add_item("Export SVG") {exportSvg} #NOTREADY
+
+    subMenu = extMenu.add_submenu("Change Units")
+    subMenu.add_item("Set to mm") {setModelmm}
+    subMenu.add_item("Set to 1/16\"") {setModelInch}
     #shapes_menu.add_item("Reload (DEV)") {FVCC::Closets.reload}
     file_loaded(__FILE__)
   end
