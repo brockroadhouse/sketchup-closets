@@ -133,6 +133,14 @@ module Closets
     return @@selection.first.is_a?(Sketchup::Edge)
   end
 
+  def self.selectionHeight
+    height = 0
+    if(selectionIsEdge)
+      height = @@selection[0].start.position[2]
+    end
+    return height
+  end
+
   def self.moveTo (pt)
     t = Geom::Transformation.new pt
     @currentGroup = @currentGroup.move! t
