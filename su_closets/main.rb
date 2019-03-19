@@ -2,12 +2,12 @@ require "sketchup.rb"
 require "su_closets/prompts.rb"
 require "su_closets/helpers.rb"
 require "su_closets/export.rb"
+#require "su_closets/dialog.rb"
 
 module Closets
 
   @@thickness = 0.75.inch
   @@defaultW  = 610.mm
-  @@offset    = 4.inch
   @@cleat     = 5.inch
   @@move      = true
   @@drawer    = 10.inch
@@ -15,68 +15,69 @@ module Closets
   @@lhHeight  = 24.inch
   @@dhHeight  = 48.inch
 
-  @@nameCount = 0
+  @@nameCount = 1
 
   @@currentEnt
   @@selection
   @currentGroup
   @@model
 
-  def self.buildWalls (name, width, depth, left, right, closetHeight, wallHeight)
+  def self.buildWalls (name, width, depthL, depthR, left, right, closetHeight, wallHeight)
+    offset = 4.inch
+    depthDiff = depthR > 0 ? depthL-depthR : depthL-1.mm
 
     leftWall = [
       Geom::Point3d.new(0, 0, 0),
       Geom::Point3d.new(left, 0, 0),
-      Geom::Point3d.new(left, -@@offset, 0),
-      Geom::Point3d.new(-@@offset, -@@offset, 0),
+      Geom::Point3d.new(left, -offset, 0),
+      Geom::Point3d.new(-offset, -offset, 0),
     ]
 
     rightWall = [
-      Geom::Point3d.new(width-right, 0, 0),
-      Geom::Point3d.new(width, 0, 0),
-      Geom::Point3d.new(width+@@offset, -@@offset, 0),
-      Geom::Point3d.new(width-right, -@@offset, 0),
+      Geom::Point3d.new(width-right, depthDiff, 0),
+      Geom::Point3d.new(width, depthDiff, 0),
+      Geom::Point3d.new(width+offset, depthDiff-offset, 0),
+      Geom::Point3d.new(width-right, depthDiff-offset, 0),
     ]
 
     closet = [
-      Geom::Point3d.new(0, 0, 0),
-      Geom::Point3d.new(0, depth, 0),
-      Geom::Point3d.new(width, depth, 0),
-      Geom::Point3d.new(width, 0, 0),
-      Geom::Point3d.new(width+@@offset, -@@offset, 0),
-      Geom::Point3d.new(width+@@offset, depth+@@offset, 0),
-      Geom::Point3d.new(-@@offset, depth+@@offset, 0),
-      Geom::Point3d.new(-@@offset, -@@offset, 0),
+      Geom::Point3d.new(0, depthL, 0),
+      Geom::Point3d.new(width, depthL, 0),
+      Geom::Point3d.new(width, depthDiff, 0),
+      Geom::Point3d.new(width+offset, depthDiff-offset, 0),
+      Geom::Point3d.new(width+offset, depthL+offset, 0),
+      Geom::Point3d.new(-offset, depthL+offset, 0),
+      Geom::Point3d.new(-offset, -offset, 0),
     ]
+    closet.unshift(Geom::Point3d.new(0, 0, 0)) unless depthL == 0
 
     closetHeightLine1 = [
       Geom::Point3d.new(0, 0, closetHeight),
-      Geom::Point3d.new(0, depth, closetHeight),
+      Geom::Point3d.new(0, depthL, closetHeight),
     ]
     closetHeightLine2 = [
-      Geom::Point3d.new(0, depth, closetHeight),
-      Geom::Point3d.new(width, depth, closetHeight),
+      Geom::Point3d.new(0, depthL, closetHeight),
+      Geom::Point3d.new(width, depthL, closetHeight),
     ]
     closetHeightLine3 = [
-      Geom::Point3d.new(width, depth, closetHeight),
-      Geom::Point3d.new(width, 0, closetHeight),
+      Geom::Point3d.new(width, depthL, closetHeight),
+      Geom::Point3d.new(width, depthDiff, closetHeight),
     ]
     @@currentEnt.add_line(closetHeightLine1[0], closetHeightLine1[1])
     @@currentEnt.add_line(closetHeightLine2[0], closetHeightLine2[1])
     @@currentEnt.add_line(closetHeightLine3[0], closetHeightLine3[1])
 
-    leftFace = addFace(leftWall)
-    rightFace = addFace(rightWall)
+    leftFace = addFace(leftWall) if depthL > 0
+    rightFace = addFace(rightWall) if depthR > 0
     closetFace = addFace(closet, -wallHeight)
 
     # Add dimension lines
     addDimension(closet[0], closet[1], [0, 0, 4])
-    addDimension(closet[0], closet[1], [0, 0, 4])
-    addDimension(closet[1], closet[2], [0, 0, 4])
-    addDimension(closet[2], closet[3], [0, 0, 4])
+    addDimension(closet[1], closet[2], [0, 0, closetHeight+2])
+    addDimension(closet[2], closet[3], [0, 0, 4]) if depthR > 0
 
     # Add title
-    addTitle(name, Geom::Point3d.new(width/2-name.length*3, depth, 85)) unless name == ""
+    addTitle(name, Geom::Point3d.new(width/2-name.length*2, depthL, 88)) unless name == ""
 
   end
 
@@ -147,7 +148,7 @@ module Closets
 
     sections.times do |i|
       pos += @@thickness
-      addShelf(shelfWidth, depth, [pos, 0, height])
+      addShelf(shelfWidth, depth, [pos, 0, height], true)
       addRod(shelfWidth, [pos, 0, height])
       addCleat(shelfWidth, [pos, depth, 0])
       pos += shelfWidth
@@ -157,18 +158,42 @@ module Closets
     moveToSelection(depth, height)
   end
 
+  def self.buildFloorLH (type, width, depth, height, placement, location = [0,0,0])
+    posX = location[0]
+    posY = location[1]
+    posZ = location[2]
+    unless (["Right", "Shelves"].include? placement)
+      addGable(depth, height, location)
+      posX += @@thickness
+    end
+
+    shelfSpacing = 250.mm
+    addShelf(width, depth, [posX, 0, height], true)
+    addShelf(width, depth, [posX, 0, height-shelfSpacing])
+    addShelf(width, depth, [posX, 0, height-shelfSpacing*2])
+    addShelf(width, depth, [posX, 0, @@cleat+@@thickness])
+
+    addCleat(width, [posX, depth, height-@@thickness-@@cleat])
+    addCleat(width, [posX, depth-1, 0])
+    addCleat(width, [posX, 2, 0])
+
+    addRod(width, [posX, 2, height-shelfSpacing*2])
+
+    addGable(depth, height, [width+posX, posY, posZ]) unless (["Left", "Shelves"].include? placement)
+  end
+
   def self.buildLH (type, width, depth, placement, location = [0,0,0])
     if (placement == "Center")
-      numGables = 2
-    elsif (placement == "Shelves")
       numGables = 0
+    elsif (placement == "Shelves")
+      numGables = 2
     else
       numGables = 1
     end
 
     if (type == "Total")
       sections = ((width-@@thickness)/(32 + @@thickness)).ceil
-      width = (width - (sections+1)*@@thickness)/sections
+      width = (width - (sections+1-numGables)*@@thickness)/sections
     else
       sections = 1
     end
@@ -183,7 +208,7 @@ module Closets
       posX += @@thickness
     end
 
-    sections.times do
+    sections.times do |i|
       # Shelves
       bottom = @@cleat + @@thickness
       mid = (height+bottom)/2
@@ -195,17 +220,52 @@ module Closets
 
       addRod(width, [posX, posY, posZ+bottom])
 
-      addGable(depth, height, [width+posX, posY, posZ]) unless ["Left", "Shelves"].include? placement
-      posX += width+@@thickness
+      addGable(depth, height, [width+posX, posY, posZ]) unless (((i+1) == sections) && (["Left", "Shelves"].include? placement))
+      posX += width + @@thickness
     end
 
     moveToSelection(depth, height)
   end
 
-  def self.buildDH (type, width, depth, placement, location = [0,0,0])
+  def self.buildFloorDH (type, width, depth, height, placement, location = [0,0,0])
+    posX = location[0]
+    posY = location[1]
+    posZ = location[2]
+    unless (["Right", "Shelves"].include? placement)
+      addGable(depth, height, location)
+      posX += @@thickness
+    end
 
-    numGables = (placement == "Center") ? 2 : 1
-    width = (width - numGables * @@thickness) if (type == "Total")
+    addShelf(width, depth, [posX, 0, height], true)
+    addShelf(width, 196.mm, [posX, (depth-196.mm), (height/2)])
+    addShelf(width, depth, [posX, 0, @@cleat+@@thickness])
+
+    addCleat(width, [posX, depth, height-@@thickness-@@cleat])
+    addCleat(width, [posX, depth, (height/2)-@@thickness-@@cleat])
+    addCleat(width, [posX, depth-1, 0])
+    addCleat(width, [posX, 2, 0])
+
+    addRod(width, [posX, 2, height])
+    addRod(width, [posX, 2, (height/2)+2])
+
+    addGable(depth, height, [width+posX, posY, posZ]) unless (["Left", "Shelves"].include? placement)
+  end
+
+  def self.buildDH (type, width, depth, placement, location = [0,0,0])
+    if (placement == "Center")
+      numGables = 0
+    elsif (placement == "Shelves")
+      numGables = 2
+    else
+      numGables = 1
+    end
+
+    if (type == "Total")
+      sections = ((width-@@thickness)/(32 + @@thickness)).ceil
+      width = (width - (sections+1-numGables)*@@thickness)/sections
+    else
+      sections = 1
+    end
     height = @@dhHeight
 
     posX = location[0]
@@ -217,36 +277,39 @@ module Closets
       posX += @@thickness
     end
 
-    # Shelves
-    bottom = @@cleat + @@thickness
-    addShelf(width, depth, [posX, posY, posZ+height], true)
-    addShelf(width, depth, [posX, posY, posZ+bottom])
+    sections.times do |i|
+      # Shelves
+      bottom = @@cleat + @@thickness
+      addShelf(width, depth, [posX, posY, posZ+height], true)
+      addShelf(width, depth, [posX, posY, posZ+bottom])
 
-    addCleat(width, [posX, posY+depth, posZ])
+      addCleat(width, [posX, posY+depth, posZ])
 
-    addRod(width, [posX, posY, posZ+height])
-    addRod(width, [posX, posY, posZ+bottom])
+      addRod(width, [posX, posY, posZ+height])
+      addRod(width, [posX, posY, posZ+bottom])
 
-    addGable(depth, height, [width+posX, posY, posZ]) unless ["Left", "Shelves"].include? placement
-
+      addGable(depth, height, [width+posX, posY, posZ]) unless (((i+1) == sections) && (["Left", "Shelves"].include? placement))
+      posX += width + @@thickness
+    end
     moveToSelection(depth, height)
   end
 
-  def self.buildMixed(width, types, shelves, drawers, height, depth, stackWidth)
+  def self.buildMixed(width, types, shelves, drawers, height, depth, stackWidth, floor)
     @@move        = false
     build         = Array.new
     buildHeight   = 0
-    buildDepth    = @@hangDepth
+    buildDepth    = floor ? depth : @@hangDepth
     totalStack    = 0
     hangSections  = 0
+    height        = floor ? selectionHeight : height
     types.each do |type|
-      unless (type == "N/A")
+      unless (type == "-")
         case type
         when "LH"
-          typeHeight = @@lhHeight
+          typeHeight = floor ? height : @@lhHeight
           hangSections += 1
         when "DH"
-          typeHeight = @@dhHeight
+          typeHeight = floor ? height : @@dhHeight
           hangSections += 1
         when "Shelves"
           typeHeight = height
@@ -272,19 +335,27 @@ module Closets
         y = buildDepth
         z = @@lhHeight
         placement = buildOpts[:placement]
-        lh = buildLH(widthType, hangWidth, y, placement, [pos, 0,  buildHeight-z])
+        if (floor)
+          buildFloorLH(widthType, hangWidth, y, height, placement, [pos, 0,  0])
+        else
+          buildLH(widthType, hangWidth, y, placement, [pos, 0,  buildHeight-z])
+        end
         offset = hangWidth
       when "DH"
         y = buildDepth
         z = @@dhHeight
         placement = buildOpts[:placement]
-        dh = buildDH(widthType, hangWidth, y, placement, [pos, 0,  buildHeight-z])
+        if (floor)
+          buildFloorDH(widthType, hangWidth, y, height, placement, [pos, 0,  0])
+        else
+          buildDH(widthType, hangWidth, y, placement, [pos, 0,  buildHeight-z])
+        end
         offset = hangWidth
       when "Shelves"
         y = depth
         z = height
         placement = buildOpts[:placement]
-        buildShelfStack(widthType, stackWidth, depth, height, shelves, drawers, 1, false, placement, [pos, buildDepth-depth,  buildHeight-z])
+        buildShelfStack(widthType, stackWidth, depth, height, shelves, drawers, 1, floor, placement, [pos, buildDepth-depth,  buildHeight-z])
         offset = stackWidth
       end
 
