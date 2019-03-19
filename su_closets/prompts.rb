@@ -157,7 +157,7 @@ module Closets
   unless file_loaded?(__FILE__) # If not, create menu entries
     extMenu = UI.menu("Plugins").add_submenu("Closets")
     #shapes_menu.add_item("Poop") {fartBox}
-    extMenu.add_item("Create Walls") {createWalls}
+    extMenu.add_item("Create Walls") {showRoomDialog}
     #extMenu.add_item("Simple Long Hang") {createSimpleLH}
     #extMenu.add_item("Long Hang") {createLH}
     #extMenu.add_item("Double Hang") {createDH}

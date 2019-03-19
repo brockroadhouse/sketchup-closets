@@ -2,7 +2,7 @@ require "sketchup.rb"
 require "su_closets/prompts.rb"
 require "su_closets/helpers.rb"
 require "su_closets/export.rb"
-#require "su_closets/dialog.rb"
+require "su_closets/dialog.rb"
 
 module Closets
 
@@ -22,22 +22,23 @@ module Closets
   @currentGroup
   @@model
 
-  def self.buildWalls (name, width, depthL, depthR, left, right, closetHeight, wallHeight)
+  def self.buildWalls (name, width, depthL, depthR, closetHeight, wallHeight)
     offset = 4.inch
     depthDiff = depthR > 0 ? depthL-depthR : depthL-1.mm
+    wallReturn = 6
 
     leftWall = [
       Geom::Point3d.new(0, 0, 0),
-      Geom::Point3d.new(left, 0, 0),
-      Geom::Point3d.new(left, -offset, 0),
+      Geom::Point3d.new(wallReturn, 0, 0),
+      Geom::Point3d.new(wallReturn, -offset, 0),
       Geom::Point3d.new(-offset, -offset, 0),
     ]
 
     rightWall = [
-      Geom::Point3d.new(width-right, depthDiff, 0),
+      Geom::Point3d.new(width-wallReturn, depthDiff, 0),
       Geom::Point3d.new(width, depthDiff, 0),
       Geom::Point3d.new(width+offset, depthDiff-offset, 0),
-      Geom::Point3d.new(width-right, depthDiff-offset, 0),
+      Geom::Point3d.new(width-wallReturn, depthDiff-offset, 0),
     ]
 
     closet = [
@@ -77,13 +78,13 @@ module Closets
     addDimension(closet[2], closet[3], [0, 0, 4]) if depthR > 0
 
     # Add title
-    addTitle(name, Geom::Point3d.new(width/2-name.length*2, depthL, 88)) unless name == ""
+    addTitle(name, Geom::Point3d.new(width/2-name.length*2, depthL, wallHeight-8.inch)) unless name == ""
 
   end
 
   def self.buildShelfStack (type, width, depth, height, shelves, drawers, sections, floor, placement, location = [0,0,0])
     if (floor)
-      spacing = (height-@@cleat-@@thickness)/(shelves - 1)
+      spacing = (height-@@cleat-@@thickness-drawers*@@drawer)/(shelves - 1)
     else
       spacing = (height-@@thickness-drawers*@@drawer)/(shelves - 1)
     end
@@ -114,9 +115,10 @@ module Closets
       end
 
       drawerHeight = @@thickness/2
+      drawerZ = floor ? @@cleat : 0
       drawers.times do |n|
-        addShelf(width, depth, [posX, posY, posZ+@@thickness]) if n==0
-        addDrawer(width+@@thickness, @@drawer, [posX-@@thickness/2, posY, posZ+drawerHeight])
+        addShelf(width, depth, [posX, posY, posZ+@@thickness+drawerZ]) if n==0
+        addDrawer(width+@@thickness, @@drawer, [posX-@@thickness/2, posY, posZ+drawerHeight+drawerZ])
         drawerHeight += @@drawer
       end
 
