@@ -45,6 +45,7 @@ module Closets
       provider["LengthUnit"]      = unit
       provider["LengthPrecision"] = precision
       provider["LengthFormat"]    = lengthFormat
+      model.active_view.invalidate
     end
   end
 
@@ -63,9 +64,15 @@ module Closets
   def self.defaultWidth
     if(selectionIsEdge)
       defaultWidth = (@@selection[0].length)
+      i = 1
+      while @@selection[i].is_a?(Sketchup::Edge) do
+        defaultWidth += @@selection[i].length
+        i += 1
+      end
     else
       defaultWidth = @@defaultW
     end
+    defaultWidth
   end
 
   def self.startOperation (name, newGroup = true, groupName = "")
@@ -123,7 +130,7 @@ module Closets
   end
 
   def self.selectionIsEdge
-    return @@selection.single_object? && @@selection.first.is_a?(Sketchup::Edge)
+    return @@selection.first.is_a?(Sketchup::Edge)
   end
 
   def self.moveTo (pt)
@@ -156,7 +163,7 @@ module Closets
     nameGroup = @@currentEnt.add_group
 
     # 3D Text
-    nameGroup.entities.add_3d_text(name, TextAlignRight, 'Tahoma', false, false, 9, tolerance = 0.0, 0, true, 3)
+    nameGroup.entities.add_3d_text(name, TextAlignRight, 'Tahoma', false, false, 6, 0, 0, true, 3)
 
     # Move text to pt
     t = Geom::Transformation.new pt

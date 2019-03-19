@@ -166,7 +166,12 @@ module Closets
       numGables = 1
     end
 
-    width = (width - numGables * @@thickness) if (type == "Total")
+    if (type == "Total")
+      sections = ((width-@@thickness)/(32 + @@thickness)).ceil
+      width = (width - (sections+1)*@@thickness)/sections
+    else
+      sections = 1
+    end
     height = @@lhHeight
 
     posX = location[0]
@@ -178,18 +183,21 @@ module Closets
       posX += @@thickness
     end
 
-    # Shelves
-    bottom = @@cleat + @@thickness
-    mid = (height+bottom)/2
-    addShelf(width, depth, [posX, posY, posZ+height], true)
-    addShelf(width, depth, [posX, posY, posZ+mid])
-    addShelf(width, depth, [posX, posY, posZ+bottom])
+    sections.times do
+      # Shelves
+      bottom = @@cleat + @@thickness
+      mid = (height+bottom)/2
+      addShelf(width, depth, [posX, posY, posZ+height], true)
+      addShelf(width, depth, [posX, posY, posZ+mid])
+      addShelf(width, depth, [posX, posY, posZ+bottom])
 
-    addCleat(width, [posX, posY+depth, posZ])
+      addCleat(width, [posX, posY+depth, posZ])
 
-    addRod(width, [posX, posY, posZ+bottom])
+      addRod(width, [posX, posY, posZ+bottom])
 
-    addGable(depth, height, [width+posX, posY, posZ]) unless ["Left", "Shelves"].include? placement
+      addGable(depth, height, [width+posX, posY, posZ]) unless ["Left", "Shelves"].include? placement
+      posX += width+@@thickness
+    end
 
     moveToSelection(depth, height)
   end
