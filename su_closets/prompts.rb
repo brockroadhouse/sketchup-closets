@@ -4,7 +4,7 @@ module Closets
   def self.createWalls
 
     prompts = ["Name", "Width", "Depth", "Return Left", "Return Right", "Closet Height", "Wall Height"]
-    defaults = ["Closet" + @@nameCount.to_s, 50.to_l, 24.inch.to_l, 6.to_l, 6.to_l, 84.to_l, 96.to_l]
+    defaults = ["Closet " + @@nameCount.to_s, 50.to_l, 24.inch.to_l, 6.to_l, 6.to_l, 84.to_l, 96.to_l]
     input = UI.inputbox(prompts, defaults, "Enter Parameters")
 
     return if (input == false)
@@ -27,19 +27,13 @@ module Closets
   def self.createSimpleLH
     startOperation('Simple Long Hang')
 
-    prompts = ["Total Width (in inches)"]
-
-    if (selectionIsEdge)
-      defaultWidth = (@@selection[0].length)
-    else
-      defaultWidth = 25.5
-    end
+    prompts = ["Total Width"]
     defaults = [defaultWidth.to_l]
     input = UI.inputbox(prompts, defaults, "Enter Parameters")
 
     return if (input == false)
 
-    width = input[0]*unit_length
+    width = input[0]
 
     buildSimpleLH(width)
 
@@ -68,12 +62,6 @@ module Closets
   def self.createDH
     startOperation('Double Hang')
 
-    if(selectionIsEdge)
-      defaultWidth = (@@selection[0].length)
-    else
-      defaultWidth = 25.5
-    end
-
     prompts = ["Width Type", "Width", "Depth", "Placement"]
     defaults = ["Total", defaultWidth.to_l, 12.to_l, "Center"]
     list = ["Total|Shelf", "", "", "Left|Center|Right"]
@@ -82,8 +70,8 @@ module Closets
     return if (input == false)
 
     type  = input[0]
-    width = input[1]*unit_length
-    depth = input[2]*unit_length
+    width = input[1]
+    depth = input[2]
     placement  = input[3]
 
     buildDH(type, width, depth, placement)
@@ -93,12 +81,6 @@ module Closets
 
   def self.createMixed
     startOperation('Mixed Hang')
-
-    if(selectionIsEdge)
-      defaultWidth = (@@selection[0].length)
-    else
-      defaultWidth = 50
-    end
 
     prompts = ["Total Width", "#1", "#2", "#3", "#4", "#5", "Shelves/Stack", "Drawers/Stack", "Stack Height", "Stack Depth", "Stack Width"]
     defaults = [defaultWidth.to_l, "LH", "DH", "N/A", "N/A", "N/A", 5, 0, 72.to_l, 14.to_l, 24.to_l]
@@ -126,8 +108,8 @@ module Closets
     defaults = [24*unit_length, 12*unit_length]
     input = UI.inputbox(prompts, defaults, "Enter Parameters")
 
-    width = input[0]*unit_length
-    depth = input[1]*unit_length
+    width = input[0]
+    depth = input[1]
 
     startOperation('Add Shelf')
 
@@ -142,12 +124,6 @@ module Closets
     ## Shelf Stack
     @@selection = Sketchup.active_model.selection
 
-    if(selectionIsEdge)
-      defaultWidth = (@@selection[0].length)
-    else
-      defaultWidth = 25.5
-    end
-
     prompts = ["Width Type", "Width", "Depth", "Gable Height", "Shelves/Stack", "# of Drawers", "# of Sections", "Floor Unit", "Placement"]
     defaults = ["Total", defaultWidth.to_l, 15.to_l, 72.to_l, 5, 0, 1, "No", "Center"]
     list = ["Total|Shelf", "", "", "", "", "", "", "Yes|No", "Left|Center|Right"]
@@ -156,9 +132,9 @@ module Closets
     return if (input == false)
 
     type      = input[0]
-    width     = input[1]*unit_length
-    depth     = input[2]*unit_length
-    height    = input[3]*unit_length
+    width     = input[1]
+    depth     = input[2]
+    height    = input[3]
     shelves   = input[4]
     drawers   = input[5]
     sections  = input[6]
