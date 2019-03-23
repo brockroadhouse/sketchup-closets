@@ -37,6 +37,7 @@ module Closets
   end
 
   def self.setParts
+    @@total = 0
     @@comps = Hash.new
     @@selection.each do |s|
       getSelectionComps(s)

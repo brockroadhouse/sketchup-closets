@@ -12,7 +12,7 @@ module Closets
     }
     dialog = UI::HtmlDialog.new(options)
     dialog.set_file(htmlFile)
-    dialog.set_size(600, 400)
+    dialog.set_size(600, 650)
     dialog.center
     dialog
   end
@@ -27,20 +27,26 @@ module Closets
     }
     dialog = UI::HtmlDialog.new(options)
     dialog.set_file(htmlFile)
-    dialog.set_size(500, 400)
+    dialog.set_size(520, 750)
     dialog.center
     dialog
   end
 
   def self.show_dialog
+    startOperation('Open Build Dialog')
+
     @dialog ||= self.create_dialog
     @dialog.add_action_callback("ready") { |action_context|
       self.update_dialog
       nil
     }
-    @dialog.add_action_callback("build") { |action_context, closet|
-      self.build(closet)
-      @dialog.close
+    @dialog.add_action_callback("build") { |action_context, closet, params|
+      self.build(closet, params)
+      #@dialog.close
+      nil
+    }
+    @dialog.add_action_callback("unbuild") { |action_context, closet, params|
+      Sketchup.undo
       nil
     }
     @dialog.add_action_callback("cancel") { |action_context, value|
@@ -48,6 +54,7 @@ module Closets
       nil
     }
     @dialog.visible? ? @dialog.bring_to_front : @dialog.show
+    endOperation
   end
 
   def self.showRoomDialog
@@ -75,37 +82,59 @@ module Closets
       :height => 84,
       :depthLeft => 24,
       :depthRight => 24,
+      :returnL => 6,
+      :returnR => 6,
       :wallHeight => 96,
     }
-
 
     closetJson  = JSON.pretty_generate(closetHash)
     @room_dialog.execute_script("updateCloset(#{closetJson})")
   end
 
   def self.update_dialog
-    types = [
-      {:value => 'LH', :text => 'Long Hang'},
-      {:value => 'DH', :text => 'Double Hang'},
-      {:value => 'Shelves', :text => 'Shelves'},
-      {:value => 'drawers', :text => 'Drawers'},
-    ]
-    sizes = [
-      {:value => 'eq', :text => 'Equal'},
-      {:value => 'set', :text => '24'},
-    ]
     closets = [
       {
-        :type => '-',
-        :size => '-',
+        :type => '',
+        :size => '',
+        :depth => '',
+        :drawers => '',
+        :shelves => '',
+        :height => ''
       }
+    ]
+    closetParams = {
+      :width => defaultWidth.to_l,
+      :height => 84.inch,
+      :floor => false,
+      :placement => 'Center'
+    }
+    types = [
+      {:value => 'LH', :text => 'Long Hang', :isActive => false},
+      {:value => 'DH', :text => 'Double Hang', :isActive => false},
+      {:value => 'Shelves', :text => 'Shelves', :isActive => false},
+      {:value => 'Drawers', :text => 'Drawers', :isActive => false},
+    ]
+    placements = [
+      {:value => 'Left', :text => 'L'},
+      {:value => 'Center', :text => 'C'},
+      {:value => 'Right', :text => 'R'},
     ]
 
 
-    closetsJson  = JSON.pretty_generate(closets)
-    typesJson   = JSON.pretty_generate(types)
-    sizesJson   = JSON.pretty_generate(sizes)
-    @dialog.execute_script("updateCloset(#{closetsJson}, #{typesJson}, #{sizesJson})")
+    closetsJson       = JSON.generate(closets)
+    closetParamsJson  = JSON.generate(closetParams)
+    typesJson         = JSON.generate(types)
+    placementsJson    = JSON.generate(placements)
+    @dialog.execute_script("updateCloset(#{closetsJson}, #{closetParamsJson}, #{typesJson}, #{placementsJson})")
+  end
+
+  def self.update_width
+    return unless selectionIsEdge
+    updateHash = {
+      :width => defaultWidth.to_l
+    }
+    updateJson    = JSON.generate(updateHash)
+    @dialog.execute_script("updateWidth(#{updateJson})")
   end
 
   def self.buildRoom(closet)
@@ -116,6 +145,8 @@ module Closets
       closet['width'].to_l,
       closet['depthLeft'].to_l,
       closet['depthRight'].to_l,
+      closet['returnL'].to_l,
+      closet['returnR'].to_l,
       closet['height'].to_l,
       closet['wallHeight'].to_l
     )
@@ -123,12 +154,35 @@ module Closets
     endOperation
   end
 
-  def self.build(closet)
-    puts closet
-    return
-    startOperation('Build Closet')
+  def self.on_selection_change(selection)
+    self.update_width
+  end
 
-    endOperation
+  PLUGIN ||= self
+  class SelectionChangeObserver < Sketchup::SelectionObserver
+    def onSelectionBulkChange(selection)
+      PLUGIN.on_selection_change(selection)
+    end
+  end
+
+  class AppObserver < Sketchup::AppObserver
+    def onNewModel(model)
+      observe_model(model)
+    end
+    def onOpenModel(model)
+      observe_model(model)
+    end
+    def expectsStartupModelNotifications
+      return true
+    end
+    private
+    def observe_model(model)
+      model.selection.add_observer(SelectionChangeObserver.new)
+    end
+  end
+
+  unless file_loaded?(__FILE__)
+    Sketchup.add_observer(AppObserver.new)
   end
 
 end

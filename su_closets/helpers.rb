@@ -130,7 +130,7 @@ module Closets
   end
 
   def self.selectionIsEdge
-    return @@selection.first.is_a?(Sketchup::Edge)
+    return defined?(@@selection) ? @@selection.first.is_a?(Sketchup::Edge) : false
   end
 
   def self.selectionHeight
@@ -163,8 +163,7 @@ module Closets
     moveTo(pt)
 
     diff  = @@selection[0].end.position[1] - @@selection[0].start.position[1]
-
-    rotateTo(location, diff>0) unless (diff == 0)
+    rotateTo(location, diff>0) unless (diff.abs < 1)
   end
 
   def self.addTitle(name, pt)
@@ -208,9 +207,14 @@ module Closets
     end
   end
 
+  def self.addShelves(width, depth, locations, dimension = true)
+    locations.each_with_index do |location, i|
+      self.addShelf(width, depth, location, i==0)
+    end
+  end
+
   def self.addShelf (width, depth, location, dimension = false)
     compName = "#{width}\" x #{depth}\" Shelf"
-
     compDefinition = Sketchup.active_model.definitions[compName]
     transformation = Geom::Transformation.new(location)
     if (!compDefinition)
@@ -300,6 +304,131 @@ module Closets
     else
       @@currentEnt.add_instance(compDefinition, transformation)
     end
+  end
+
+  def self.splitWidth(width, place)
+    if (placement == "Center")
+      numGables = 0
+    elsif (placement == "Shelves")
+      numGables = 2
+    else
+      numGables = 1
+    end
+
+    sections = ((width-@@thickness)/(32 + @@thickness)).ceil
+    width = (width - (sections+1-numGables)*@@thickness)/sections
+    return {:sections => sections, :width => width}
+  end
+
+  def self.dividedWidth(closets, params)
+    dividedWidth = params['width'].to_l
+    dividedWidth -= @@thickness if params['placement']=='Center'
+    sections = 0
+    closets.each do |closet|
+      sections += 1 if (closet['size'].empty?)
+      dividedWidth -= (closet['size'].to_l + @@thickness)
+    end
+
+    params['sectionWidth'] = dividedWidth/sections
+  end
+
+  def self.setHeights(closets, params)
+
+    floor = params['floor']
+    floorHeight = params['height'].empty? ? @@floorHeight : params['height'].to_l
+    buildHeight = 0
+    buildDepth = 0
+
+    closets.each do |closet|
+      case closet['type']
+      when "LH"
+        depth  = closet['depth'].empty? ? (floor ? @@floorDepth : @@hangDepth) : closet['depth']
+        height = floor ? floorHeight : @@lhHeight
+      when "DH"
+        depth  = closet['depth'].empty? ? (floor ? @@floorDepth : @@hangDepth) : closet['depth']
+        height = floor ? floorHeight : @@dhHeight
+      when "Shelves", "Drawers"
+        closet['shelves'] = closet['shelves'].empty? ? 5 : closet['shelves'].to_i
+        if (closet['type'] == "Drawers")
+          closet['drawers'] = closet['drawers'].empty? ? 4 : closet['drawers'].to_i
+        else
+          closet['drawers'] = 0
+        end
+        depth  = closet['depth'].empty? ? @@floorDepth : closet['depth']
+        height = closet['height'].empty? ? (floor ? floorHeight : 76.inch) : closet['height']
+      end
+      closet['width']   = closet['size'].empty? ? params['sectionWidth'].to_l : closet['size'].to_l
+      closet['depth']   = depth.to_l
+      closet['height']  = height.to_l
+      buildHeight = closet['height'] if (closet['height'] > buildHeight)
+      buildDepth = closet['depth'] if (closet['depth'] > buildDepth)
+    end
+    params['buildHeight'] = buildHeight.to_l
+    params['buildDepth'] = buildDepth.to_l
+  end
+
+  def self.setPlacements(build, params)
+    totalPlacement = params['placement']
+    if (build.length == 1)
+      build[0]['placement'] = totalPlacement
+      build[0]['offset']    = @@thickness * 2
+      return
+    end
+
+    build.map.with_index do |closet, i|
+      # Placements
+      if (i == 0) # First
+        isNextTaller = (build[i+1]['height'] >= closet['height'])
+        if (totalPlacement=="Right")
+          placement = isNextTaller ? "Shelves" : "Right"
+        else
+          placement = isNextTaller ? "Left" : "Center"
+        end
+      elsif (i == build.count-1) # Last
+        isPrevTaller = (build[i-1]['height'] > closet['height'])
+        if (totalPlacement=="Left")
+          placement = isPrevTaller ? "Shelves" : "Left"
+        else
+          placement = isPrevTaller ? "Right" : "Center"
+        end
+      else
+        lastH = build[i-1]['height']
+        nextH = build[i+1]['height']
+        thisH = closet['height']
+
+        if    (lastH <= thisH && thisH > nextH)
+          placement = "Center"
+        elsif (lastH <= thisH && thisH <= nextH)
+          placement = "Left"
+        elsif (lastH > thisH && thisH > nextH)
+          placement = "Right"
+        elsif (lastH > thisH && thisH <= nextH)
+          placement = "Shelves"
+        end
+
+      end
+
+      # Offsets
+      if (placement == "Center")
+        offset = @@thickness * 2
+      elsif (placement == "Shelves")
+        offset = 0
+      else
+        offset = @@thickness
+      end
+
+      closet['placement'] = placement
+      closet['offset']    = offset
+    end
+  end
+
+  def self.setClosets(build, params)
+    # build => {"depth"=>"", "drawers"=>"", "height"=>"", "shelves"=>"", "size"=>"", "type"=>"DH"}
+
+    dividedWidth(build, params)
+    setHeights(build, params)
+    setPlacements(build, params)
+
   end
 
   def self.setMixedParams(build)

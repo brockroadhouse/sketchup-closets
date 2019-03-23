@@ -146,7 +146,6 @@ module Closets
       buildShelfStack(type, width, depth, height, shelves, drawers, sections, floor, placement)
     else
       UI.messagebox("Must have at least 1 section")
-      testItem
     end
 
     endOperation
@@ -156,16 +155,9 @@ module Closets
   # Checks if this script file has been loaded before in this SU session
   unless file_loaded?(__FILE__) # If not, create menu entries
     extMenu = UI.menu("Plugins").add_submenu("Closets")
-    #shapes_menu.add_item("Poop") {fartBox}
     extMenu.add_item("Create Walls") {showRoomDialog}
     #extMenu.add_item("Simple Long Hang") {createSimpleLH}
-    #extMenu.add_item("Long Hang") {createLH}
-    #extMenu.add_item("Double Hang") {createDH}
-    #extMenu.add_item("Add Shelf") {createShelf}
-    #extMenu.add_item("Shelf Stack") {createShelfStack}
-    #extMenu.add_item("Floor Double Hang") {buildFloorDH}
-    extMenu.add_item("Build Closet") {createMixed}
-    #extMenu.add_item("Dialog") {show_dialog}
+    extMenu.add_item("Build Closet") {show_dialog}
     extMenu.add_item("Export Cut List") {exportCutList}
     #extMenu.add_item("Export SVG") {exportSvg} #NOTREADY
 

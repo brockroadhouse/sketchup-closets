@@ -5,193 +5,145 @@
   <script src="vendor/jquery.js"></script>
   <script src="vendor/Semantic-UI/semantic.min.js"></script>
   <script src="vendor/vue.js"></script>
+  <style>
+    .ui.button.checkbox label::before,
+    .ui.button.checkbox label::after{
+      display: none;
+    }
+    .ui.button.checkbox input{
+      width: 100%;
+      height: 100%;
+    }
+    .ui.button.checkbox label{
+      padding-left: 0;
+    }
+    .ui.grid .tight.column{
+      padding: 1rem 0.5rem;
+    }
+    .hidden {
+      display: none !important;
+    }
+  </style>
 </head>
 <body>
   <div id="app">
-    <template v-if="closet">
+    <template v-if="closets">
     <form class="ui form">
-      <div class="ui padded celled grid">
+      <div class="ui padded grid" v-bind:class="closetParams.floor ? 'four column' : 'three column'">
         <div class="centered column row">
           <h1 class="ui dividing header">Build Closet</h1>
         </div>
 
-        <div class="eight wide column">
-          <div class="ui middle aligned padded centered grid">
-            <div class="centered column row">
-              <h2 class="ui dividing header">Walls</h2>
-              <div class="divider"></div>
+        <div class="row">
+          <div class="column">
+            <div class="fluid field">
+              <label>Total Width</label>
+              <input placeholder="Width"
+                      v-model="closetParams.width">
             </div>
+          </div>
 
-            <div class="row">
-              <div class="left aligned four wide column">
-                <div class="field">
-                  <label>Name</label>
-                  <input placeholder="Name"
-                          v-model="closet.name">
-                </div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="left aligned four wide column">
-                <div class="field">
-                  <label>Width</label>
-                  <input type="number" placeholder="Width"
-                          v-model.number="closet.width">
-                </div>
-              </div>
-            </div>
-
-            <div class="left aligned three wide column">
-              <div class="field">
-                <label>Left Depth</label>
-                <input type="number" placeholder="Depth"
-                          v-model.number="closet.depthLeft">
-              </div>
-            </div>
-
-            <div class="ten wide column">
-              <img src="closetWalls.png" width="100%" />
-            </div>
-
-            <div class="left aligned three wide column">
-              <div class="field">
-                  <label>Right Depth</label>
-                  <input type="number" placeholder="Depth"
-                          v-model.number="closet.depthRight">
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="left aligned four wide column">
-                <div class="field">
-                  <label>Wall Height</label>
-                  <input type="number" placeholder="Width"
-                          v-model.number="closet.wallHeight">
-                </div>
+          <div class="center aligned column">
+            <div class="field">
+              <label>Placement</label>
+              <div class="ui fluid mini buttons">
+                <template v-for="placement in placements">
+                    <div class="ui button checkbox" v-bind:class="{ 'active': closetParams.placement == placement.value }">
+                      <input type="radio" v-bind:value="placement.value" v-model="closetParams.placement">
+                      <label>{{ placement.text }}</label>
+                    </div>
+                </template>
               </div>
             </div>
           </div>
 
+          <div class="center aligned column" v-bind:class="closetParams.floor ? '' : 'hidden'">
+            <div class="fluid field">
+              <label>Floor Height</label>
+              <input placeholder="Height"
+                      v-model="closetParams.height">
+            </div>
+          </div>
+
+          <div class="right aligned column">
+            <div class="field">
+              <label>Floor Mount</label>
+              <div class="ui toggle checkbox" style="margin-top: 0.5em;">
+                <input type="checkbox" v-model="closetParams.floor">
+                <label></label>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="eight wide column">
-          <div class="ui padded grid">
-            <div class="centered column row">
-              <h2 class="ui dividing header">Closet Details</h2>
-            </div>
+        <div class="ui vertical segment middle aligned row">
+          <div class="seven wide column">
+            <span class="ui large header">Sections</span>
+            <span class="ui medium icon right floated positive button" v-on:click="addSection">
+              <i class="plus icon"></i>Add
+            </span>
+          </div>
+        </div>
 
-            <div class="two wide column">
-              <div class="row">
-                <h4 class="ui header left floated">Left Wall</h4>
-                <button class="ui mini right floated icon button">
-                  <i class="plus icon" v-on:click="addLeft"></i>
-                </button>
-              </div>
-
-              <template v-for="(l, index) in left">
-                <div class="column">
-                  <select class="ui dropdown" v-model="l.type">
-                    <option value="">-</option>
-                    <option v-for="type in types" v-bind:value="type.value">
-                      {{ type.text }}
-                    </option>
-                  </select>
-                </div>
-                <div class="column">
-                  <select class="ui dropdown" v-model="l.size">
-                    <option value="">-</option>
-                    <option v-for="size in sizes" v-bind:value="size.value">
-                      {{ size.text }}
-                    </option>
-                  </select>
-                </div>
-              </template>
-            </div>
-
-            <div class="two wide column">
-              <div class="row">
-                <h4 class="ui header left floated">Center Wall</h4>
-                <button class="ui mini right floated icon button">
-                  <i class="plus icon" v-on:click="add"></i>
-                </button>
-              </div>
-              <template v-for="(input, index) in centerClosets">
-                <div class="column">
-                  <select class="ui dropdown" v-model="center.type[index]">
-                    <option value="">-</option>
-                    <option v-for="type in types" v-bind:value="type.value">
-                      {{ type.text }}
-                    </option>
-                  </select>
-                </div>
-                <div class="column">
-                  <select class="ui dropdown" v-model="center.size[index]">
-                    <option value="">-</option>
-                    <option v-for="size in sizes" v-bind:value="size.value">
-                      {{ size.text }}
-                    </option>
-                  </select>
-                </div>
-              </template>
-            </div>
-
-            <div class="two wide column">
-              <div class="row">
-                <h4 class="ui header left floated">Right Wall</h4>
-                <button class="ui mini right floated icon button">
-                  <i class="plus icon" v-on:click="add"></i>
-                </button>
-              </div>
-
-              <template v-for="(input, index) in rightClosets">
-                <div class="column">
-                  <select class="ui dropdown" v-model="right.type[index]">
-                    <option value="">-</option>
-                    <option v-for="type in types" v-bind:value="type.value">
-                      {{ type.text }}
-                    </option>
-                  </select>
-                </div>
-                <div class="column">
-                  <select class="ui dropdown" v-model="right.size[index]">
-                    <option value="">-</option>
-                    <option v-for="size in sizes" v-bind:value="size.value">
-                      {{ size.text }}
-                    </option>
-                  </select>
-                </div>
-              </template>
-            </div>
-
-            <div class="two column row">
-              <div class="column">
-                <div class="fluid field">
-                  <label>Height</label>
-                  <input type="number" placeholder="Height"
-                          v-model.number="closet.height">
-                </div>
-              </div>
-
-              <div class="column">
-                <div class="field">
-                  <label>Floor Mount</label>
-                  <div class="ui toggle checkbox" style="margin-top: 0.5em;">
-                    <input type="checkbox" v-model="closet.floor">
-                    <label></label>
+        <template v-for="(closet, index) in closets">
+          <div class="ui vertical secondary segment row">
+            <div class="column" v-bind:class="closets.length < 2 ? 'sixteen wide' : 'fifteen wide'">
+              <div class="ui fluid buttons">
+              <template v-for="type in types">
+                  <div class="ui button checkbox" v-bind:class="{ 'active': closet.type == type.value }">
+                    <input type="radio" v-bind:value="type.value" v-model="closet.type">
+                    <label>{{ type.value }}</label>
                   </div>
+              </template>
+              </div>
+            </div>
+            <div class="one wide middle aligned right floated column" v-bind:class="{hidden: closets.length < 2}">
+              <div class="ui mini icon right floated negative button" v-on:click="removeSection(index)">
+                <i class="minus icon"></i>
+              </div>
+            </div>
+            <div class="sixteen wide center aligned column">
+              <div class="ui padded" v-bind:class="[
+                closet.type ?
+                  ((closet.type == 'LH' || closet.type == 'DH')
+                  ? 'two column grid'
+                  : ((closet.type == 'Shelves' && closetParams.floor)
+                    ? 'three column grid'
+                    : ((closet.type == 'Shelves' || (closet.type == 'Drawers' && closetParams.floor))
+                      ? 'four column grid'
+                      : 'five column grid')))
+                  : 'hidden' ]">
+                <div class="tight column" data-tooltip="Defaults to split evenly">
+                  <input v-model="closet.size" placeholder="Width">
+                </div>
+                <div class="tight column"
+                    v-bind:data-tooltip='"Defaults to " + ((closet.type=="LH" || closet.type=="DH") ? 12 : 14)
+                        + (closetParams.floor ? "3/4" : "") + "\""'>
+                  <input v-model="closet.depth" placeholder="Depth">
+                </div>
+                <div class="tight column" v-bind:data-tooltip='"Defaults to " + (closetParams.floor ? 84 : 76) + "\""'
+                      v-bind:class="[ (closet.type == 'LH' || closet.type == 'DH' || closetParams.floor) ? 'hidden' : '' ]">
+                  <input v-model="closet.height" placeholder="Height">
+                </div>
+                <div class="tight column" data-tooltip="Defaults to 5"
+                      v-bind:class="[ (closet.type != 'Drawers' && closet.type != 'Shelves') ? 'hidden' : '' ]">
+                  <input v-model="closet.shelves" placeholder="Shelves">
+                </div>
+                <div class="tight column" data-tooltip="Defaults to 4"
+                      v-bind:class="[ (closet.type != 'Drawers') ? 'hidden' : '' ]">
+                  <input v-model="closet.drawers" placeholder="Drawers">
                 </div>
               </div>
             </div>
-
           </div>
-        </div>
-
-      </div>
+        </template>
+      </div> <!-- grid -->
 
       <div style="padding: 1em;">
-        <button class="ui primary button" v-on:click="build">Build</button>
-        <button class="ui button" v-on:click="cancel">Cancel</button>
+        <div class="ui primary button" v-on:click="build">Build</div>
+        <div class="ui button" v-on:click="cancel">Cancel</div>
+        <div class="ui negative button" v-on:click="unbuild" v-bind:class="{'hidden': !isBuilt}">Undo Build</div>
+
       </div>
     </form>
     </template>
@@ -200,51 +152,49 @@
     </template>
   </div><!-- app -->
   <script>
+
     var app = new Vue({
       el: '#app',
       data: {
-        closet: null,
+        closets: null,
+        closetParams: null,
         types:  null,
-        sizes:  null,
-        left:   null,
-        center: null,
-        centerClosets: [],
-        rightClosets: [],
-        right:  null
+        types:  null,
+        isBuilt: false,
       },
       methods: {
         build: function() {
-          sketchup.build(this.closet, this.left, this.center, this.right);
+          this.isBuilt = true;
+          sketchup.build(this.closets, this.closetParams);
+        },
+        unbuild: function() {
+          sketchup.unbuild();
         },
         cancel: function() {
           sketchup.cancel();
         },
-        addLeft: function(e) {
-          console.log(e);
-          e.preventDefault();
-          console.log('added Left');
-          this.left.push({type: 'LH', size: 'Equal'});
+        addSection: function() {
+          this.closets.push({type: '', size: '', depth: '', height: '', drawers: '', shelves: ''});
         },
-        add: function(e) {
-          console.log(e);
-          e.preventDefault();
-          console.log('added');
-          this.centerClosets.push({val: 'value'});
+        removeSection: function(i) {
+          if(this.closets.length>1){
+            this.closets.splice(i, 1);
+          }
         },
       },
       mounted: function() {
         sketchup.ready();
       },
     });
-    function updateCloset(closet, types, sizes, left, center, right) {
-      app.closet  = closet;
-      app.types   = types;
-      app.sizes   = sizes;
-      app.left    = left;
-      app.center  = center;
-      app.right   = right;
-      app.centerClosets = [];
-    }
+    function updateWidth(update) {
+      app.closetParams.width = update.width;
+    };
+    function updateCloset(closets, closetParams, types, placements) {
+      app.closets       = closets;
+      app.closetParams  = closetParams;
+      app.types         = types;
+      app.placements    = placements;
+    };
   </script>
 </body>
 </html>
