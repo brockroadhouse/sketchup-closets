@@ -127,6 +127,14 @@ module Closets
       drawerHeight += @@drawer
     end
 
+    if (closet['doors'])
+      doorWidth = (width+@@thickness)/2
+      doorHeight = height-drawerHeight-drawerZ-(@@thickness/2)
+      firstDoorX = posX-@@thickness/2
+      addDoor(doorWidth, doorHeight, [firstDoorX, posY, posZ+drawerHeight+drawerZ])
+      addDoor(doorWidth, doorHeight, [firstDoorX+doorWidth, posY, posZ+drawerHeight+drawerZ])
+    end
+
     if (floor)
       addCleat(width, [posX, posY+depth, posZ+height-@@thickness-@@cleat])
       addCleat(width, [posX, posY+depth-1, posZ])
@@ -134,28 +142,6 @@ module Closets
     else
       addCleat(width, [posX, posY+depth, posZ+@@thickness])
     end
-  end
-
-  def self.buildSimpleLH (width)
-    sections = ((width-@@thickness)/(32 + @@thickness)).ceil
-    shelfWidth = (width - (sections+1)*@@thickness)/sections
-
-    pos = 0
-    depth = @@hangDepth
-    height = 10
-    # Left gable
-    addGable(12, height)
-
-    sections.times do |i|
-      pos += @@thickness
-      addShelf(shelfWidth, depth, [pos, 0, height], true)
-      addRod(shelfWidth, [pos, 0, height])
-      addCleat(shelfWidth, [pos, depth, 0])
-      pos += shelfWidth
-      addGable(depth, height, [pos, 0, 0])
-    end
-
-    moveToSelection(depth, height)
   end
 
   def self.buildFloorLHShelves (closet)
@@ -375,6 +361,8 @@ module Closets
 
       posX = closet['location'][0]
     end
+
+    addWallRail(params['width'].to_l, [0, buildDepth+1, buildHeight-3.inch]) unless floor
 
     @@move = true
     moveToSelection(buildDepth, buildHeight)

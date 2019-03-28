@@ -288,6 +288,35 @@ module Closets
     end
   end
 
+  def self.addDoor (width, height, location=[0,0,0])
+    compName = "#{width}\" x #{height}\" Door"
+
+    compDefinition = Sketchup.active_model.definitions[compName]
+    transformation = Geom::Transformation.new(location)
+    if (!compDefinition)
+      door = [
+        Geom::Point3d.new(0, 0, 0),
+        Geom::Point3d.new(width, 0, 0),
+        Geom::Point3d.new(width, 0, height),
+        Geom::Point3d.new(0, 0, height),
+      ]
+      group = addFace(door, @@thickness)
+
+      comp = group.to_component
+      comp.definition.name = compName
+
+      comp.move! transformation
+    else
+      comp = @@currentEnt.add_instance(compDefinition, transformation)
+    end
+    addToLayer(comp, "Doors")
+  end
+
+  def self.addToLayer(component, layerName)
+    layer = @@model.layers[layerName] || @@model.layers.add(layerName)
+    component.layer = layer
+  end
+
   def self.addRod (width, location)
     # location[x,y,z] are the coords of the bottom corner of shelf
     compName = "#{width}\" Closet Rod"
@@ -301,6 +330,28 @@ module Closets
         Geom::Point3d.new(0, 1, -1.5),
       ]
       group = addFace(rod, width, true)
+      comp = group.to_component
+      comp.definition.name = compName
+
+      comp.move! transformation
+    else
+      @@currentEnt.add_instance(compDefinition, transformation)
+    end
+  end
+
+  def self.addWallRail (width, location)
+    compName = "#{width} Wall Rail"
+
+    compDefinition = Sketchup.active_model.definitions[compName]
+    transformation = Geom::Transformation.new(location)
+    if (!compDefinition)
+      rail = [
+        Geom::Point3d.new(0, 0, 0),
+        Geom::Point3d.new(width, 0, 0),
+        Geom::Point3d.new(width, 0, 1),
+        Geom::Point3d.new(0, 0, 1),
+      ]
+      group = addFace(rail, -1)
       comp = group.to_component
       comp.definition.name = compName
 

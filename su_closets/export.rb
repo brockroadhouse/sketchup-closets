@@ -7,6 +7,7 @@ module Closets
   @@parts
   @@cost = 0.09
   @@rodCost = 0.5
+  @@railCost = 1
   @@drawerCost = 77.5
   @@total = 0
 
@@ -68,13 +69,19 @@ module Closets
         elsif (name.include? "Cleat")
           cost = c*w.to_f*d.to_f*@@cost
           @@parts << ["Cleat", c, w, d, h, "$"+@@cost.to_s, sprintf("$%2.2f", cost)]
+        elsif (name.include? "Door")
+          cost = c*w.to_f*d.to_f*@@cost
+          @@parts << ["Door", c, w, d, h, "$"+@@cost.to_s, sprintf("$%2.2f", cost)]
         elsif (name.include? "Drawer")
           rate = (w.to_f*d.to_f*@@cost+@@drawerCost)
           cost = c*rate
           @@parts << ["Drawer", c, w, d, h,sprintf("$%2.2f",rate), sprintf("$%2.2f", cost)]
         elsif (name.include? "Rod")
           cost = c*w.to_f*@@rodCost
-          @@parts << ["Rod", c, w, 1, 1.5, sprintf("$%2.2f", @@rodCost), sprintf("$%2.2f", cost)]
+          @@parts << ["Rod", c, w, '1"', '1.5"', sprintf("$%2.2f", @@rodCost), sprintf("$%2.2f", cost)]
+        elsif (name.include? "Rail")
+          cost = c*w.to_f*@@railCost
+          @@parts << ["Wall Rail", c, w, '1"', '1"', sprintf("$%2.2f", @@railCost), sprintf("$%2.2f", cost)]
         end
         closetTotal += cost
       end

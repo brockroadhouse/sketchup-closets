@@ -20,6 +20,9 @@
     .ui.button.checkbox label{
       padding-left: 0;
     }
+    .ui.toggle.checkbox .box:before, .ui.toggle.checkbox label:before {
+      background-color: #c0c1c2;
+    }
     .ui.grid .tight.column{
       padding: 1rem 0.5rem;
     }
@@ -142,9 +145,17 @@
                 </div>
                 <div class="tight column field"
                       v-bind:class="[ (closet.type == 'VH' && closetParams.floor) ? '' : 'hidden' ]">
-                  <label>Tall Rod</label>
+                  <label>High Rod</label>
                   <div class="ui toggle checkbox">
                     <input type="checkbox" v-model="closet.reverse">
+                    <label></label>
+                  </div>
+                </div>
+                <div class="tight column field"
+                      v-bind:class="[ (closet.type == 'Drawers' || closet.type == 'Shelves') ? '' : 'hidden' ]">
+                  <label>Doors</label>
+                  <div class="ui toggle checkbox">
+                    <input type="checkbox" v-model="closet.doors">
                     <label></label>
                   </div>
                 </div>
@@ -188,7 +199,7 @@
           sketchup.cancel();
         },
         addSection: function() {
-          this.closets.push({type: '', size: '', depth: '', height: '', drawers: '', shelves: '', reverse: false});
+          this.closets.push({type: '', size: '', depth: '', height: '', drawers: '', shelves: '', reverse: false, doors: false});
         },
         removeSection: function(i) {
           if(this.closets.length>1){

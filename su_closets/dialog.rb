@@ -100,6 +100,7 @@ module Closets
         :shelves => '',
         :height => '',
         :reverse => false,
+        :doors => false,
       }
     ]
     closetParams = {
@@ -112,8 +113,8 @@ module Closets
       'LH' => {:sections => 'two', :floorSections => 'two', :depth => 12, :height => 24, :shelves => 0},
       'DH' => {:sections => 'two', :floorSections => 'two', :depth => 12, :height => 48, :shelves => 0},
       'VH' => {:sections => 'four', :floorSections => 'four', :depth => 12, :height => 12, :shelves => 2},
-      'Shelves' => {:sections => 'four', :floorSections => 'three', :depth => '14 3/4', :height => 76, :shelves => 5},
-      'Drawers' => {:sections => 'five', :floorSections => 'four', :depth => '14 3/4', :height => 76, :shelves => 5},
+      'Shelves' => {:sections => 'five', :floorSections => 'four', :depth => '14 3/4', :height => 76, :shelves => 5},
+      'Drawers' => {:sections => 'six', :floorSections => 'five', :depth => '14 3/4', :height => 76, :shelves => 5},
     }
     placements = [
       {:value => 'Left', :text => 'L'},
