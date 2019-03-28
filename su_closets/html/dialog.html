@@ -10,6 +10,9 @@
     .ui.button.checkbox label::after{
       display: none;
     }
+    .field .ui.toggle.checkbox {
+      margin-top: 0.5em;
+    }
     .ui.button.checkbox input{
       width: 100%;
       height: 100%;
@@ -22,6 +25,12 @@
     }
     .hidden {
       display: none !important;
+    }
+    .tight.column.field {
+      margin-bottom: 0;
+    }
+    .tight.column.field label {
+      /* display: none; */
     }
   </style>
 </head>
@@ -59,7 +68,7 @@
 
           <div class="center aligned column" v-bind:class="closetParams.floor ? '' : 'hidden'">
             <div class="fluid field">
-              <label>Floor Height</label>
+              <label>Closet Height</label>
               <input placeholder="Height"
                       v-model="closetParams.height">
             </div>
@@ -68,7 +77,7 @@
           <div class="right aligned column">
             <div class="field">
               <label>Floor Mount</label>
-              <div class="ui toggle checkbox" style="margin-top: 0.5em;">
+              <div class="ui toggle checkbox">
                 <input type="checkbox" v-model="closetParams.floor">
                 <label></label>
               </div>
@@ -89,10 +98,10 @@
           <div class="ui vertical secondary segment row">
             <div class="column" v-bind:class="closets.length < 2 ? 'sixteen wide' : 'fifteen wide'">
               <div class="ui fluid buttons">
-              <template v-for="type in types">
-                  <div class="ui button checkbox" v-bind:class="{ 'active': closet.type == type.value }">
-                    <input type="radio" v-bind:value="type.value" v-model="closet.type">
-                    <label>{{ type.value }}</label>
+              <template v-for="(type, name) in types">
+                  <div class="ui button checkbox" v-bind:class="{ 'active': closet.type == name }">
+                    <input type="radio" v-bind:value="name" v-model="closet.type">
+                    <label>{{ name }}</label>
                   </div>
               </template>
               </div>
@@ -102,36 +111,42 @@
                 <i class="minus icon"></i>
               </div>
             </div>
-            <div class="sixteen wide center aligned column">
+            <div class="sixteen wide column">
               <div class="ui padded" v-bind:class="[
                 closet.type ?
-                  ((closet.type == 'LH' || closet.type == 'DH')
-                  ? 'two column grid'
-                  : ((closet.type == 'Shelves' && closetParams.floor)
-                    ? 'three column grid'
-                    : ((closet.type == 'Shelves' || (closet.type == 'Drawers' && closetParams.floor))
-                      ? 'four column grid'
-                      : 'five column grid')))
+                  (closetParams.floor ? types[closet.type].floorSections : types[closet.type].sections) + ' column grid'
                   : 'hidden' ]">
-                <div class="tight column" data-tooltip="Defaults to split evenly">
+                <div class="tight column field" data-tooltip="Defaults to split evenly">
+                  <label>Width</label>
                   <input v-model="closet.size" placeholder="Width">
                 </div>
-                <div class="tight column"
-                    v-bind:data-tooltip='"Defaults to " + ((closet.type=="LH" || closet.type=="DH") ? 12 : 14)
-                        + (closetParams.floor ? "3/4" : "") + "\""'>
+                <div class="tight column field"
+                    v-bind:data-tooltip='(closet.type ? "Defaults to " + types[closet.type].depth + "\"" : "")'>
+                  <label>Depth</label>
                   <input v-model="closet.depth" placeholder="Depth">
                 </div>
-                <div class="tight column" v-bind:data-tooltip='"Defaults to " + (closetParams.floor ? 84 : 76) + "\""'
+                <div class="tight column field" v-bind:data-tooltip='(closet.type ? "Defaults to " + types[closet.type].height + "\"" : "")'
                       v-bind:class="[ (closet.type == 'LH' || closet.type == 'DH' || closetParams.floor) ? 'hidden' : '' ]">
+                  <label>Height</label>
                   <input v-model="closet.height" placeholder="Height">
                 </div>
-                <div class="tight column" data-tooltip="Defaults to 5"
-                      v-bind:class="[ (closet.type != 'Drawers' && closet.type != 'Shelves') ? 'hidden' : '' ]">
+                <div class="tight column field" v-bind:data-tooltip='(closet.type ? "Defaults to " + types[closet.type].shelves : "")'
+                      v-bind:class="[ (closet.type != 'VH' && closet.type != 'Drawers' && closet.type != 'Shelves') ? 'hidden' : '' ]">
+                  <label>Shelves</label>
                   <input v-model="closet.shelves" placeholder="Shelves">
                 </div>
-                <div class="tight column" data-tooltip="Defaults to 4"
+                <div class="tight column field" data-tooltip="Defaults to 4"
                       v-bind:class="[ (closet.type != 'Drawers') ? 'hidden' : '' ]">
+                  <label>Drawers</label>
                   <input v-model="closet.drawers" placeholder="Drawers">
+                </div>
+                <div class="tight column field"
+                      v-bind:class="[ (closet.type == 'VH' && closetParams.floor) ? '' : 'hidden' ]">
+                  <label>Tall Rod</label>
+                  <div class="ui toggle checkbox">
+                    <input type="checkbox" v-model="closet.reverse">
+                    <label></label>
+                  </div>
                 </div>
               </div>
             </div>
@@ -142,7 +157,7 @@
       <div style="padding: 1em;">
         <div class="ui primary button" v-on:click="build">Build</div>
         <div class="ui button" v-on:click="cancel">Cancel</div>
-        <div class="ui negative button" v-on:click="unbuild" v-bind:class="{'hidden': !isBuilt}">Undo Build</div>
+        <div class="ui negative button" v-on:click="unbuild" v-bind:class="{'hidden': !isBuilt}">Undo</div>
 
       </div>
     </form>
@@ -159,7 +174,6 @@
         closets: null,
         closetParams: null,
         types:  null,
-        types:  null,
         isBuilt: false,
       },
       methods: {
@@ -174,7 +188,7 @@
           sketchup.cancel();
         },
         addSection: function() {
-          this.closets.push({type: '', size: '', depth: '', height: '', drawers: '', shelves: ''});
+          this.closets.push({type: '', size: '', depth: '', height: '', drawers: '', shelves: '', reverse: false});
         },
         removeSection: function(i) {
           if(this.closets.length>1){
@@ -186,8 +200,9 @@
         sketchup.ready();
       },
     });
-    function updateWidth(update) {
+    function updateParams(update) {
       app.closetParams.width = update.width;
+      app.closetParams.height = update.height;
     };
     function updateCloset(closets, closetParams, types, placements) {
       app.closets       = closets;

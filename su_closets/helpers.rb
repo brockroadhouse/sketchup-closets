@@ -82,6 +82,10 @@ module Closets
     addGroup(groupName) if (newGroup == true)
   end
 
+  def self.abort
+    @@model.abort_operation
+  end
+
   def self.endOperation
     @@model.commit_operation
   end
@@ -347,6 +351,10 @@ module Closets
       when "DH"
         depth  = closet['depth'].empty? ? (floor ? @@floorDepth : @@hangDepth) : closet['depth']
         height = floor ? floorHeight : @@dhHeight
+      when "VH"
+        closet['shelves'] = closet['shelves'].empty? ? 2 : closet['shelves'].to_i
+        depth  = closet['depth'].empty? ? (floor ? @@floorDepth : @@hangDepth) : closet['depth']
+        height = floor ? floorHeight : (closet['height'].empty? ? @@lhHeight : closet['height'])
       when "Shelves", "Drawers"
         closet['shelves'] = closet['shelves'].empty? ? 5 : closet['shelves'].to_i
         if (closet['type'] == "Drawers")
@@ -375,26 +383,28 @@ module Closets
       return
     end
 
+    key = params['floor'] ? 'depth' : 'height'
+
     build.map.with_index do |closet, i|
       # Placements
       if (i == 0) # First
-        isNextTaller = (build[i+1]['height'] >= closet['height'])
+        isNextTaller = (build[i+1][key] >= closet[key])
         if (totalPlacement=="Right")
           placement = isNextTaller ? "Shelves" : "Right"
         else
           placement = isNextTaller ? "Left" : "Center"
         end
       elsif (i == build.count-1) # Last
-        isPrevTaller = (build[i-1]['height'] > closet['height'])
+        isPrevTaller = (build[i-1][key] > closet[key])
         if (totalPlacement=="Left")
           placement = isPrevTaller ? "Shelves" : "Left"
         else
           placement = isPrevTaller ? "Right" : "Center"
         end
       else
-        lastH = build[i-1]['height']
-        nextH = build[i+1]['height']
-        thisH = closet['height']
+        lastH = build[i-1][key]
+        nextH = build[i+1][key]
+        thisH = closet[key]
 
         if    (lastH <= thisH && thisH > nextH)
           placement = "Center"

@@ -158,6 +158,7 @@ module Closets
     extMenu.add_item("Create Walls") {showRoomDialog}
     #extMenu.add_item("Simple Long Hang") {createSimpleLH}
     extMenu.add_item("Build Closet") {show_dialog}
+    extMenu.add_separator
     extMenu.add_item("Export Cut List") {exportCutList}
     #extMenu.add_item("Export SVG") {exportSvg} #NOTREADY
 

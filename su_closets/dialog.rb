@@ -64,8 +64,7 @@ module Closets
       nil
     }
     @room_dialog.add_action_callback("buildRoom") { |action_context, room|
-      self.buildRoom(room)
-      @room_dialog.close
+      @room_dialog.close if self.buildRoom(room)
       nil
     }
     @room_dialog.add_action_callback("cancel") { |action_context, value|
@@ -99,7 +98,8 @@ module Closets
         :depth => '',
         :drawers => '',
         :shelves => '',
-        :height => ''
+        :height => '',
+        :reverse => false,
       }
     ]
     closetParams = {
@@ -108,12 +108,13 @@ module Closets
       :floor => false,
       :placement => 'Center'
     }
-    types = [
-      {:value => 'LH', :text => 'Long Hang', :isActive => false},
-      {:value => 'DH', :text => 'Double Hang', :isActive => false},
-      {:value => 'Shelves', :text => 'Shelves', :isActive => false},
-      {:value => 'Drawers', :text => 'Drawers', :isActive => false},
-    ]
+    types = {
+      'LH' => {:sections => 'two', :floorSections => 'two', :depth => 12, :height => 24, :shelves => 0},
+      'DH' => {:sections => 'two', :floorSections => 'two', :depth => 12, :height => 48, :shelves => 0},
+      'VH' => {:sections => 'four', :floorSections => 'four', :depth => 12, :height => 12, :shelves => 2},
+      'Shelves' => {:sections => 'four', :floorSections => 'three', :depth => '14 3/4', :height => 76, :shelves => 5},
+      'Drawers' => {:sections => 'five', :floorSections => 'four', :depth => '14 3/4', :height => 76, :shelves => 5},
+    }
     placements = [
       {:value => 'Left', :text => 'L'},
       {:value => 'Center', :text => 'C'},
@@ -128,34 +129,40 @@ module Closets
     @dialog.execute_script("updateCloset(#{closetsJson}, #{closetParamsJson}, #{typesJson}, #{placementsJson})")
   end
 
-  def self.update_width
+  def self.update_width(selection)
     return unless selectionIsEdge
     updateHash = {
-      :width => defaultWidth.to_l
+      :width => defaultWidth.to_l,
+      :height => selectionHeight
     }
+
     updateJson    = JSON.generate(updateHash)
-    @dialog.execute_script("updateWidth(#{updateJson})")
+    @dialog.execute_script("updateParams(#{updateJson})")
   end
 
   def self.buildRoom(closet)
     startOperation('Build Walls', true, closet['name'])
-
-    buildWalls(
-      closet['name'],
-      closet['width'].to_l,
-      closet['depthLeft'].to_l,
-      closet['depthRight'].to_l,
-      closet['returnL'].to_l,
-      closet['returnR'].to_l,
-      closet['height'].to_l,
-      closet['wallHeight'].to_l
-    )
-
+    begin
+      buildWalls(
+        closet['name'],
+        closet['width'].to_l,
+        closet['depthLeft'].to_l,
+        closet['depthRight'].to_l,
+        closet['returnL'].to_l,
+        closet['returnR'].to_l,
+        closet['height'].to_l,
+        closet['wallHeight'].to_l
+      )
+    rescue => e
+      puts "ERROR: " + e.message
+      abort
+      return false
+    end
     endOperation
   end
 
   def self.on_selection_change(selection)
-    self.update_width
+    self.update_width(selection)
   end
 
   PLUGIN ||= self
