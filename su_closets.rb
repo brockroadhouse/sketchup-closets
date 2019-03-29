@@ -15,8 +15,8 @@ module FVCC
     # Create the extension.
     loader = File.join(File.dirname(__FILE__), "su_closets", "main.rb")
     extension = SketchupExtension.new("Closets", loader)
-    extension.description = "Closet builder"
-    extension.version     = "0.91"
+    extension.description = "Closet Builder"
+    extension.version     = "2.0.2"
     extension.creator     = "BROADHOUSE"
     extension.copyright   = "NONE"
 

@@ -113,7 +113,7 @@ module Closets
       Geom::Point3d.new(x, y, 0),
       Geom::Point3d.new(0, y, 0),
     ]
-    group = addFace(face, @@thickness)
+    group = addFace(face, @thickness)
     comp = group.to_component
     comp.definition.name = name
     comp
@@ -201,7 +201,7 @@ module Closets
         Geom::Point3d.new(0, width, height),
         Geom::Point3d.new(0, 0, height),
       ]
-      group = addFace(gable, @@thickness)
+      group = addFace(gable, @thickness)
       comp = group.to_component
       comp.definition.name = compName
 
@@ -222,7 +222,7 @@ module Closets
     compDefinition = Sketchup.active_model.definitions[compName]
     transformation = Geom::Transformation.new(location)
     if (!compDefinition)
-      comp = addComponent(width, depth, @@thickness, compName)
+      comp = addComponent(width, depth, @thickness, compName)
       comp.move! transformation
     else
       comp = @@currentEnt.add_instance(compDefinition, transformation)
@@ -252,7 +252,7 @@ module Closets
         Geom::Point3d.new(0, 0, @@cleat),
       ]
       compName = "#{width}\" Cleat"
-      group = addFace(cleat, @@thickness)
+      group = addFace(cleat, @thickness)
       comp = group.to_component
       comp.definition.name = compName
 
@@ -263,7 +263,7 @@ module Closets
   end
 
   def self.addDrawer (width, height, location=[0,0,0])
-    compName = "#{width}\" Drawer"
+    compName = "#{width}\" x #{height}\" Drawer"
 
     compDefinition = Sketchup.active_model.definitions[compName]
     transformation = Geom::Transformation.new(location)
@@ -274,10 +274,10 @@ module Closets
         Geom::Point3d.new(width, 0, height),
         Geom::Point3d.new(0, 0, height),
       ]
-      group = addFace(drawer, @@thickness)
+      group = addFace(drawer, @thickness)
 
-      pt1 = Geom::Point3d.new(width/2-2, -@@thickness, height/2)
-      pt2 = Geom::Point3d.new(width/2+2, -@@thickness, height/2)
+      pt1 = Geom::Point3d.new(width/2-2, -@thickness, height/2)
+      pt2 = Geom::Point3d.new(width/2+2, -@thickness, height/2)
       group.entities.add_line pt1, pt2
       comp = group.to_component
       comp.definition.name = compName
@@ -300,7 +300,7 @@ module Closets
         Geom::Point3d.new(width, 0, height),
         Geom::Point3d.new(0, 0, height),
       ]
-      group = addFace(door, @@thickness)
+      group = addFace(door, @thickness)
 
       comp = group.to_component
       comp.definition.name = compName
@@ -322,7 +322,7 @@ module Closets
     compName = "#{width}\" Closet Rod"
 
     compDefinition = Sketchup.active_model.definitions[compName]
-    transformation = Geom::Transformation.new([location[0]+0, location[1]+2, location[2]-(1.5+@@thickness)])
+    transformation = Geom::Transformation.new([location[0]+0, location[1]+2, location[2]-(1.5+@thickness)])
     if (!compDefinition)
       rod = [
         Geom::Point3d.new(0, 0, 0),
@@ -370,18 +370,18 @@ module Closets
       numGables = 1
     end
 
-    sections = ((width-@@thickness)/(32 + @@thickness)).ceil
-    width = (width - (sections+1-numGables)*@@thickness)/sections
+    sections = ((width-@thickness)/(32 + @thickness)).ceil
+    width = (width - (sections+1-numGables)*@thickness)/sections
     return {:sections => sections, :width => width}
   end
 
   def self.dividedWidth(closets, params)
     dividedWidth = params['width'].to_l
-    dividedWidth -= @@thickness if params['placement']=='Center'
+    dividedWidth -= @thickness if params['placement']=='Center'
     sections = 0
     closets.each do |closet|
       sections += 1 if (closet['size'].empty?)
-      dividedWidth -= (closet['size'].to_l + @@thickness)
+      dividedWidth -= (closet['size'].to_l + @thickness)
     end
 
     params['sectionWidth'] = dividedWidth/sections
@@ -406,13 +406,9 @@ module Closets
         closet['shelves'] = closet['shelves'].empty? ? 2 : closet['shelves'].to_i
         depth  = closet['depth'].empty? ? (floor ? @@floorDepth : @@hangDepth) : closet['depth']
         height = floor ? floorHeight : (closet['height'].empty? ? @@lhHeight : closet['height'])
-      when "Shelves", "Drawers"
+      when "Shelves"
         closet['shelves'] = closet['shelves'].empty? ? 5 : closet['shelves'].to_i
-        if (closet['type'] == "Drawers")
-          closet['drawers'] = closet['drawers'].empty? ? 4 : closet['drawers'].to_i
-        else
-          closet['drawers'] = 0
-        end
+        closet['drawers'] = closet['drawers'].nil? ? 0 : closet['drawers'].to_i
         depth  = closet['depth'].empty? ? @@floorDepth : closet['depth']
         height = closet['height'].empty? ? (floor ? floorHeight : 76.inch) : closet['height']
       end
@@ -430,7 +426,7 @@ module Closets
     totalPlacement = params['placement']
     if (build.length == 1)
       build[0]['placement'] = totalPlacement
-      build[0]['offset']    = @@thickness * 2
+      build[0]['offset']    = @thickness * 2
       return
     end
 
@@ -471,11 +467,11 @@ module Closets
 
       # Offsets
       if (placement == "Center")
-        offset = @@thickness * 2
+        offset = @thickness * 2
       elsif (placement == "Shelves")
         offset = 0
       else
-        offset = @@thickness
+        offset = @thickness
       end
 
       closet['placement'] = placement
@@ -484,7 +480,6 @@ module Closets
   end
 
   def self.setClosets(build, params)
-    # build => {"depth"=>"", "drawers"=>"", "height"=>"", "shelves"=>"", "size"=>"", "type"=>"DH"}
 
     dividedWidth(build, params)
     setHeights(build, params)
@@ -495,7 +490,7 @@ module Closets
   def self.setMixedParams(build)
     if (build.length == 1)
       build[0][:placement] = "Center"
-      build[0][:offset]    = @@thickness * 2
+      build[0][:offset]    = @thickness * 2
       return
     end
 
@@ -524,16 +519,22 @@ module Closets
 
       # Offsets
       if (placement == "Center")
-        offset = @@thickness * 2
+        offset = @thickness * 2
       elsif (placement == "Shelves")
         offset = 0
       else
-        offset = @@thickness
+        offset = @thickness
       end
 
       buildOpts[:placement] = placement
       buildOpts[:offset]    = offset
     end
+  end
+
+  def self.displayError(e)
+    matches = /.*\/(.*)\.rb(:.*)/.match(e.backtrace[0])
+    puts "Error: " + e.message + ' - ' + matches[1]+matches[2]
+    abort
   end
 
 end # module FVCC::Closets

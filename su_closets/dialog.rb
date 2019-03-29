@@ -2,21 +2,7 @@ require 'json'
 
 module Closets
 
-  def self.create_dialog
-    htmlFile = File.join(__dir__, 'html', 'dialog.html')
-
-    options = {
-      :dialog_title => "",
-      :preferences_key => "com.fvcc.closets",
-      :style => UI::HtmlDialog::STYLE_DIALOG
-    }
-    dialog = UI::HtmlDialog.new(options)
-    dialog.set_file(htmlFile)
-    dialog.set_size(600, 650)
-    dialog.center
-    dialog
-  end
-
+  ## Room Dialog ##
   def self.createRoomDialog
     htmlFile = File.join(__dir__, 'html', 'room.html')
 
@@ -30,31 +16,6 @@ module Closets
     dialog.set_size(520, 750)
     dialog.center
     dialog
-  end
-
-  def self.show_dialog
-    startOperation('Open Build Dialog')
-
-    @dialog ||= self.create_dialog
-    @dialog.add_action_callback("ready") { |action_context|
-      self.update_dialog
-      nil
-    }
-    @dialog.add_action_callback("build") { |action_context, closet, params|
-      self.build(closet, params)
-      #@dialog.close
-      nil
-    }
-    @dialog.add_action_callback("unbuild") { |action_context, closet, params|
-      Sketchup.undo
-      nil
-    }
-    @dialog.add_action_callback("cancel") { |action_context, value|
-      @dialog.close
-      nil
-    }
-    @dialog.visible? ? @dialog.bring_to_front : @dialog.show
-    endOperation
   end
 
   def self.showRoomDialog
@@ -90,6 +51,72 @@ module Closets
     @room_dialog.execute_script("updateCloset(#{closetJson})")
   end
 
+  def self.buildRoom(closet)
+    startOperation('Build Walls', true, closet['name'])
+    begin
+      buildWalls(
+        closet['name'],
+        closet['width'].to_l,
+        closet['depthLeft'].to_l,
+        closet['depthRight'].to_l,
+        closet['returnL'].to_l,
+        closet['returnR'].to_l,
+        closet['height'].to_l,
+        closet['wallHeight'].to_l
+      )
+    rescue => e
+      puts "error: " + e.message
+      abort
+      return false
+    end
+    endOperation
+  end
+
+  ## Build Dialog ##
+  def self.create_dialog
+    htmlFile = File.join(__dir__, 'html', 'dialog.html')
+
+    options = {
+      :dialog_title => "",
+      :preferences_key => "com.fvcc.closets",
+      :style => UI::HtmlDialog::STYLE_DIALOG
+    }
+    dialog = UI::HtmlDialog.new(options)
+    dialog.set_file(htmlFile)
+    dialog.set_size(700, 800)
+    dialog.center
+    dialog
+  end
+
+  def self.show_dialog
+    startOperation('Open Build Dialog')
+
+    @dialog ||= self.create_dialog
+    @dialog.add_action_callback("ready") { |action_context|
+      self.update_dialog
+      nil
+    }
+    @dialog.add_action_callback("build") { |action_context, closet, params|
+      begin
+        self.build(closet, params)
+      rescue => e
+        displayError(e)
+      end
+      #@dialog.close
+      nil
+    }
+    @dialog.add_action_callback("unbuild") { |action_context, closet, params|
+      Sketchup.undo
+      nil
+    }
+    @dialog.add_action_callback("cancel") { |action_context, value|
+      @dialog.close
+      nil
+    }
+    @dialog.visible? ? @dialog.bring_to_front : @dialog.show
+    endOperation
+  end
+
   def self.update_dialog
     closets = [
       {
@@ -101,6 +128,7 @@ module Closets
         :height => '',
         :reverse => false,
         :doors => false,
+        :drawerHeight => []
       }
     ]
     closetParams = {
@@ -113,8 +141,7 @@ module Closets
       'LH' => {:sections => 'two', :floorSections => 'two', :depth => 12, :height => 24, :shelves => 0},
       'DH' => {:sections => 'two', :floorSections => 'two', :depth => 12, :height => 48, :shelves => 0},
       'VH' => {:sections => 'four', :floorSections => 'four', :depth => 12, :height => 12, :shelves => 2},
-      'Shelves' => {:sections => 'five', :floorSections => 'four', :depth => '14 3/4', :height => 76, :shelves => 5},
-      'Drawers' => {:sections => 'six', :floorSections => 'five', :depth => '14 3/4', :height => 76, :shelves => 5},
+      'Shelves' => {:sections => 'six', :floorSections => 'five', :depth => '14 3/4', :height => 76, :shelves => 5},
     }
     placements = [
       {:value => 'Left', :text => 'L'},
@@ -131,7 +158,7 @@ module Closets
   end
 
   def self.update_width(selection)
-    return unless selectionIsEdge
+    return unless selectionIsEdge && @dialog
     updateHash = {
       :width => defaultWidth.to_l,
       :height => selectionHeight
@@ -141,31 +168,16 @@ module Closets
     @dialog.execute_script("updateParams(#{updateJson})")
   end
 
-  def self.buildRoom(closet)
-    startOperation('Build Walls', true, closet['name'])
-    begin
-      buildWalls(
-        closet['name'],
-        closet['width'].to_l,
-        closet['depthLeft'].to_l,
-        closet['depthRight'].to_l,
-        closet['returnL'].to_l,
-        closet['returnR'].to_l,
-        closet['height'].to_l,
-        closet['wallHeight'].to_l
-      )
-    rescue => e
-      puts "ERROR: " + e.message
-      abort
-      return false
-    end
-    endOperation
-  end
-
   def self.on_selection_change(selection)
     self.update_width(selection)
   end
 
+  ## Settings Dialog ##
+  def self.showSettingsDialog
+    p @thickness
+  end
+
+  ## Selection Observers ##
   PLUGIN ||= self
   class SelectionChangeObserver < Sketchup::SelectionObserver
     def onSelectionBulkChange(selection)

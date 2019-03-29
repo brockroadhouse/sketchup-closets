@@ -3,14 +3,6 @@ require "su_closets/svg.rb"
 
 module Closets
 
-  @@comps
-  @@parts
-  @@cost = 0.09
-  @@rodCost = 0.5
-  @@railCost = 1
-  @@drawerCost = 77.5
-  @@total = 0
-
   def self.exportCutList
     startOperation("Export Cut List", false)
     if (@@selection.length < 1)
@@ -70,8 +62,9 @@ module Closets
           cost = c*w.to_f*d.to_f*@@cost
           @@parts << ["Cleat", c, w, d, h, "$"+@@cost.to_s, sprintf("$%2.2f", cost)]
         elsif (name.include? "Door")
-          cost = c*w.to_f*d.to_f*@@cost
-          @@parts << ["Door", c, w, d, h, "$"+@@cost.to_s, sprintf("$%2.2f", cost)]
+          rate = w.to_f*d.to_f*@@cost + hingeCost(d)
+          cost = c*rate
+          @@parts << ["Door", c, w, d, h, sprintf("$%2.2f",rate), sprintf("$%2.2f", cost)]
         elsif (name.include? "Drawer")
           rate = (w.to_f*d.to_f*@@cost+@@drawerCost)
           cost = c*rate
@@ -104,6 +97,17 @@ module Closets
       gName = (name == nil) ? s.name : name
       s.entities.each { |g| getSelectionComps(g, gName) }
     end
+  end
+
+  def self.hingeCost(height)
+    if (height <= 36.inch)
+      hinges = 2
+    elsif (height > 60.inch)
+      hinges = 4
+    else
+      hinges = 3
+    end
+    return hinges*@@hingeCost
   end
 
   def self.exportCsv
