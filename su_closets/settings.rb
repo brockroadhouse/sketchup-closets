@@ -42,11 +42,9 @@ module Closets
   @options
 
   def self.set_defaults
-    @options = {
-      :thickness => @thickness = 0.75.inch,
-      :defaultW => @defaultW = 25.inch
-    }
-    save_options
+    @thickness = 0.75.inch
+    @defaultW = 25.inch
+    #save_options
   end
 
   def self.save_options
@@ -55,11 +53,10 @@ module Closets
   end
 
   def self.retrieve_options
-    if File::exist?(@optionsFile)
+    if false && File::exist?(@optionsFile)
       json_str = File.read(@optionsFile,"r:UTF-8:#{__ENCODING__}")
       @options = JSON.parse(json_str)
     else
-      p 'setting defaults'
       set_defaults
     end
   end

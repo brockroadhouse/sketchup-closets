@@ -83,7 +83,7 @@ module Closets
     }
     dialog = UI::HtmlDialog.new(options)
     dialog.set_file(htmlFile)
-    dialog.set_size(700, 800)
+    dialog.set_size(800, 800)
     dialog.center
     dialog
   end

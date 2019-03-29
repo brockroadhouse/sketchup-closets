@@ -95,9 +95,9 @@ module Closets
     end
 
     if (floor)
-      spacing = (height-@@cleat-@thickness-drawerHeight)/(shelves - 1)
+      spacing = (height-@@cleat-@thickness-drawerHeight+(@thickness/2))/(shelves - 1)
     else
-      spacing = (height-@thickness-drawerHeight)/(shelves - 1)
+      spacing = (height-@thickness-drawerHeight+(@thickness/2))/(shelves - 1)
     end
 
     # Create shelves
@@ -116,6 +116,7 @@ module Closets
       addDoor(doorWidth, doorHeight, [firstDoorX+doorWidth, posY, posZ+drawerHeight+drawerZ])
     end
 
+    return if width == 0
     if (floor)
       addCleat(width, [posX, posY+depth, posZ+height-@thickness-@@cleat])
       addCleat(width, [posX, posY+depth-1, posZ])
