@@ -411,7 +411,7 @@ module Closets
         closet['shelves'] = closet['shelves'].empty? ? 5 : closet['shelves'].to_i
         closet['drawers'] = closet['drawers'].nil? ? 0 : closet['drawers'].to_i
         depth  = closet['depth'].empty? ? @@floorDepth : closet['depth']
-        height = closet['height'].empty? ? (floor ? floorHeight : 76.inch) : closet['height']
+        height = floor ? floorHeight : (closet['height'].empty? ? 76.inch : closet['height'])
       end
       closet['width']   = closet['width'].empty? ? params['sectionWidth'].to_l : closet['width'].to_l
       closet['depth']   = depth.to_l
@@ -537,6 +537,7 @@ module Closets
     message = "Error: " + e.message + ' - ' + matches[1]+matches[2]
     p message
     abort
+    message
   end
 
 end # module FVCC::Closets
