@@ -102,7 +102,8 @@ module Closets
         begin
           success = self.build(closet, params)
         rescue => e
-          displayError(e)
+          message = displayError(e)
+          self.dialogError([errors])
           success = false
         end
       else
@@ -135,7 +136,7 @@ module Closets
         :height => '',
         :reverse => false,
         :doors => false,
-        :drawerHeight => []
+        :drawerHeight => [10]
       }
     ]
     closetParams = {

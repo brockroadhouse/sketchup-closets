@@ -179,7 +179,7 @@
                   <template v-for="d in closet.drawers">
                     <div class="tight column field">
                       <label>Drawer {{ d }} Height</label>
-                      <div class="ui super mini buttons">
+                      <div class="ui super mini buttons" :run="!closet.drawerHeight[d-1] ? closet.drawerHeight[d-1] = 10 : true">
                         <div class="ui button checkbox" v-bind:class='{ "active": closet.drawerHeight[d-1] == "10" }'>
                           <input type="radio" value="10" v-model="closet.drawerHeight[d-1]">
                           <label>10"</label>
@@ -254,7 +254,7 @@
             shelves: '',
             reverse: false,
             doors: false,
-            drawerHeight: []
+            drawerHeight: [10]
           });
         },
         removeSection: function(i) {
