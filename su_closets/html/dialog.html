@@ -49,6 +49,17 @@
         <div class="centered column row">
           <h1 class="ui dividing header">Build Closet</h1>
         </div>
+        <div class="centered sixteen wide column">
+          <div class="ui negative message" v-bind:class="{'hidden' : !hasError}">
+            <i class="close icon" v-on:click="closeError"></i>
+            <div class="header">An error occured.</div>
+            <p>
+              <template v-for="error in errorMessages">
+                {{ error }}<br/>
+              </template>
+            </p>
+          </div>
+        </div>
 
         <div class="row">
           <div class="column">
@@ -125,7 +136,7 @@
                   : 'hidden' ]">
                 <div class="tight column field" data-tooltip="Defaults to split evenly">
                   <label>Width</label>
-                  <input v-model="closet.size" placeholder="Width">
+                  <input v-model="closet.width" placeholder="Width">
                 </div>
                 <div class="tight column field"
                     v-bind:data-tooltip='(closet.type ? "Defaults to " + types[closet.type].depth + "\"" : "")'>
@@ -213,22 +224,30 @@
         closetParams: null,
         types:  null,
         isBuilt: false,
+        errorMessages: [],
+        hasError: false,
       },
       methods: {
         build: function() {
-          this.isBuilt = true;
+          this.closeError();
           sketchup.build(this.closets, this.closetParams);
         },
         unbuild: function() {
+          this.closeError();
           sketchup.unbuild();
+          this.isBuilt = false;
         },
         cancel: function() {
           sketchup.cancel();
         },
+        closeError: function() {
+          this.errorMessages = [];
+          this.hasError = false;
+        },
         addSection: function() {
           this.closets.push({
             type: '',
-            size: '',
+            width: '',
             depth: '',
             height: '',
             drawers: '',
@@ -251,6 +270,13 @@
     function updateParams(update) {
       app.closetParams.width = update.width;
       app.closetParams.height = update.height;
+    };
+    function updateError(messages) {
+      app.errorMessages = messages;
+      app.hasError = true;
+    };
+    function success(status) {
+      app.isBuilt = status;
     };
     function updateCloset(closets, closetParams, types, placements) {
       app.closets       = closets;

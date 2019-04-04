@@ -158,11 +158,12 @@ module Closets
     @currentGroup = @currentGroup.transform! t
   end
 
-  def self.moveToSelection(depth, height)
+  def self.moveToSelection(depth, height, floor = false)
     return unless @@move == true && selectionIsEdge
 
     location = @@selection[0].start.position
-    pt = Geom::Point3d.new(location[0], location[1]-depth, location[2]-height)
+    moveHeight = floor ? 0 : location[2]-height
+    pt = Geom::Point3d.new(location[0], location[1]-depth, moveHeight)
 
     moveTo(pt)
 
@@ -380,8 +381,8 @@ module Closets
     dividedWidth -= @thickness if params['placement']=='Center'
     sections = 0
     closets.each do |closet|
-      sections += 1 if (closet['size'].empty?)
-      dividedWidth -= (closet['size'].to_l + @thickness)
+      sections += 1 if (closet['width'].empty?)
+      dividedWidth -= (closet['width'].to_l + @thickness)
     end
 
     params['sectionWidth'] = dividedWidth/sections
@@ -412,7 +413,7 @@ module Closets
         depth  = closet['depth'].empty? ? @@floorDepth : closet['depth']
         height = closet['height'].empty? ? (floor ? floorHeight : 76.inch) : closet['height']
       end
-      closet['width']   = closet['size'].empty? ? params['sectionWidth'].to_l : closet['size'].to_l
+      closet['width']   = closet['width'].empty? ? params['sectionWidth'].to_l : closet['width'].to_l
       closet['depth']   = depth.to_l
       closet['height']  = height.to_l
       buildHeight = closet['height'] if (closet['height'] > buildHeight)
@@ -533,7 +534,8 @@ module Closets
 
   def self.displayError(e)
     matches = /.*\/(.*)\.rb(:.*)/.match(e.backtrace[0])
-    puts "Error: " + e.message + ' - ' + matches[1]+matches[2]
+    message = "Error: " + e.message + ' - ' + matches[1]+matches[2]
+    p message
     abort
   end
 

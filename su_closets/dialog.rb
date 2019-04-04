@@ -97,12 +97,19 @@ module Closets
       nil
     }
     @dialog.add_action_callback("build") { |action_context, closet, params|
-      begin
-        self.build(closet, params)
-      rescue => e
-        displayError(e)
+      errors = self.verifyParams(closet, params)
+      if (errors.empty?)
+        begin
+          success = self.build(closet, params)
+        rescue => e
+          displayError(e)
+          success = false
+        end
+      else
+        self.dialogError(errors)
+        success = false
       end
-      #@dialog.close
+      @dialog.execute_script("success(#{success})")
       nil
     }
     @dialog.add_action_callback("unbuild") { |action_context, closet, params|
@@ -121,7 +128,7 @@ module Closets
     closets = [
       {
         :type => '',
-        :size => '',
+        :width => '',
         :depth => '',
         :drawers => '',
         :shelves => '',
@@ -133,7 +140,7 @@ module Closets
     ]
     closetParams = {
       :width => defaultWidth.to_l,
-      :height => 84.inch,
+      :height => selectionHeight==0 ? 84.inch : selectionHeight.to_l,
       :floor => false,
       :placement => 'Center'
     }
@@ -166,6 +173,12 @@ module Closets
 
     updateJson    = JSON.generate(updateHash)
     @dialog.execute_script("updateParams(#{updateJson})")
+  end
+
+  def self.dialogError(message)
+    return if message.empty?
+    jsonError = JSON.generate(message)
+    @dialog.execute_script("updateError(#{jsonError})")
   end
 
   def self.on_selection_change(selection)

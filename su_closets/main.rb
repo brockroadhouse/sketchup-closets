@@ -71,6 +71,7 @@ module Closets
     width   = closet['width']
     depth   = closet['depth']
     height  = closet['height']
+    gableH  = closet['height']
     drawers = closet['drawers']
     shelves = closet['shelves']
 
@@ -110,7 +111,7 @@ module Closets
 
     if (closet['doors'])
       doorWidth = (width+@thickness)/2
-      doorHeight = height-drawerHeight-drawerZ-(@thickness/2)
+      doorHeight = gableH-drawerHeight-drawerZ-(@thickness/2)
       firstDoorX = posX-@thickness/2
       addDoor(doorWidth, doorHeight, [firstDoorX, posY, posZ+drawerHeight+drawerZ])
       addDoor(doorWidth, doorHeight, [firstDoorX+doorWidth, posY, posZ+drawerHeight+drawerZ])
@@ -303,6 +304,19 @@ module Closets
   end
 
   # From Dialog
+  def self.verifyParams(closets, params)
+    errors = []
+    closets.each do |closet|
+      type = closet['type']
+
+      noZeroes = ['width','depth','height','shelves']
+      noZeroes.each do |attr|
+        errors << attr.capitalize! + " cannot be zero for #{type} section."    if closet[attr] == 0.to_s
+      end
+    end
+    errors
+  end
+
   def self.build(closets, params)
     startOperation('Build Closet')
     @@move = false
@@ -349,8 +363,10 @@ module Closets
     addWallRail(params['width'].to_l, [0, buildDepth+1, buildHeight-3.inch]) unless floor
 
     @@move = true
-    moveToSelection(buildDepth, buildHeight)
+    moveToSelection(buildDepth, buildHeight, floor)
     endOperation
+
+    true
   end
 
 end # module FVCC::Closets
