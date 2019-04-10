@@ -84,48 +84,54 @@ module Closets
     dialog = UI::HtmlDialog.new(options)
     dialog.set_file(htmlFile)
     dialog.set_size(800, 800)
+    dialog.set_on_closed { self.onClose }
     dialog.center
     dialog
   end
 
-  def self.show_dialog
-    startOperation('Open Build Dialog')
+  def self.onClose
+    @dialog = nil
+  end
 
-    @dialog ||= self.create_dialog
-    @dialog.add_action_callback("ready") { |action_context|
-      self.update_dialog
-      nil
-    }
-    @dialog.add_action_callback("build") { |action_context, closet, params|
-      errors = self.verifyParams(closet, params)
-      if (errors.empty?)
-        begin
-          success = self.build(closet, params)
-        rescue => e
-          message = displayError(e)
-          self.dialogError([errors])
+  def self.show_dialog
+
+    unless (@dialog)
+      @dialog = self.create_dialog
+      @dialog.add_action_callback("ready") { |action_context|
+        self.update_dialog
+        nil
+      }
+      @dialog.add_action_callback("build") { |action_context, closet, params|
+        errors = self.verifyParams(closet, params)
+        if (errors.empty?)
+          begin
+            success = self.build(closet, params)
+          rescue => e
+            message = displayError(e)
+            self.dialogError([errors])
+            success = false
+          end
+        else
+          self.dialogError(errors)
           success = false
         end
-      else
-        self.dialogError(errors)
-        success = false
-      end
-      @dialog.execute_script("success(#{success})")
-      nil
-    }
-    @dialog.add_action_callback("unbuild") { |action_context, closet, params|
-      Sketchup.undo
-      nil
-    }
-    @dialog.add_action_callback("cancel") { |action_context, value|
-      @dialog.close
-      nil
-    }
+        @dialog.execute_script("success(#{success})")
+        nil
+      }
+      @dialog.add_action_callback("unbuild") { |action_context, closet, params|
+        Sketchup.undo
+        nil
+      }
+      @dialog.add_action_callback("cancel") { |action_context, value|
+        @dialog.close
+      }
+    end
     @dialog.visible? ? @dialog.bring_to_front : @dialog.show
-    endOperation
   end
 
   def self.update_dialog
+    self.setSelection
+
     closets = [
       {
         :type => '',

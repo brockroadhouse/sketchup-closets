@@ -75,10 +75,14 @@ module Closets
     defaultWidth
   end
 
+  def self.setSelection
+    @@selection = Sketchup.active_model.selection
+  end
+
   def self.startOperation (name, newGroup = true, groupName = "")
     @@model = Sketchup.active_model
     @@model.start_operation(name, true)
-    @@selection = Sketchup.active_model.selection
+    self.setSelection
     addGroup(groupName) if (newGroup == true)
   end
 
