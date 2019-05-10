@@ -353,8 +353,8 @@ module Closets
       rail = [
         Geom::Point3d.new(0, 0, 0),
         Geom::Point3d.new(width, 0, 0),
-        Geom::Point3d.new(width, 0, 1),
-        Geom::Point3d.new(0, 0, 1),
+        Geom::Point3d.new(width, 0, 1.25.inch),
+        Geom::Point3d.new(0, 0, 1.25.inch),
       ]
       group = addFace(rail, -1)
       comp = group.to_component

@@ -80,6 +80,7 @@ module Closets
     posZ = closet['location'][2]
 
     ### Gable Creation ###
+    topHeight = height
     if (height > @@floorHeight)
       addShelf(width, depth, [posX, posY, height])
       height = @@floorHeight
@@ -119,7 +120,7 @@ module Closets
 
     return if width == 0
     if (floor)
-      addCleat(width, [posX, posY+depth, posZ+height-@thickness-@@cleat])
+      addCleat(width, [posX, posY+depth, posZ+topHeight-@thickness-@@cleat])
       addCleat(width, [posX, posY+depth-1, posZ])
       addCleat(width, [posX, posY+2, posZ])
     else
@@ -136,6 +137,7 @@ module Closets
     posX = closet['location'][0]
     posY = closet['location'][1]
 
+    topHeight = height
     if (height > @@floorHeight)
       addShelf(width, depth, [posX, posY, height])
       height = @@floorHeight
@@ -148,7 +150,7 @@ module Closets
     addShelf(width, depth, [posX, posY, @@cleat+@thickness])
 
     backPosY = depth + posY
-    addCleat(width, [posX, backPosY, height-@thickness-@@cleat])
+    addCleat(width, [posX, backPosY, topHeight-@thickness-@@cleat])
     addCleat(width, [posX, backPosY-1, 0])
     addCleat(width, [posX, posY+2, 0])
 
@@ -186,6 +188,7 @@ module Closets
     posY = closet['location'][1]
     posZ = closet['location'][2]
 
+    topHeight = height
     if (height > @@floorHeight)
       addShelf(width, depth, [posX, posY, height])
       height = @@floorHeight
@@ -196,7 +199,7 @@ module Closets
     addShelf(width, 196.mm, [posX, (backPosY-196.mm), (height/2)])
     addShelf(width, depth, [posX, posY, @@cleat+@thickness])
 
-    addCleat(width, [posX, backPosY, height-@thickness-@@cleat])
+    addCleat(width, [posX, backPosY, topHeight-@thickness-@@cleat])
     addCleat(width, [posX, backPosY, (height/2)-@thickness-@@cleat])
     addCleat(width, [posX, backPosY-1, 0])
     addCleat(width, [posX, posY+2, 0])
@@ -240,6 +243,7 @@ module Closets
     shelves = closet['shelves']
     reverse = closet['reverse']
 
+    topHeight = height
     if (height > @@floorHeight)
       addShelf(width, depth, [posX, posY, height])
       height = @@floorHeight
@@ -266,7 +270,7 @@ module Closets
     addShelf(width, depth, [posX, posY, bottomShelf])
 
     backPosY = depth + posY
-    addCleat(width, [posX, backPosY, height-@thickness-@@cleat])
+    addCleat(width, [posX, backPosY, topHeight-@thickness-@@cleat])
     addCleat(width, [posX, backPosY-1, 0])
     addCleat(width, [posX, posY+2, 0])
 
@@ -360,7 +364,7 @@ module Closets
       posX = closet['location'][0]
     end
 
-    addWallRail(params['width'].to_l, [0, buildDepth+1, buildHeight-3.inch]) unless floor
+    addWallRail(params['width'].to_l, [0, buildDepth-5.mm, buildHeight-3.inch]) unless floor
 
     @@move = true
     moveToSelection(buildDepth, buildHeight, floor)
