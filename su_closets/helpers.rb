@@ -98,7 +98,6 @@ module Closets
     @currentGroup = @@model.active_entities.add_group
     @currentGroup.name = name
     @@currentEnt = @currentGroup.entities
-    @@nameCount += 1
   end
 
   def self.addFace (addition, push = 0, material = nil, test = 0)
@@ -117,7 +116,7 @@ module Closets
       Geom::Point3d.new(x, y, 0),
       Geom::Point3d.new(0, y, 0),
     ]
-    group = addFace(face, @thickness)
+    group = addFace(face, @@opts['thickness'])
     comp = group.to_component
     comp.definition.name = name
     comp
@@ -196,7 +195,7 @@ module Closets
   end
 
   def self.addGable (width, height, location = [0, 0, 0])
-    compName = "#{width}\" x #{height}\" Gable"
+    compName = "#{width} x #{height} x #{@@opts['thickness']}\" Gable"
     compDefinition = Sketchup.active_model.definitions[compName]
     transformation = Geom::Transformation.new(location)
     if (!compDefinition)
@@ -206,7 +205,7 @@ module Closets
         Geom::Point3d.new(0, width, height),
         Geom::Point3d.new(0, 0, height),
       ]
-      group = addFace(gable, @thickness)
+      group = addFace(gable, @@opts['thickness'])
       comp = group.to_component
       comp.definition.name = compName
 
@@ -223,11 +222,11 @@ module Closets
   end
 
   def self.addShelf (width, depth, location, dimension = false)
-    compName = "#{width}\" x #{depth}\" Shelf"
+    compName = "#{width} x #{depth} x #{@@opts['thickness']}\" Shelf"
     compDefinition = Sketchup.active_model.definitions[compName]
     transformation = Geom::Transformation.new(location)
     if (!compDefinition)
-      comp = addComponent(width, depth, @thickness, compName)
+      comp = addComponent(width, depth, @@opts['thickness'], compName)
       comp.move! transformation
     else
       comp = @@currentEnt.add_instance(compDefinition, transformation)
@@ -245,7 +244,7 @@ module Closets
   end
 
   def self.addCleat (width, location)
-    compName = "#{width}\" Cleat"
+    compName = "#{width} x #{@@opts['thickness']}\" Cleat"
 
     compDefinition = Sketchup.active_model.definitions[compName]
     transformation = Geom::Transformation.new(location)
@@ -253,11 +252,10 @@ module Closets
       cleat = [
         Geom::Point3d.new(0, 0, 0),
         Geom::Point3d.new(width, 0, 0),
-        Geom::Point3d.new(width, 0, @@cleat),
-        Geom::Point3d.new(0, 0, @@cleat),
+        Geom::Point3d.new(width, 0, @@opts['cleat']),
+        Geom::Point3d.new(0, 0, @@opts['cleat']),
       ]
-      compName = "#{width}\" Cleat"
-      group = addFace(cleat, @thickness)
+      group = addFace(cleat, @@opts['thickness'])
       comp = group.to_component
       comp.definition.name = compName
 
@@ -268,7 +266,7 @@ module Closets
   end
 
   def self.addDrawer (width, height, location=[0,0,0])
-    compName = "#{width}\" x #{height}\" Drawer"
+    compName = "#{width} x #{height} x #{@@opts['thickness']}\" Drawer"
 
     compDefinition = Sketchup.active_model.definitions[compName]
     transformation = Geom::Transformation.new(location)
@@ -279,10 +277,10 @@ module Closets
         Geom::Point3d.new(width, 0, height),
         Geom::Point3d.new(0, 0, height),
       ]
-      group = addFace(drawer, @thickness)
+      group = addFace(drawer, @@opts['thickness'])
 
-      pt1 = Geom::Point3d.new(width/2-2, -@thickness, height/2)
-      pt2 = Geom::Point3d.new(width/2+2, -@thickness, height/2)
+      pt1 = Geom::Point3d.new(width/2-2, -@@opts['thickness'], height/2)
+      pt2 = Geom::Point3d.new(width/2+2, -@@opts['thickness'], height/2)
       group.entities.add_line pt1, pt2
       comp = group.to_component
       comp.definition.name = compName
@@ -294,7 +292,7 @@ module Closets
   end
 
   def self.addDoor (width, height, location=[0,0,0])
-    compName = "#{width}\" x #{height}\" Door"
+    compName = "#{width} x #{height} x #{@@opts['thickness']}\" Door"
 
     compDefinition = Sketchup.active_model.definitions[compName]
     transformation = Geom::Transformation.new(location)
@@ -305,7 +303,7 @@ module Closets
         Geom::Point3d.new(width, 0, height),
         Geom::Point3d.new(0, 0, height),
       ]
-      group = addFace(door, @thickness)
+      group = addFace(door, @@opts['thickness'])
 
       comp = group.to_component
       comp.definition.name = compName
@@ -324,10 +322,10 @@ module Closets
 
   def self.addRod (width, location)
     # location[x,y,z] are the coords of the bottom corner of shelf
-    compName = "#{width}\" Closet Rod"
+    compName = "#{width} Closet Rod"
 
     compDefinition = Sketchup.active_model.definitions[compName]
-    transformation = Geom::Transformation.new([location[0]+0, location[1]+2, location[2]-(1.5+@thickness)])
+    transformation = Geom::Transformation.new([location[0]+0, location[1]+2, location[2]-(1.5+@@opts['thickness'])])
     if (!compDefinition)
       rod = [
         Geom::Point3d.new(0, 0, 0),
@@ -375,18 +373,18 @@ module Closets
       numGables = 1
     end
 
-    sections = ((width-@thickness)/(32 + @thickness)).ceil
-    width = (width - (sections+1-numGables)*@thickness)/sections
+    sections = ((width-@@opts['thickness'])/(32 + @@opts['thickness'])).ceil
+    width = (width - (sections+1-numGables)*@@opts['thickness'])/sections
     return {:sections => sections, :width => width}
   end
 
   def self.dividedWidth(closets, params)
     dividedWidth = params['width'].to_l
-    dividedWidth -= @thickness if params['placement']=='Center'
+    dividedWidth -= @@opts['thickness'] if params['placement']=='Center'
     sections = 0
     closets.each do |closet|
       sections += 1 if (closet['width'].empty?)
-      dividedWidth -= (closet['width'].to_l + @thickness)
+      dividedWidth -= (closet['width'].to_l + @@opts['thickness'])
     end
 
     params['sectionWidth'] = dividedWidth/sections
@@ -431,7 +429,7 @@ module Closets
     totalPlacement = params['placement']
     if (build.length == 1)
       build[0]['placement'] = totalPlacement
-      build[0]['offset']    = @thickness * 2
+      build[0]['offset']    = @@opts['thickness'] * 2
       return
     end
 
@@ -472,11 +470,11 @@ module Closets
 
       # Offsets
       if (placement == "Center")
-        offset = @thickness * 2
+        offset = @@opts['thickness'] * 2
       elsif (placement == "Shelves")
         offset = 0
       else
-        offset = @thickness
+        offset = @@opts['thickness']
       end
 
       closet['placement'] = placement
@@ -495,7 +493,7 @@ module Closets
   def self.setMixedParams(build)
     if (build.length == 1)
       build[0][:placement] = "Center"
-      build[0][:offset]    = @thickness * 2
+      build[0][:offset]    = @@opts['thickness'] * 2
       return
     end
 
@@ -524,11 +522,11 @@ module Closets
 
       # Offsets
       if (placement == "Center")
-        offset = @thickness * 2
+        offset = @@opts['thickness'] * 2
       elsif (placement == "Shelves")
         offset = 0
       else
-        offset = @thickness
+        offset = @@opts['thickness']
       end
 
       buildOpts[:placement] = placement

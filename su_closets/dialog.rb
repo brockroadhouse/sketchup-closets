@@ -19,6 +19,7 @@ module Closets
   end
 
   def self.showRoomDialog
+    @@nameCount += 1
     @room_dialog ||= self.createRoomDialog
     @room_dialog.add_action_callback("ready") { |action_context|
       self.updateRoomDialog
@@ -39,6 +40,7 @@ module Closets
     closetHash = {
       :name => "Closet " + @@nameCount.to_s,
       :width => 50,
+      :total => true,
       :height => 84,
       :depthLeft => 24,
       :depthRight => 24,
@@ -56,7 +58,7 @@ module Closets
     begin
       buildWalls(
         closet['name'],
-        closet['width'].to_l,
+        closet['total'] ? closet['width'].to_l - 0.5.inch : closet['width'].to_l,
         closet['depthLeft'].to_l,
         closet['depthRight'].to_l,
         closet['returnL'].to_l,
@@ -77,7 +79,7 @@ module Closets
     htmlFile = File.join(__dir__, 'html', 'dialog.html')
 
     options = {
-      :dialog_title => "",
+      :dialog_title => "Build Closet",
       :preferences_key => "com.fvcc.closets",
       :style => UI::HtmlDialog::STYLE_DIALOG
     }
@@ -94,13 +96,8 @@ module Closets
   end
 
   def self.show_dialog
-
     unless (@dialog)
       @dialog = self.create_dialog
-      @dialog.add_action_callback("ready") { |action_context|
-        self.update_dialog
-        nil
-      }
       @dialog.add_action_callback("build") { |action_context, closet, params|
         errors = self.verifyParams(closet, params)
         if (errors.empty?)
@@ -126,6 +123,10 @@ module Closets
         @dialog.close
       }
     end
+    @dialog.add_action_callback("ready") { |action_context|
+      self.update_dialog
+      nil
+    }
     @dialog.visible? ? @dialog.bring_to_front : @dialog.show
   end
 
@@ -190,11 +191,6 @@ module Closets
 
   def self.on_selection_change(selection)
     self.update_width(selection)
-  end
-
-  ## Settings Dialog ##
-  def self.showSettingsDialog
-    p @thickness
   end
 
   ## Selection Observers ##

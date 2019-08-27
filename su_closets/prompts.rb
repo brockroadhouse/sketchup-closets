@@ -8,11 +8,13 @@ module Closets
       extMenu.add_item("Create Walls") {showRoomDialog}
       extMenu.add_item("Build Closet") {show_dialog}
     extMenu.add_separator
-      extMenu.add_item("Export Quote") {exportCutList}
+      extMenu.add_item("View Quote") {exportCutList}
     extMenu.add_separator
       subMenu = extMenu.add_submenu("Change Units")
         subMenu.add_item("Set to mm") {setModelmm}
         subMenu.add_item("Set to 1/16\"") {setModelInch}
+    extMenu.add_separator
+      extMenu.add_item("Settings") {show_settings_dialog}
       #extMenu.add_item("Settings") {showSettingsDialog}
     #extMenu.add_item("Export SVG") {exportSvg} #NOTREADY
 

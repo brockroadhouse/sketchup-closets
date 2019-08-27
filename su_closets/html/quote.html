@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="vendor/Semantic-UI/semantic.min.css" rel="stylesheet">
+  <script src="vendor/jquery.js"></script>
+  <script src="vendor/Semantic-UI/semantic.min.js"></script>
+  <script src="vendor/vue.js"></script>
+  <style>
+    .main.container {
+      padding: 2em 2em;
+    }
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <template v-if="parts">
+      <div class="ui main container">
+        <h1 class="ui header">
+          <i class="dollar sign icon"></i>
+          <div class="content">Quote</div>
+        </h1>
+
+        <table class="ui striped celled table">
+          <thead>
+            <tr>
+              <template v-for="header in headers">
+                <th>{{ header }}</th>
+              </template>
+            </tr>
+          </thead>
+          <tbody>
+            <template v-for="(part, closet) in parts">
+              <tr>
+                <td colspan="7"><strong>{{ closet }}</strong></td>
+              </tr>
+              <template v-for="piece in part">
+                <tr>
+                  <template v-for="attr in piece">
+                    <td>{{ attr }}</td>
+                  </template>
+                </tr>
+              </template>
+            </template>
+          </tbody>
+          <tfoot class="full-width">
+            <tr>
+              <th class="right aligned" colspan="6"><strong>Total</strong></th>
+              <th><strong>{{ total }}<strong></th>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div>
+          <div class="ui primary button" v-on:click="exportCsv">Export</div>
+          <div class="ui button" v-on:click="cancel">Cancel</div>
+        </div>
+      </div>
+    </template>
+    <template v-else>
+      <h2>Error loading data</h2>
+    </template>
+  </div><!-- app -->
+  <script>
+
+    var app = new Vue({
+      el: '#app',
+      data: {
+        parts: null,
+        headers: null,
+        total: null,
+      },
+      methods: {
+        exportCsv: function() {
+          sketchup.exportCsv();
+        },
+        cancel: function() {
+          sketchup.cancel();
+        },
+      },
+      mounted: function() {
+        sketchup.ready();
+      },
+    });
+    function updateData(parts, headers, total) {
+      app.parts   = parts;
+      app.headers = headers;
+      app.total   = total;
+    };
+  </script>
+</body>
+</html>
