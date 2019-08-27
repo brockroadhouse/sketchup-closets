@@ -5,6 +5,11 @@
   <script src="vendor/jquery.js"></script>
   <script src="vendor/Semantic-UI/semantic.min.js"></script>
   <script src="vendor/vue.js"></script>
+  <style>
+    .field .ui.toggle.checkbox {
+      margin-top: 0.5em;
+    }
+    </style>
 </head>
 <body>
   <div id="app">
@@ -29,6 +34,15 @@
             <div class="field">
               <label>Width</label>
               <input placeholder="Width" v-model="closet.width">
+            </div>
+          </div>
+          <div class="left aligned four wide column">
+            <div class="field">
+              <label>Remove 1/2"</label>
+              <div class="ui toggle checkbox">
+                <input type="checkbox" v-model="closet.total">
+                <label></label>
+              </div>
             </div>
           </div>
         </div>

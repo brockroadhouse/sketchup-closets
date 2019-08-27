@@ -1,0 +1,37 @@
+{
+    "cost": {
+        "title": "Wood cost per square inch",
+        "value": "0.09",
+        "type": "currency"
+    },
+    "rodCost":{
+        "title": "Hanger rod cost per linear inch",
+        "value": "0.50",
+        "type": "currency"
+    },
+    "railCost":{
+        "title": "Wall rail cost per linear inch",
+        "value": "0.40",
+        "type": "currency"
+    },
+    "drawerCost":{
+        "title": "Drawer hardware cost",
+        "value": "77.50",
+        "type": "currency"
+    },
+    "hingeCost":{
+        "title": "Cost per hinge",
+        "value": "10.00",
+        "type": "currency"
+    },
+    "thickness":{
+        "title": "Wood thickness",
+        "value": "0.75\"",
+        "type": "length"
+    },
+    "cleat":{
+        "title": "Cleat height",
+        "value": "5\"",
+        "type": "length"
+    }
+}

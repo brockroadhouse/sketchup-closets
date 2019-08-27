@@ -19,6 +19,7 @@ module Closets
   end
 
   def self.showRoomDialog
+    @@nameCount += 1
     @room_dialog ||= self.createRoomDialog
     @room_dialog.add_action_callback("ready") { |action_context|
       self.updateRoomDialog
@@ -39,6 +40,7 @@ module Closets
     closetHash = {
       :name => "Closet " + @@nameCount.to_s,
       :width => 50,
+      :total => true,
       :height => 84,
       :depthLeft => 24,
       :depthRight => 24,
@@ -56,7 +58,7 @@ module Closets
     begin
       buildWalls(
         closet['name'],
-        closet['width'].to_l,
+        closet['total'] ? closet['width'].to_l - 0.5.inch : closet['width'].to_l,
         closet['depthLeft'].to_l,
         closet['depthRight'].to_l,
         closet['returnL'].to_l,
@@ -77,55 +79,60 @@ module Closets
     htmlFile = File.join(__dir__, 'html', 'dialog.html')
 
     options = {
-      :dialog_title => "",
+      :dialog_title => "Build Closet",
       :preferences_key => "com.fvcc.closets",
       :style => UI::HtmlDialog::STYLE_DIALOG
     }
     dialog = UI::HtmlDialog.new(options)
     dialog.set_file(htmlFile)
     dialog.set_size(800, 800)
+    dialog.set_on_closed { self.onClose }
     dialog.center
     dialog
   end
 
-  def self.show_dialog
-    startOperation('Open Build Dialog')
+  def self.onClose
+    @dialog = nil
+  end
 
-    @dialog ||= self.create_dialog
+  def self.show_dialog
+    unless (@dialog)
+      @dialog = self.create_dialog
+      @dialog.add_action_callback("build") { |action_context, closet, params|
+        errors = self.verifyParams(closet, params)
+        if (errors.empty?)
+          begin
+            success = self.build(closet, params)
+          rescue => e
+            message = displayError(e)
+            self.dialogError([errors])
+            success = false
+          end
+        else
+          self.dialogError(errors)
+          success = false
+        end
+        @dialog.execute_script("success(#{success})")
+        nil
+      }
+      @dialog.add_action_callback("unbuild") { |action_context, closet, params|
+        Sketchup.undo
+        nil
+      }
+      @dialog.add_action_callback("cancel") { |action_context, value|
+        @dialog.close
+      }
+    end
     @dialog.add_action_callback("ready") { |action_context|
       self.update_dialog
       nil
     }
-    @dialog.add_action_callback("build") { |action_context, closet, params|
-      errors = self.verifyParams(closet, params)
-      if (errors.empty?)
-        begin
-          success = self.build(closet, params)
-        rescue => e
-          message = displayError(e)
-          self.dialogError([errors])
-          success = false
-        end
-      else
-        self.dialogError(errors)
-        success = false
-      end
-      @dialog.execute_script("success(#{success})")
-      nil
-    }
-    @dialog.add_action_callback("unbuild") { |action_context, closet, params|
-      Sketchup.undo
-      nil
-    }
-    @dialog.add_action_callback("cancel") { |action_context, value|
-      @dialog.close
-      nil
-    }
     @dialog.visible? ? @dialog.bring_to_front : @dialog.show
-    endOperation
   end
 
   def self.update_dialog
+    self.setSelection
+
     closets = [
       {
         :type => '',
@@ -184,11 +191,6 @@ module Closets
 
   def self.on_selection_change(selection)
     self.update_width(selection)
-  end
-
-  ## Settings Dialog ##
-  def self.showSettingsDialog
-    p @thickness
   end
 
   ## Selection Observers ##

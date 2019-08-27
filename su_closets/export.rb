@@ -11,7 +11,7 @@ module Closets
     end
 
     setParts
-    exportCsv
+    showQuoteDialog
 
     endOperation
   end # export
@@ -39,10 +39,10 @@ module Closets
   end
 
   def self.setPartsList
-    @@parts = Array.new
+    @@parts = Hash.new
     @@comps.each do |group, components|
       closetTotal = 0
-      @@parts << [group]
+      @@parts[group] = Array.new
       components.each do |guid, comp|
         name = comp[:instance].name
         inst = comp[:instance].bounds
@@ -53,35 +53,37 @@ module Closets
         cost = 0
 
         if (name.include? "Gable")
-          cost = c*h.to_f*d.to_f*@@cost
-          @@parts << ["Gable", c, h, d, w, "$"+@@cost.to_s, sprintf("$%2.2f", cost)]
+          cost = c*h.to_f*d.to_f*@@opts['cost'].to_f
+          @@parts[group] << ["Gable", c, h, d, w, sprintf("$%2.2f", @@opts['cost']), sprintf("$%2.2f", cost)]
         elsif (name.include? "Shelf")
-          cost = c*w.to_f*h.to_f*@@cost
-          @@parts << ["Shelf", c, w.to_l, h.to_l, d, "$"+@@cost.to_s, sprintf("$%2.2f", cost)]
+          cost = c*w.to_f*h.to_f*@@opts['cost'].to_f
+          @@parts[group] << ["Shelf", c, w.to_l, h.to_l, d, sprintf("$%2.2f", @@opts['cost']), sprintf("$%2.2f", cost)]
         elsif (name.include? "Cleat")
-          cost = c*w.to_f*d.to_f*@@cost
-          @@parts << ["Cleat", c, w, d, h, "$"+@@cost.to_s, sprintf("$%2.2f", cost)]
+          cost = c*w.to_f*d.to_f*@@opts['cost'].to_f
+          @@parts[group] << ["Cleat", c, w, d, h, sprintf("$%2.2f", @@opts['cost']), sprintf("$%2.2f", cost)]
         elsif (name.include? "Door")
-          rate = w.to_f*d.to_f*@@cost + hingeCost(d)
+          rate = w.to_f*d.to_f*@@opts['cost'].to_f + hingeCost(d)
           cost = c*rate
-          @@parts << ["Door", c, w, d, h, sprintf("$%2.2f",rate), sprintf("$%2.2f", cost)]
+          @@parts[group] << ["Door", c, w, d, h, sprintf("$%2.2f",rate), sprintf("$%2.2f", cost)]
         elsif (name.include? "Drawer")
-          rate = (w.to_f*d.to_f*@@cost+@@drawerCost)
+          rate = (w.to_f*d.to_f*@@opts['cost'].to_f+@@opts['drawerCost'].to_f)
           cost = c*rate
-          @@parts << ["Drawer", c, w, d, h,sprintf("$%2.2f",rate), sprintf("$%2.2f", cost)]
+          @@parts[group] << ["Drawer", c, w, d, h,sprintf("$%2.2f",rate), sprintf("$%2.2f", cost)]
         elsif (name.include? "Rod")
-          cost = c*w.to_f*@@rodCost
-          @@parts << ["Rod", c, w, '1"', '1.5"', sprintf("$%2.2f", @@rodCost), sprintf("$%2.2f", cost)]
+          cost = c*w.to_f*@@opts['rodCost'].to_f
+          @@parts[group] << ["Rod", c, w, '1"', '1.5"', sprintf("$%2.2f", @@opts['rodCost']), sprintf("$%2.2f", cost)]
         elsif (name.include? "Rail")
-          cost = c*w.to_f*@@railCost
-          @@parts << ["Wall Rail", c, w, '1"', '1"', sprintf("$%2.2f", @@railCost), sprintf("$%2.2f", cost)]
+          cost = c*w.to_f*@@opts['railCost'].to_f
+          @@parts[group] << ["Wall Rail", c, w, '1"', '1"', sprintf("$%2.2f", @@opts['railCost']), sprintf("$%2.2f", cost)]
         end
         closetTotal += cost
       end
-      @@parts << ["", "", "", "", "", "SubTotal", sprintf("$%2.2f", closetTotal)]
-      @@parts << [""]
+      @@parts[group].sort! {|a,b| a[0] <=> b[0] }
+      @@parts[group] << ["", "", "", "", "", "SubTotal", sprintf("$%2.2f", closetTotal)]
       @@total += closetTotal
     end
+    @@total = sprintf("$%2.2f", @@total)
+
   end # setPartsList
 
   def self.getSelectionComps(s, name = nil)
@@ -107,7 +109,7 @@ module Closets
     else
       hinges = 3
     end
-    return hinges*@@hingeCost
+    return hinges*@@opts['hingeCost'].to_f
   end
 
   def self.exportCsv
@@ -119,14 +121,59 @@ module Closets
     begin
       CSV.open(filename, "wb") do |file|
         file << ["Name", "Qty", "Width", "Height", "Depth", "Unit Price", "Price"]
-        @@parts.each do |line|
-          file << line
+        @@parts.each do |group, items|
+          file << [group]
+          items.each do |line|
+            file << line
+          end
         end
-        file << ["", "", "", "", "", "Total:", sprintf("$%2.2f", @@total)]
+        file << ["", "", "", "", "", "Total:", @@total]
       end
     rescue => e
       UI.messagebox("Error writing to file: " + e.message)
     end
+  end
+
+  def self.viewQuote
+    title = @@model.title.length > 0 ? @@model.title + " Quote" : "Quote"
+    htmlFile = File.join(__dir__, 'html', 'quote.html')
+
+    options = {
+      :dialog_title => title,
+      :preferences_key => "com.fvcc.closets",
+      :style => UI::HtmlDialog::STYLE_DIALOG
+    }
+    dialog = UI::HtmlDialog.new(options)
+    dialog.set_file(htmlFile)
+    dialog.set_size(800, 800)
+    dialog.set_on_closed { self.onClose }
+    dialog.center
+    dialog
+  end
+
+  def self.onClose
+    @quote_dialog = nil
+  end
+
+  def self.showQuoteDialog
+
+    @quote_dialog ||= self.viewQuote
+    @quote_dialog.add_action_callback("ready") { |action_context|
+      partsJson   = JSON.generate(@@parts)
+      headersJson = JSON.generate(["Name", "Qty", "Width", "Height", "Depth", "Unit Price", "Price"])
+      totalJson   = @@total.to_json
+      @quote_dialog.execute_script("updateData(#{partsJson}, #{headersJson}, #{totalJson})")
+      nil
+    }
+    @quote_dialog.add_action_callback("exportCsv") { |action_context, value|
+      exportCsv
+      nil
+    }
+    @quote_dialog.add_action_callback("cancel") { |action_context, value|
+      @quote_dialog.close
+      nil
+    }
+    @quote_dialog.visible? ? @quote_dialog.bring_to_front : @quote_dialog.show
   end
 
 end # Module
