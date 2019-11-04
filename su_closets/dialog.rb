@@ -43,9 +43,13 @@ module Closets
       :total => true,
       :height => 84,
       :depthLeft => 24,
+      :trimL => false,
       :depthRight => 24,
+      :trimR => false,
       :returnL => 6,
+      :trimReturnL => false,
       :returnR => 6,
+      :trimReturnR => false,
       :wallHeight => 96,
     }
 
@@ -59,10 +63,10 @@ module Closets
       buildWalls(
         closet['name'],
         closet['total'] ? closet['width'].to_l - 0.5.inch : closet['width'].to_l,
-        closet['depthLeft'].to_l,
-        closet['depthRight'].to_l,
-        closet['returnL'].to_l,
-        closet['returnR'].to_l,
+        closet['trimL'] ? closet['depthLeft'].to_l - 0.5.inch : closet['depthLeft'].to_l,
+        closet['trimR'] ? closet['depthRight'].to_l - 0.5.inch : closet['depthRight'].to_l,
+        closet['trimReturnL'] ? closet['returnL'].to_l - 0.5.inch : closet['returnL'].to_l,
+        closet['trimReturnR'] ? closet['returnR'].to_l - 0.5.inch : closet['returnR'].to_l,
         closet['height'].to_l,
         closet['wallHeight'].to_l
       )
@@ -96,8 +100,8 @@ module Closets
   end
 
   def self.show_dialog
-    unless (@dialog)
-      @dialog = self.create_dialog
+    @dialog ||= self.create_dialog
+    unless(@dialog.visible?)
       @dialog.add_action_callback("build") { |action_context, closet, params|
         errors = self.verifyParams(closet, params)
         if (errors.empty?)
@@ -143,20 +147,21 @@ module Closets
         :height => '',
         :reverse => false,
         :doors => false,
-        :drawerHeight => [10]
+        :drawerHeight => [10],
+        :floor => false,
       }
     ]
     closetParams = {
       :width => defaultWidth.to_l,
       :height => selectionHeight==0 ? 84.inch : selectionHeight.to_l,
-      :floor => false,
       :placement => 'Center'
     }
     types = {
-      'LH' => {:sections => 'two', :floorSections => 'two', :depth => 12, :height => 24, :shelves => 0},
-      'DH' => {:sections => 'two', :floorSections => 'two', :depth => 12, :height => 48, :shelves => 0},
-      'VH' => {:sections => 'four', :floorSections => 'four', :depth => 12, :height => 12, :shelves => 2},
-      'Shelves' => {:sections => 'six', :floorSections => 'five', :depth => '14 3/4', :height => 76, :shelves => 5},
+      'LH' => {:sections => 'three', :floorSections => 'three', :depth => 12, :height => 24, :shelves => 0},
+      'DH' => {:sections => 'three', :floorSections => 'three', :depth => 12, :height => 48, :shelves => 0},
+      'VH' => {:sections => 'five', :floorSections => 'five', :depth => 12, :height => 12, :shelves => 2},
+      'Shelves' => {:sections => 'seven', :floorSections => 'six', :depth => '14 3/4', :height => 76, :shelves => 5},
+      'Corner' => {:sections => 'three', :floorSections => 'three', :depth => 12},
     }
     placements = [
       {:value => 'Left', :text => 'L'},
