@@ -57,9 +57,9 @@ module Closets
     closetFace = addFace(closet, -wallHeight)
 
     # Add dimension lines
-    addDimension(closet[0], closet[1], [0, 0, 4]) if depthL > 0
-    addDimension(closet[1], closet[2], [0, 0, closetHeight+2])
-    addDimension(closet[2], closet[3], [0, 0, 4]) if depthR > 0
+    addDimension(closet[0], closet[1], [0, 0, wallHeight+5]) if depthL > 0
+    addDimension(closet[1], closet[2], [0, 0, wallHeight+5])
+    addDimension(closet[2], closet[3], [0, 0, wallHeight+5]) if depthR > 0
 
     # Add title
     addTitle(name, Geom::Point3d.new(width/2-name.length*2, depthL, wallHeight-8.inch)) unless name == ""
@@ -307,15 +307,54 @@ module Closets
     addRod(width, [posX, posY, rodZ])
   end
 
+  def self.buildCornerShelves (closet)
+    width   = closet['width']
+    depth   = closet['depth']
+    height  = closet['height']
+
+    posX = closet['location'][0]
+    posY = closet['location'][1]
+    posZ = closet['location'][2]
+
+    shelves = closet['shelves']
+
+    # Shelves
+    addShelf(width, depth, [posX, posY, posZ+height], true)
+
+  end
+
+  def self.buildFloorCornerShelves (closet)
+    width   = closet['width']
+    depth   = closet['depth']
+    height  = closet['height']
+
+    posX = closet['location'][0]
+    posY = closet['location'][1]
+    posZ = closet['location'][2]
+
+    shelves = closet['shelves']
+
+    # Shelves
+    addShelf(width, depth, [posX, posY, posZ+height], true)
+    addShelf(width, depth, [posX, posY, @@opts['cleat']+@@opts['thickness']])
+    addCleat(width, [posX, posY+2, 0])
+
+  end
+
   # From Dialog
   def self.verifyParams(closets, params)
     errors = []
-    closets.each do |closet|
+    closets.each_with_index do |closet, i|
       type = closet['type']
 
       noZeroes = ['width','depth','height','shelves']
       noZeroes.each do |attr|
         errors << attr.capitalize! + " cannot be zero for #{type} section."    if closet[attr] == 0.to_s
+      end
+
+      if (type == 'Corner' && !([0, (closets.length-1)].include? i))
+
+        errors << "Corner shelf must be on an end."
       end
     end
     errors
@@ -326,12 +365,12 @@ module Closets
     @@move = false
 
     setClosets(closets, params)
-    floor = params['floor']
     buildHeight = params['buildHeight']
     buildDepth = params['buildDepth']
     posX = 0
 
     closets.each do |closet|
+      floor = closet['floor']
       width = closet['width']
       depth = closet['depth']
       height = closet['height']
@@ -339,7 +378,7 @@ module Closets
 
       closet['location'] = [posX, buildDepth-depth, buildHeight-height]
 
-      if (["Left", "Center"].include? placement)
+      if (closet['type'] != 'Corner' && (["Left", "Center"].include? placement))
         addGable(depth, height, closet['location'])
         closet['location'][0] += @@opts['thickness']
       end
@@ -351,23 +390,25 @@ module Closets
         floor ? buildFloorDHShelves(closet) : buildDHShelves(closet)
       when 'VH'
         floor ? buildFloorVHShelves(closet) : buildVHShelves(closet)
+      when 'Corner'
+        floor ? buildFloorCornerShelves(closet) : buildCornerShelves(closet)
       when "Shelves"
         buildShelfStack(closet, floor)
       end
       closet['location'][0] += width
 
-      if (["Right", "Center"].include? placement)
+      if (closet['type'] != 'Corner' && (["Right", "Center"].include? placement))
         addGable(depth, height, closet['location'])
         closet['location'][0] += @@opts['thickness']
       end
+      addWallRail(width, [0, buildDepth-5.mm, buildHeight-3.inch]) unless floor
 
       posX = closet['location'][0]
     end
 
-    addWallRail(posX.to_l, [0, buildDepth-5.mm, buildHeight-3.inch]) unless floor
 
     @@move = true
-    moveToSelection(buildDepth, buildHeight, floor)
+    moveToSelection(buildDepth, buildHeight)
     endOperation
 
     true

@@ -52,6 +52,13 @@
             <label>Left Depth</label>
             <input placeholder="Left Depth" v-model="closet.depthLeft">
           </div>
+          <div class="field">
+            <label>Remove 1/2"</label>
+            <div class="ui toggle checkbox">
+              <input type="checkbox" v-model="closet.trimL">
+              <label></label>
+            </div>
+          </div>
         </div>
 
         <div class="ten wide column">
@@ -63,6 +70,13 @@
               <label>Right Depth</label>
               <input placeholder="Right Depth" v-model="closet.depthRight">
           </div>
+          <div class="field">
+            <label>Remove 1/2"</label>
+            <div class="ui toggle checkbox">
+              <input type="checkbox" v-model="closet.trimR">
+              <label></label>
+            </div>
+          </div>
         </div>
 
         <div class="row">
@@ -71,12 +85,26 @@
               <label>Return Left</label>
               <input v-model="closet.returnL">
             </div>
+            <div class="field">
+              <label>Remove 1/2"</label>
+              <div class="ui toggle checkbox">
+                <input type="checkbox" v-model="closet.trimReturnL">
+                <label></label>
+              </div>
+            </div>
           </div>
           <div class="two wide column"></div>
           <div class="left aligned three wide column">
             <div class="field">
               <label>Return Right</label>
               <input v-model="closet.returnR">
+            </div>
+            <div class="field">
+              <label>Remove 1/2"</label>
+              <div class="ui toggle checkbox">
+                <input type="checkbox" v-model="closet.trimReturnR">
+                <label></label>
+              </div>
             </div>
           </div>
         </div>

@@ -244,7 +244,7 @@ module Closets
   end
 
   def self.addCleat (width, location)
-    compName = "#{width} x #{@@opts['thickness']}\" Cleat"
+    compName = "#{width} x #{@@opts['cleat']}\" x #{@@opts['thickness']}\" Cleat"
 
     compDefinition = Sketchup.active_model.definitions[compName]
     transformation = Geom::Transformation.new(location)
@@ -385,6 +385,7 @@ module Closets
     closets.each do |closet|
       sections += 1 if (closet['width'].empty?)
       dividedWidth -= (closet['width'].to_l + @@opts['thickness'])
+      dividedWidth += @@opts['thickness'] if closet['type'] == 'Corner'
     end
 
     params['sectionWidth'] = dividedWidth/sections
@@ -392,12 +393,12 @@ module Closets
 
   def self.setHeights(closets, params)
 
-    floor = params['floor']
     floorHeight = params['height'].empty? ? @@floorHeight : params['height'].to_l
     buildHeight = 0
     buildDepth = 0
 
     closets.each do |closet|
+      floor = closet['floor']
       case closet['type']
       when "LH"
         depth  = closet['depth'].empty? ? (floor ? @@floorDepth : @@hangDepth) : closet['depth']
@@ -407,6 +408,10 @@ module Closets
         height = floor ? floorHeight : @@dhHeight
       when "VH"
         closet['shelves'] = closet['shelves'].empty? ? 2 : closet['shelves'].to_i
+        depth  = closet['depth'].empty? ? (floor ? @@floorDepth : @@hangDepth) : closet['depth']
+        height = floor ? floorHeight : (closet['height'].empty? ? @@lhHeight : closet['height'])
+      when "Corner"
+        closet['shelves'] = floor ? 2 : 1
         depth  = closet['depth'].empty? ? (floor ? @@floorDepth : @@hangDepth) : closet['depth']
         height = floor ? floorHeight : (closet['height'].empty? ? @@lhHeight : closet['height'])
       when "Shelves"
@@ -433,11 +438,14 @@ module Closets
       return
     end
 
-    key = params['floor'] ? 'depth' : 'height'
+
 
     build.map.with_index do |closet, i|
+      key = closet['floor'] ? 'depth' : 'height'
       # Placements
-      if (i == 0) # First
+      if (closet['type']=='Corner')
+        placement = "Shelves"
+      elsif (i == 0) # First
         isNextTaller = (build[i+1][key] >= closet[key])
         if (totalPlacement=="Right")
           placement = isNextTaller ? "Shelves" : "Right"
@@ -456,7 +464,7 @@ module Closets
         nextH = build[i+1][key]
         thisH = closet[key]
 
-        if    (lastH <= thisH && thisH > nextH)
+        if    (lastH <= thisH && (thisH > nextH || build[i+1]['type'] == 'Corner'))
           placement = "Center"
         elsif (lastH <= thisH && thisH <= nextH)
           placement = "Left"

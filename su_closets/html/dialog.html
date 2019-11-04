@@ -45,20 +45,9 @@
   <div id="app">
     <template v-if="closets">
     <form class="ui form">
-      <div class="ui padded grid" v-bind:class="closetParams.floor ? 'four column' : 'three column'">
+      <div class="ui padded grid two column">
         <div class="centered column row">
           <h1 class="ui dividing header">Build Closet</h1>
-        </div>
-        <div class="centered sixteen wide column">
-          <div class="ui negative message" v-bind:class="{'hidden' : !hasError}">
-            <i class="close icon" v-on:click="closeError"></i>
-            <div class="header">An error occured.</div>
-            <p>
-              <template v-for="error in errorMessages">
-                {{ error }}<br/>
-              </template>
-            </p>
-          </div>
         </div>
 
         <div class="row">
@@ -70,35 +59,25 @@
             </div>
           </div>
 
-          <div class="center aligned column">
-            <div class="field">
+          <div class="column">
+            <div class="fluid field">
               <label>Placement</label>
               <div class="ui fluid mini buttons">
                 <template v-for="placement in placements">
                     <div class="ui button checkbox" v-bind:class="{ 'active': closetParams.placement == placement.value }">
                       <input type="radio" v-bind:value="placement.value" v-model="closetParams.placement">
-                      <label>{{ placement.text }}</label>
+                      <label>{{ placement.value }}</label>
                     </div>
                 </template>
               </div>
             </div>
           </div>
 
-          <div class="center aligned column" v-bind:class="closetParams.floor ? '' : 'hidden'">
+          <div class="center aligned column" v-bind:class="false ? '' : 'hidden'">
             <div class="fluid field">
               <label>Closet Height</label>
               <input placeholder="Height"
                       v-model="closetParams.height">
-            </div>
-          </div>
-
-          <div class="right aligned column">
-            <div class="field">
-              <label>Floor Mount</label>
-              <div class="ui toggle checkbox">
-                <input type="checkbox" v-model="closetParams.floor">
-                <label></label>
-              </div>
             </div>
           </div>
         </div>
@@ -132,7 +111,7 @@
             <div class="sixteen wide column">
               <div class="ui padded" v-bind:class="[
                 closet.type ?
-                  (closetParams.floor ? types[closet.type].floorSections : types[closet.type].sections) + ' column grid'
+                  (closet.floor ? types[closet.type].floorSections : types[closet.type].sections) + ' column grid'
                   : 'hidden' ]">
                 <div class="tight column field" data-tooltip="Defaults to split evenly">
                   <label>Width</label>
@@ -144,7 +123,7 @@
                   <input v-model="closet.depth" placeholder="Depth">
                 </div>
                 <div class="tight column field" v-bind:data-tooltip='(closet.type ? "Defaults to " + types[closet.type].height + "\"" : "")'
-                      v-bind:class="[ (closet.type == 'LH' || closet.type == 'DH' || closetParams.floor) ? 'hidden' : '' ]">
+                      v-bind:class="[ (closet.type == 'LH' || closet.type == 'DH' || closet.type == 'Corner' || closet.floor) ? 'hidden' : '' ]">
                   <label>Height</label>
                   <input v-model="closet.height" placeholder="Height">
                 </div>
@@ -159,7 +138,7 @@
                   <input v-model.number="closet.drawers" placeholder="Drawers" type="number">
                 </div>
                 <div class="tight column field"
-                      v-bind:class="[ (closet.type == 'VH' && closetParams.floor) ? '' : 'hidden' ]">
+                      v-bind:class="[ (closet.type == 'VH' && closet.floor) ? '' : 'hidden' ]">
                   <label>High Rod</label>
                   <div class="ui toggle checkbox">
                     <input type="checkbox" v-model="closet.reverse">
@@ -171,6 +150,13 @@
                   <label>Doors</label>
                   <div class="ui toggle checkbox">
                     <input type="checkbox" v-model="closet.doors">
+                    <label></label>
+                  </div>
+                </div>
+                <div class="tight column field">
+                  <label>Floor</label>
+                  <div class="ui toggle checkbox">
+                    <input type="checkbox" v-model="closet.floor">
                     <label></label>
                   </div>
                 </div>
@@ -208,6 +194,18 @@
         <div class="ui button" v-on:click="cancel">Cancel</div>
         <div class="ui negative button" v-on:click="unbuild" v-bind:class="{'hidden': !isBuilt}">Undo</div>
 
+      </div>
+
+      <div class="centered sixteen wide column">
+        <div class="ui negative message" v-bind:class="{'hidden' : !hasError}">
+          <i class="close icon" v-on:click="closeError"></i>
+          <div class="header">An error occured.</div>
+          <p>
+            <template v-for="error in errorMessages">
+              {{ error }}<br/>
+            </template>
+          </p>
+        </div>
       </div>
     </form>
     </template>
@@ -254,7 +252,8 @@
             shelves: '',
             reverse: false,
             doors: false,
-            drawerHeight: [10]
+            drawerHeight: [10],
+            floor: false,
           });
         },
         removeSection: function(i) {
