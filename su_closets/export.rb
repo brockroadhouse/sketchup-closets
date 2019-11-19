@@ -86,7 +86,7 @@ module Closets
       @@subTotal += closetTotal
     end
     @@subTotal = @@subTotal.round(2)
-    @@total = (@@subTotal * (1+@@tax)).round(2)
+    @@total = (@@subTotal * (1+@@opts['tax'])).round(2)
 
   end # setPartsList
 
