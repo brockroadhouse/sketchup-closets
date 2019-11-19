@@ -1,4 +1,9 @@
 {
+    "tax": {
+        "title": "Tax (%)",
+        "value": "7",
+        "type": "percent"
+    },
     "cost": {
         "title": "Wood cost per square inch",
         "value": "0.09",

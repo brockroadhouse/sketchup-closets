@@ -446,7 +446,9 @@ module Closets
       if (closet['type']=='Corner')
         placement = "Shelves"
       elsif (i == 0) # First
-        isNextTaller = (build[i+1][key] >= closet[key])
+        taller = (build[i+1]['height'] >= closet['height'])
+        deeper = (build[i+1]['depth'] > closet['depth'])
+        isNextTaller = taller || deeper
         if (totalPlacement=="Right")
           placement = isNextTaller ? "Shelves" : "Right"
         else

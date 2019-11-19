@@ -30,8 +30,9 @@ module Closets
   end
 
   def self.setParts
-    @@total = 0
-    @@comps = Hash.new
+    @@total     = 0
+    @@subTotal  = 0
+    @@comps     = Hash.new
     @@selection.each do |s|
       getSelectionComps(s)
     end
@@ -40,6 +41,7 @@ module Closets
 
   def self.setPartsList
     @@parts = Hash.new
+    @@closetTotals = Hash.new
     @@comps.each do |group, components|
       closetTotal = 0
       @@parts[group] = Array.new
@@ -79,10 +81,12 @@ module Closets
         closetTotal += cost
       end
       @@parts[group].sort! {|a,b| a[0] <=> b[0] }
-      @@parts[group] << ["", "", "", "", "", "SubTotal", sprintf("$%2.2f", closetTotal)]
-      @@total += closetTotal
+      @@parts[group] << ["", "", "", "", "", "Closet Total", sprintf("$%2.2f", closetTotal)]
+      @@closetTotals[group] = closetTotal.round(2)
+      @@subTotal += closetTotal
     end
-    @@total = sprintf("$%2.2f", @@total)
+    @@subTotal = @@subTotal.round(2)
+    @@total = (@@subTotal * (1+@@tax)).round(2)
 
   end # setPartsList
 
@@ -112,7 +116,7 @@ module Closets
     return hinges*@@opts['hingeCost'].to_f
   end
 
-  def self.exportCsv
+  def self.exportCsv(discount = 0)
     title = @@model.title.length > 0 ? @@model.title : "Cut List"
     filename = UI.savepanel("Save Cut List", Dir::pwd, 'CSV file|*.csv||')
     return unless filename
@@ -127,7 +131,22 @@ module Closets
             file << line
           end
         end
-        file << ["", "", "", "", "", "Total:", @@total]
+        file << [""]
+        @@closetTotals.each do |name, closetTotal|
+          file << ["", "", "", "", "", name, sprintf("$%2.2f", closetTotal)]
+        end
+        unless (discount == 0)
+          file << ["", "", "", "", "", "Discount (%):", sprintf("%2.2f", discount)]
+          file << ["", "", "", "", "", "Discount:", sprintf("$%2.2f", @@subTotal*(-discount/100))]
+        end
+        subtotal = (@@subTotal*(1-discount/100)).round(2)
+        tax      = (@@opts['tax'] * subtotal).round(2)
+        total    = subtotal + tax
+
+        file << ["", "", "", "", "", "Sub-Total:", sprintf("$%2.2f", subtotal)]
+        file << ["", "", "", "", "", "Tax:", sprintf("$%2.2f", tax)]
+        file << ["", "", "", "", "", "Total:", sprintf("$%2.2f", total)]
+
       end
     rescue => e
       UI.messagebox("Error writing to file: " + e.message)
@@ -161,12 +180,21 @@ module Closets
     @quote_dialog.add_action_callback("ready") { |action_context|
       partsJson   = JSON.generate(@@parts)
       headersJson = JSON.generate(["Name", "Qty", "Width", "Height", "Depth", "Unit Price", "Price"])
+      closetsJson   = @@closetTotals.to_json
+      taxJson   = @@opts['tax'].to_json
+      subTotalJson   = @@subTotal.to_json
       totalJson   = @@total.to_json
-      @quote_dialog.execute_script("updateData(#{partsJson}, #{headersJson}, #{totalJson})")
+      @quote_dialog.execute_script("updateData(
+        #{partsJson},
+        #{headersJson},
+        #{closetsJson},
+        #{subTotalJson},
+        #{taxJson},
+        #{totalJson})")
       nil
     }
-    @quote_dialog.add_action_callback("exportCsv") { |action_context, value|
-      exportCsv
+    @quote_dialog.add_action_callback("exportCsv") { |action_context, discount|
+      exportCsv(discount.to_f)
       nil
     }
     @quote_dialog.add_action_callback("cancel") { |action_context, value|

@@ -368,9 +368,11 @@ module Closets
     buildHeight = params['buildHeight']
     buildDepth = params['buildDepth']
     posX = 0
+    hang = false
 
     closets.each do |closet|
       floor = closet['floor']
+      hang = true unless floor
       width = closet['width']
       depth = closet['depth']
       height = closet['height']
@@ -401,10 +403,10 @@ module Closets
         addGable(depth, height, closet['location'])
         closet['location'][0] += @@opts['thickness']
       end
-      addWallRail(width, [0, buildDepth-5.mm, buildHeight-3.inch]) unless floor
 
       posX = closet['location'][0]
     end
+    addWallRail(posX, [0, buildDepth-5.mm, buildHeight-3.inch]) if hang
 
 
     @@move = true

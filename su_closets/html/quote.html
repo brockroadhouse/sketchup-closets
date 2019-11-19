@@ -12,6 +12,12 @@
     .hidden {
       display: none !important;
     }
+    .ui.table.breakdown {
+      font-size: 0.8em;
+    }
+    .ui.table.totals tfoot {
+      font-size: 1.1em;
+    }
   </style>
 </head>
 <body>
@@ -23,7 +29,8 @@
           <div class="content">Quote</div>
         </h1>
 
-        <table class="ui striped celled table">
+        <div class="ui button" v-on:click="toggleDiv">{{ toggleTitle }} Breakdown</div>
+        <table class="ui striped celled table breakdown" v-if="display_div">
           <thead>
             <tr>
               <template v-for="header in headers">
@@ -39,18 +46,53 @@
               <template v-for="piece in part">
                 <tr>
                   <template v-for="attr in piece">
-                    <td>{{ attr }}</td>
+                    <td class="right aligned">{{ attr }}</td>
                   </template>
                 </tr>
               </template>
             </template>
           </tbody>
+        </table>
+
+        <table class="ui striped celled fixed table totals">
+        <form class="ui form">
+          <tbody>
+            <template v-for="(closetTotal, name) in closetsTotal">
+              <tr>
+                <td class="right aligned"><strong>{{ name }}</strong></td>
+                <td class="right aligned">${{ closetTotal }}</td>
+              </tr>
+            </template>
+            <tr>
+              <td colspan="2">
+              </td>
+            </tr>
+            <tr>
+                <td class="right aligned">Discount (%)</td>
+                <td class="ui right aligned fluid input">
+                  <input class="right aligned" v-model="discount">
+                </td>
+            </tr>
+            <tr>
+              <td class="right aligned">Discount ($)</td>
+              <td class="right aligned">${{ (subTotal * (-discount/100)).toFixed(2) }}</td>
+            </tr>
+            <tr>
+              <td class="right aligned">Sub-Total</td>
+              <td class="right aligned">${{ subTotalCalc }}</td>
+            </tr>
+            <tr>
+              <td class="right aligned">Tax ({{ tax*100 }}%)</td>
+              <td class="right aligned">${{ taxCalc }}</td>
+            </tr>
+          </tbody>
           <tfoot class="full-width">
             <tr>
-              <th class="right aligned" colspan="6"><strong>Total</strong></th>
-              <th><strong>{{ total }}<strong></th>
+              <th class="right aligned"><strong>Total</strong></th>
+              <th class="right aligned"><strong>${{ totalCalc }}<strong></th>
             </tr>
           </tfoot>
+        </form>
         </table>
 
         <div>
@@ -70,23 +112,58 @@
       data: {
         parts: null,
         headers: null,
+        closetsTotal: null,
+        subTotal: null,
+        tax: null,
         total: null,
+        discount: 0,
+        display_div: false,
+        toggleTitle: "View",
+      },
+      computed: {
+        subTotalCalc: function () {
+          return (this.subTotal * (1 - (this.discount/100)) ).toFixed(2)
+        },
+        taxCalc: function () {
+          return (this.subTotalCalc * this.tax).toFixed(2)
+        },
+        totalCalc: function () {
+          total = (this.subTotal * (1 - (this.discount/100)) ) * (1+this.tax)
+          return total.toFixed(2)
+        },
       },
       methods: {
         exportCsv: function() {
-          sketchup.exportCsv();
+          console.log(this.discount);
+          sketchup.exportCsv(this.discount);
         },
         cancel: function() {
           sketchup.cancel();
         },
+        toggleDiv: function() {
+            if (this.display_div) {
+              this.display_div = false;
+              this.toggleTitle = "View";
+            } else {
+              this.display_div = true;
+              this.toggleTitle = "Hide";
+            }
+        },
       },
       mounted: function() {
+      $('.ui.accordion')
+        .accordion()
+      ;
         sketchup.ready();
+        console.log($('.ui.accordion'));
       },
     });
-    function updateData(parts, headers, total) {
+    function updateData(parts, headers, closetsTotal, subTotal, tax, total) {
       app.parts   = parts;
       app.headers = headers;
+      app.closetsTotal = closetsTotal;
+      app.subTotal   = subTotal;
+      app.tax   = tax;
       app.total   = total;
     };
   </script>

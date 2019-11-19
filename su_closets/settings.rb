@@ -116,6 +116,13 @@ module Closets
   def self.set_options_from_file
     json_options = File.read(@optionsFile)
     options = JSON.parse(json_options)
+
+    def_json_options = File.read(@defaultOptionsFile)
+    def_options = JSON.parse(def_json_options)
+
+    def_options.each do |key, option|
+      options[key] = option unless options.key?(key)
+    end
     set_options(options)
   end
 
@@ -127,12 +134,15 @@ module Closets
         value = option['value'].to_l
       when "currency"
         value = option['value'].to_f
+      when "percent"
+        value = option['value'].to_f/100
       else
         value = option['value']
       end
       @@opts[key] = value
     end
     save_options
+
   end
 
   init
