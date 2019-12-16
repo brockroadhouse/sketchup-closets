@@ -452,7 +452,7 @@ module Closets
 
         taller = (build[i+1]['height'] >= closet['height'])
         deeper = (build[i+1]['depth'] >= closet['depth'])
-        isNextTaller = ((taller && !floor) || (deeper)) 
+        isNextTaller = ((taller && !floor) || (deeper && nextF)) 
         if (totalPlacement=="Right")
           placement = isNextTaller ? "Shelves" : "Right"
         else
