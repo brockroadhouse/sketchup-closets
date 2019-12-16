@@ -442,19 +442,24 @@ module Closets
 
     build.map.with_index do |closet, i|
       key = closet['floor'] ? 'depth' : 'height'
+      floor = closet['floor']
+
       # Placements
       if (closet['type']=='Corner')
         placement = "Shelves"
       elsif (i == 0) # First
+        nextF = build[i+1]['floor']
+
         taller = (build[i+1]['height'] >= closet['height'])
-        deeper = (build[i+1]['depth'] > closet['depth'])
-        isNextTaller = taller || deeper
+        deeper = (build[i+1]['depth'] >= closet['depth'])
+        isNextTaller = ((taller && !floor) || (deeper)) 
         if (totalPlacement=="Right")
           placement = isNextTaller ? "Shelves" : "Right"
         else
           placement = isNextTaller ? "Left" : "Center"
         end
       elsif (i == build.count-1) # Last
+        lastF = build[i-1]['floor']
         isPrevTaller = (build[i-1][key] > closet[key])
         if (totalPlacement=="Left")
           placement = isPrevTaller ? "Shelves" : "Left"
@@ -465,12 +470,14 @@ module Closets
         lastH = build[i-1][key]
         nextH = build[i+1][key]
         thisH = closet[key]
+        lastF = build[i-1]['floor']
+        nextF = build[i+1]['floor']
 
-        if    (lastH <= thisH && (thisH > nextH || build[i+1]['type'] == 'Corner'))
+        if    (lastH <= thisH && (thisH > nextH || build[i+1]['type'] == 'Corner' || (floor && !nextF )))
           placement = "Center"
         elsif (lastH <= thisH && thisH <= nextH)
           placement = "Left"
-        elsif (lastH > thisH && thisH > nextH)
+        elsif ((lastH > thisH && thisH > nextH) || (floor && !nextF))
           placement = "Right"
         elsif (lastH > thisH && thisH <= nextH)
           placement = "Shelves"
