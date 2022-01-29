@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Copyright 2014 Trimble Navigation Ltd.
 #
 # License: The MIT License (MIT)
@@ -5,20 +7,18 @@
 # A SketchUp Ruby Extension that creates simple shape objects.  More info at
 # https://github.com/SketchUp/shapes
 
-
-require "sketchup.rb"
-require "extensions.rb"
+require 'sketchup.rb'
+require 'extensions.rb'
 
 module FVCC
   module Closets
-
     # Create the extension.
-    loader = File.join(File.dirname(__FILE__), "su_closets", "main.rb")
-    extension = SketchupExtension.new("Closets", loader)
-    extension.description = "Closet Builder"
-    extension.version     = "2.0.2"
-    extension.creator     = "BROADHOUSE"
-    extension.copyright   = "NONE"
+    loader = File.join(File.dirname(__FILE__), 'su_closets', 'main.rb')
+    extension = SketchupExtension.new('Closets', loader)
+    extension.description = 'Closet Builder'
+    extension.version     = '2.0.2'
+    extension.creator     = 'BROADHOUSE'
+    extension.copyright   = 'NONE'
 
     # Register the extension with so it show up in the Preference panel.
     Sketchup.register_extension(extension, true)
@@ -29,13 +29,13 @@ module FVCC
       # original_verbose = $VERBOSE
       # $VERBOSE = nil
       pattern = File.join(__dir__, '**/*.rb')
-      Dir.glob(pattern).each { |file|
+      Dir.glob(pattern).each do |file|
+        p file
         # Cannot use `Sketchup.load` because its an alias for `Sketchup.require`.
         load file
-      }.size
-    #ensure
-      #$VERBOSE = original_verbose
+      end.size
+      # ensure
+      # $VERBOSE = original_verbose
     end
-
   end # module Closets
 end # module FVCC

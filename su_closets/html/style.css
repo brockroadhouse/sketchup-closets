@@ -1,0 +1,42 @@
+.ui.button.checkbox label::before,
+.ui.button.checkbox label::after {
+    display: none;
+}
+
+.field .ui.toggle.checkbox {
+    margin-top: 0.5em;
+}
+
+.ui.super.mini.buttons .ui.button.checkbox {
+    padding-left: 1.1em;
+    padding-right: 1.1em;
+}
+
+.ui.button.checkbox input {
+    width: 100%;
+    height: 100%;
+}
+
+.ui.button.checkbox label {
+    padding-left: 0;
+}
+
+.ui.toggle.checkbox .box:before, .ui.toggle.checkbox label:before {
+    background-color: #c0c1c2;
+}
+
+.ui.grid .tight.column {
+    padding: 1rem 0.5rem;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.tight.column.field {
+    margin-bottom: 0;
+}
+
+.tight.column.field label {
+    /* display: none; */
+}

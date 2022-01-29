@@ -1,0 +1,78 @@
+{
+    "adjustableShelf": {
+        "title": "Adjustable Shelf",
+        "programName": "AdjShelf",
+        "params":""
+    },
+    "fixedShelf": {
+        "title": "Fixed Shelf",
+        "programName": "FixedShelf",
+        "params":""
+    },
+    "cleat": {
+        "title": "Cleat",
+        "programName": "Cleat64"
+    },
+    "door": {
+        "title": "Door",
+        "programName": "Door"
+    },
+    "doubleHang": {
+        "title": "Double Hang ",
+        "programName": "WHDHCenter"
+    }
+}
+// AdjShelf
+// Cleat64mm
+// DHShelf
+// Door
+// DrawerBack19mm
+// DrawerBackSmallDouble
+// DrawerBottom19mm
+// DrawerFrontLarge
+// DrawerFrontMedium
+// DrawerFrontSmall
+// DrawerLargeBack
+// DrawerMediumBack19mm
+// DrawerMediumBackDouble19mm
+// FixedShelf
+// FixedShelfDado
+// FMDH-LHCenter
+// FMDH-LHLeft
+// FMDH-LHRight
+// FMDHCenter
+// FMDHLeft
+// FMDHRight
+// FMGableCenter
+// FMGableCenterThurston
+// FMGableDeepCenter
+// FMGableDeepDHCenter
+// FMGableEnd
+// FMGableLeft
+// FMGableLeftFullBack
+// FMGableRight
+// FMGableRightFullBack
+// FMHutchGableCenter
+// FMLHCenter
+// FMLHCenterSPECIAL
+// FMLHLeft
+// FMLHRight
+// FMSHCenter
+// FMStretcheredGable
+// WH1ShelfCenter
+// WH1ShelfLeft
+// WHDH-LH
+// WHDHCenter
+// WHDHLeft
+// WHDHRight
+// WHGableCenter
+// WHGableCenterbkup
+// WHGableCenterCustomNotch
+// WHGableCenterTEMP
+// WHGableLeft
+// WHGableRight
+// WHLHCenter
+// WHLHLeft
+// WHLHRight
+// WHMedicineGable
+// WHMedicineGableLeft

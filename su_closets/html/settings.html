@@ -27,19 +27,45 @@
         </h1>
 
         <div class="ui form">
-          <table class="ui unstackable fixed striped celled table">
-            <tbody>
-              <tr v-for="(option, key) in options">
-                <td>{{ option.title }}</td>
-                <td>
-                  <input type="hidden" v-model="key" />
-                  <input v-model="option.value"/>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+            <tabs class="ui">
+                <tab name="Currency & Dimensions" :selected=true>
+                    <table class="ui unstackable fixed striped celled table">
+                        <tbody>
+                          <tr v-for="(option, key) in options">
+                            <td>{{ option.title }}</td>
+                            <td>
+                              <input type="hidden" v-model="key" />
+                              <input v-model="option.value"/>
+                            </td>
+                          </tr>
+                        </tbody>
+                    </table>
+                </tab>
+                <tab name="CNC Options">
+                    <table class="ui unstackable fixed striped celled table">
+                        <thead>
+                            <tr>
+                                <th>Element</th>
+                                <th>Name</th>
+                                <th>Parameters</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="(option, key) in cncOptions">
+                            <td>{{ option.title }}<input type="hidden" v-model="key" /></td>
+                            <td>
+                              <input v-model="option.programName"/>
+                            </td>
+                            <td>
+                              <input v-model="option.params"/>
+                            </td>
+                          </tr>
+                        </tbody>
+                    </table>
+                </tab>
+            </tabs>
 
-          <div>
+          <div style="margin-top: 10px;">
             <div class="ui primary button" v-on:click="save">Save</div>
             <div class="ui button" v-on:click="cancel">Cancel</div>
           </div>
@@ -52,14 +78,76 @@
   </div><!-- app -->
   <script>
 
+    Vue.component('tabs', {
+      template: `
+          <div>
+              <div class="tabs">
+                <div class="ui top attached tabular menu">
+                  <div v-for="tab in tabs" class="item" :class="{ 'active': tab.isActive }">
+                      <a :href="tab.href" @click="selectTab(tab)">{{ tab.name }}</a>
+                  </div>
+                </div>
+
+                <div class="ui bottom attached tab segment" :class="{ 'active': true }">
+                  <slot></slot>
+                </div>
+              </div>
+          </div>
+      `,
+
+      data() {
+          return {tabs: [] };
+      },
+
+      created() {
+
+          this.tabs = this.$children;
+
+      },
+      methods: {
+          selectTab(selectedTab) {
+              this.tabs.forEach(tab => {
+                  tab.isActive = (tab.name == selectedTab.name);
+              });
+          }
+      }
+  });
+
+  Vue.component('tab', {
+    template: `
+        <div v-show="isActive"><slot></slot></div>
+    `,
+    props: {
+        name: { required: true },
+        selected: { default: false}
+    },
+    data() {
+        return {
+            isActive: false
+        };
+    },
+    computed: {
+        href() {
+            return '#' + this.name.toLowerCase().replace(/ /g, '-');
+        }
+    },
+    mounted() {
+        this.isActive = this.selected;
+    }
+});
+
     var app = new Vue({
       el: '#app',
       data: {
         options: null,
+        cncOptions: null,
       },
       methods: {
         save: function() {
-          sketchup.save(this.options);
+          sketchup.save(
+              this.options,
+              this.cncOptions
+          );
         },
         cancel: function() {
           sketchup.cancel();
@@ -69,9 +157,10 @@
         sketchup.ready();
       },
     });
-    function updateData(options) {
+    function updateData(options, cnc) {
       app.options = options;
-      console.log(options)
+      app.cncOptions = cnc;
+      console.log(cnc);
     };
   </script>
 </body>

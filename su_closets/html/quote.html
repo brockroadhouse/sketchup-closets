@@ -30,7 +30,7 @@
         </h1>
 
         <div class="ui button" v-on:click="toggleDiv">{{ toggleTitle }} Breakdown</div>
-        <table class="ui striped celled table breakdown" v-if="display_div">
+        <table class="ui striped celled table breakdown unstackable" v-if="display_div">
           <thead>
             <tr>
               <template v-for="header in headers">
@@ -54,7 +54,7 @@
           </tbody>
         </table>
 
-        <table class="ui striped celled fixed table totals">
+        <table class="ui striped celled fixed table totals unstackable">
         <form class="ui form">
           <tbody>
             <template v-for="(closetTotal, name) in closetsTotal">
@@ -82,7 +82,7 @@
               <td class="right aligned">${{ subTotalCalc }}</td>
             </tr>
             <tr>
-              <td class="right aligned">Tax ({{ tax*100 }}%)</td>
+              <td class="right aligned">Tax ({{ (tax*100).toFixed(2) }}%)</td>
               <td class="right aligned">${{ taxCalc }}</td>
             </tr>
           </tbody>

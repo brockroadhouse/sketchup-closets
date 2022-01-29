@@ -3,8 +3,8 @@ require "su_closets/svg.rb"
 
 module Closets
 
-  def self.exportCutList
-    startOperation("Export Cut List", false)
+  def self.exportQuote
+    startOperation("Export Quote", false)
     if (@@selection.length < 1)
       UI.messagebox("Nothing selected.")
       return
@@ -16,23 +16,24 @@ module Closets
     endOperation
   end # export
 
-  def self.exportSvg
-    startOperation("Export SVG", false)
+  def self.exportCutList
+    startOperation("Export Cut List", false)
     if (@@selection.length < 1)
       UI.messagebox("Nothing selected.")
       return
     end
 
     setParts
-    renderSvg
+    exportCutListCsv
 
     endOperation
-  end
+  end # export cut list
 
   def self.setParts
     @@total     = 0
     @@subTotal  = 0
     @@comps     = Hash.new
+    @cncParts  = Hash.new
     @@selection.each do |s|
       getSelectionComps(s)
     end
@@ -44,7 +45,7 @@ module Closets
     @@closetTotals = Hash.new
     @@comps.each do |group, components|
       closetTotal = 0
-      @@parts[group] = Array.new
+      @@parts[group] = Array.new unless @@parts.has_key?(group)
       components.each do |guid, comp|
         name = comp[:instance].name
         inst = comp[:instance].bounds
@@ -92,7 +93,9 @@ module Closets
 
   def self.getSelectionComps(s, name = nil)
     if (s.is_a? Sketchup::ComponentInstance)
+      addToCutList(s)
       guid = s.definition.guid
+      name = 'Ungrouped' if (name.to_s.strip.empty?)
       @@comps[name] = Hash.new unless (@@comps.has_key? name)
       if (@@comps[name].has_key? guid)
         @@comps[name][guid][:count] = @@comps[name][guid][:count]+1
@@ -103,6 +106,15 @@ module Closets
       gName = (name == nil) ? s.name : name
       s.entities.each { |g| getSelectionComps(g, gName) }
     end
+  end
+
+  def self.addToCutList(instance)
+    dict = instance.attribute_dictionary("cnc")
+    return if dict.nil? || !@@cncData.key?(dict['name']) 
+    key = dict.values.join("-")
+    
+    @cncParts[key] = {:count => 1, :attributes => dict} unless (@cncParts.has_key? key)
+    @cncParts[key][:count] = @cncParts[key][:count]+1
   end
 
   def self.hingeCost(height)
@@ -117,8 +129,8 @@ module Closets
   end
 
   def self.exportCsv(discount = 0)
-    title = @@model.title.length > 0 ? @@model.title : "Cut List"
-    filename = UI.savepanel("Save Cut List", Dir::pwd, 'CSV file|*.csv||')
+    title = @@model.title.length > 0 ? @@model.title : "Quote"
+    filename = UI.savepanel("Save Quote", Dir::pwd, 'CSV file|*.csv||')
     return unless filename
     filename << ".csv" unless filename[-4..-1] == ".csv"
 
@@ -150,6 +162,48 @@ module Closets
       end
     rescue => e
       UI.messagebox("Error writing to file: " + e.message)
+    end
+  end
+
+  def self.exportCutListCsv()
+    title = @@model.title.length > 0 ? @@model.title : "Cut List"
+    filename = UI.savepanel("Save Cut List", Dir::pwd, 'CSV file|*.csv||')
+    return unless filename
+    filename << ".csv" unless filename[-4..-1] == ".csv"
+
+    begin
+     CSV.open(filename, "wb") do |file|
+        file << [
+          "qty", 
+          "material", 
+          "program", 
+          "width", 
+          "height", 
+          "depth", 
+          "grain", 
+          "margin"
+        ]
+        p @@cncData
+
+        @cncParts.each do |key, part|
+          attributes = part[:attributes]
+          
+          file << [
+            part[:count], 
+            "white", 
+            @@cncData[attributes['name']]['programName'],
+            attributes['width'].to_mm.round, 
+            attributes['depth'].to_mm.round, 
+            @@opts['thickness'].to_mm.round,
+            1, 
+            0
+          ]
+        end
+      end
+    rescue => e
+      p e
+      UI.messagebox("Error writing to file: " + e.message)
+      pp e
     end
   end
 
