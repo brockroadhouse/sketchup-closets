@@ -234,12 +234,17 @@ module Closets
 
     # Add dimension line
     if (dimension == true)
-      xStart  = location[0]
+      x       = location[0]
       xEnd    = location[0]+width
       y       = location[1]
+      yEnd    = location[1]+depth
       z       = location[2]
 
-      addDimension([xStart, y, z], [xEnd, y, z], [0,0,-5])
+      # Width
+      addDimension([x, y, z], [xEnd, y, z], [0,0,-5])
+
+      # Depth
+      addDimension([x, y, z], [x, yEnd, z], [width/2,0,0])
     end
   end
 
@@ -379,8 +384,11 @@ module Closets
   end
 
   def self.dividedWidth(closets, params)
-    dividedWidth = params['width'].to_l
+    gaps = params['gapLeft'].to_l + params['gapRight'].to_l
+    buildWidth = dividedWidth = params['width'].to_l - gaps
+    
     dividedWidth -= @@opts['thickness'] if params['placement']=='Center'
+
     sections = 0
     closets.each do |closet|
       sections += 1 if (closet['width'].empty?)
@@ -389,6 +397,8 @@ module Closets
     end
 
     params['sectionWidth'] = dividedWidth/sections
+    params['buildWidth'] = buildWidth
+
   end
 
   def self.setHeights(closets, params)

@@ -153,6 +153,8 @@ module Closets
     ]
     closetParams = {
       :width => defaultWidth.to_l,
+      :gapLeft => 0,
+      :gapRight => 0,
       :height => selectionHeight==0 ? 84.inch : selectionHeight.to_l,
       :placement => 'Center'
     }

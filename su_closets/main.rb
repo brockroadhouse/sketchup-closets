@@ -367,7 +367,9 @@ module Closets
     setClosets(closets, params)
     buildHeight = params['buildHeight']
     buildDepth = params['buildDepth']
-    posX = 0
+    buildWidth = params['buildWidth']
+    
+    posX = start = params['gapLeft'].to_l 
     hang = false
 
     closets.each do |closet|
@@ -406,7 +408,7 @@ module Closets
 
       posX = closet['location'][0]
     end
-    addWallRail(posX, [0, buildDepth-5.mm, buildHeight-3.inch]) if hang
+    addWallRail(buildWidth, [start, buildDepth-5.mm, buildHeight-3.inch]) if hang
 
 
     @@move = true
