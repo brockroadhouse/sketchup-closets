@@ -383,7 +383,7 @@ module Closets
       closet['location'] = [posX, buildDepth-depth, buildHeight-height]
 
       if (closet['type'] != 'Corner' && (["Left", "Center"].include? placement))
-        addGable(depth, height, closet['location'])
+        addGable(depth, height, closet['location'], closet['leftGable'], closet['leftParams'])
         closet['location'][0] += @@opts['thickness']
       end
 
@@ -402,7 +402,7 @@ module Closets
       closet['location'][0] += width
 
       if (closet['type'] != 'Corner' && (["Right", "Center"].include? placement))
-        addGable(depth, height, closet['location'])
+        addGable(depth, height, closet['location'], closet['rightGable'], closet['rightParams'])
         closet['location'][0] += @@opts['thickness']
       end
 

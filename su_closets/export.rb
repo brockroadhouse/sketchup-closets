@@ -3,6 +3,20 @@ require "su_closets/svg.rb"
 
 module Closets
 
+  def self.viewQuoteList
+    startOperation("View Quote", false)
+    if (@@selection.length < 1)
+      UI.messagebox("Nothing selected.")
+      return
+    end
+
+    setParts
+    setPartsList
+    showQuoteDialog
+
+    endOperation
+  end # export
+
   def self.exportCutList
     startOperation("Export Cut List", false)
     if (@@selection.length < 1)
@@ -11,7 +25,8 @@ module Closets
     end
 
     setParts
-    showQuoteDialog
+    setCutListParts
+    exportCutListCsv
 
     endOperation
   end # export
@@ -24,6 +39,7 @@ module Closets
     end
 
     setParts
+    setPartsList
     renderSvg
 
     endOperation
@@ -36,12 +52,12 @@ module Closets
     @@selection.each do |s|
       getSelectionComps(s)
     end
-    setPartsList
   end
 
   def self.setPartsList
     @@parts = Hash.new
     @@closetTotals = Hash.new
+    @@edgetape = 0
     @@comps.each do |group, components|
       closetTotal = 0
       @@parts[group] = Array.new
@@ -54,23 +70,30 @@ module Closets
         d = inst.depth
         cost = 0
 
+
+        # file << ["Name", "Qty", "Width", "Height", "Depth", "Unit Price", "Price"]
         if (name.include? "Gable")
           cost = c*h.to_f*d.to_f*@@opts['cost'].to_f
           @@parts[group] << ["Gable", c, h, d, w, sprintf("$%2.2f", @@opts['cost']), sprintf("$%2.2f", cost)]
+          @@edgetape +=  c*(d.to_f + h.to_f)
         elsif (name.include? "Shelf")
           cost = c*w.to_f*h.to_f*@@opts['cost'].to_f
           @@parts[group] << ["Shelf", c, w.to_l, h.to_l, d, sprintf("$%2.2f", @@opts['cost']), sprintf("$%2.2f", cost)]
+          @@edgetape +=  c*w.to_f
         elsif (name.include? "Cleat")
           cost = c*w.to_f*d.to_f*@@opts['cost'].to_f
           @@parts[group] << ["Cleat", c, w, d, h, sprintf("$%2.2f", @@opts['cost']), sprintf("$%2.2f", cost)]
+          @@edgetape +=  c*w.to_f
         elsif (name.include? "Door")
           rate = w.to_f*d.to_f*@@opts['cost'].to_f + hingeCost(d)
           cost = c*rate
           @@parts[group] << ["Door", c, w, d, h, sprintf("$%2.2f",rate), sprintf("$%2.2f", cost)]
+          @@edgetape +=  c*(w.to_f + d.to_f)*2
         elsif (name.include? "Drawer")
           rate = (w.to_f*d.to_f*@@opts['cost'].to_f+@@opts['drawerCost'].to_f)
           cost = c*rate
           @@parts[group] << ["Drawer", c, w, d, h,sprintf("$%2.2f",rate), sprintf("$%2.2f", cost)]
+          @@edgetape +=  c*(w.to_f + d.to_f)*2
         elsif (name.include? "Rod")
           cost = c*w.to_f*@@opts['rodCost'].to_f
           @@parts[group] << ["Rod", c, w, '1"', '1.5"', sprintf("$%2.2f", @@opts['rodCost']), sprintf("$%2.2f", cost)]
@@ -80,6 +103,7 @@ module Closets
         end
         closetTotal += cost
       end
+      @@edgetape = @@edgetape.to_feet
       @@parts[group].sort! {|a,b| a[0] <=> b[0] }
       @@parts[group] << ["", "", "", "", "", "Closet Total", sprintf("$%2.2f", closetTotal)]
       @@closetTotals[group] = closetTotal.round(2)
@@ -117,8 +141,8 @@ module Closets
   end
 
   def self.exportCsv(discount = 0)
-    title = @@model.title.length > 0 ? @@model.title : "Cut List"
-    filename = UI.savepanel("Save Cut List", Dir::pwd, 'CSV file|*.csv||')
+    title = @@model.title.length > 0 ? @@model.title : "Quote"
+    filename = UI.savepanel("Save Quote", Dir::pwd, 'CSV file|*.csv||')
     return unless filename
     filename << ".csv" unless filename[-4..-1] == ".csv"
 
@@ -146,6 +170,69 @@ module Closets
         file << ["", "", "", "", "", "Sub-Total:", sprintf("$%2.2f", subtotal)]
         file << ["", "", "", "", "", "Tax:", sprintf("$%2.2f", tax)]
         file << ["", "", "", "", "", "Total:", sprintf("$%2.2f", total)]
+
+      end
+    rescue => e
+      UI.messagebox("Error writing to file: " + e.message)
+    end
+  end
+
+
+  def self.setCutListParts
+    @@cutList = Array.new
+    @@comps.each do |group, components|
+      components.each do |guid, comp|
+        name = comp[:instance].name
+        inst = comp[:instance].bounds
+        c = comp[:count]
+        w = inst.width.to_mm.round
+        h = inst.height.to_mm.round
+        d = inst.depth.to_mm.round
+
+        # Only add parts to cut
+        if (name.include? "Gable")
+          dimension = [h, d, w]
+        elsif (name.include? "Shelf")
+          dimension = [w, h, d]
+        elsif (["Cleat", "Door", "Drawer"].any?{|piece| name.include? piece})
+          dimension = [w, d, h]
+        else
+          next
+        end
+
+        puts comp
+        puts comp[:instance]
+        puts comp[:instance].description
+
+        # CNC Options
+        partName = comp[:instance].get_attribute("cutlist", "partName", name)
+        part = @@opts["programLocation"] + partName + "." + @@opts["programType"]
+        material = 'White'
+        params = comp[:instance].description
+
+
+        # Headers for import:
+        # ["Qty", "material", "partname", "width", "height", "thickness", "margin", "grainDirection", "name", "params"]
+
+        @@cutList << [c, material, part, 0, nil, partName, params].insert(3, *dimension)
+      end
+    end
+
+  end # setCutListParts
+
+  def self.exportCutListCsv()
+    title = @@model.title.length > 0 ? @@model.title : "Cut List"
+    filename = UI.savepanel("Save Cut List", Dir::pwd, 'CSV file|*.csv||')
+    return unless filename
+    filename << ".csv" unless filename[-4..-1] == ".csv"
+
+    begin
+      CSV.open(filename, "wb") do |file|
+
+        file << ["Qty", "material", "partname", "width", "height", "thickness", "margin", "grainDirection", "name", "params"]
+        @@cutList.each do |line|
+          file << line
+        end
 
       end
     rescue => e
@@ -181,16 +268,18 @@ module Closets
       partsJson   = JSON.generate(@@parts)
       headersJson = JSON.generate(["Name", "Qty", "Width", "Height", "Depth", "Unit Price", "Price"])
       closetsJson   = @@closetTotals.to_json
-      taxJson   = @@opts['tax'].to_json
+      taxJson   = @@opts['tax'].round(2).to_json
       subTotalJson   = @@subTotal.to_json
       totalJson   = @@total.to_json
+      edgetapeJson   = @@edgetape.to_json
       @quote_dialog.execute_script("updateData(
         #{partsJson},
         #{headersJson},
         #{closetsJson},
         #{subTotalJson},
         #{taxJson},
-        #{totalJson})")
+        #{totalJson},
+        #{edgetapeJson})")
       nil
     }
     @quote_dialog.add_action_callback("exportCsv") { |action_context, discount|

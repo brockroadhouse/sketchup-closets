@@ -86,17 +86,23 @@ module Closets
 
   ## Settings Functions ##
   def self.init
-    @defaultOptionsFile = File.join(__dir__, 'settings.json')
-    set_options_file
-    set_options_from_file
+    to_load = [
+      'settings.json',
+      'parts.json'
+    ]
+    to_load.each do |file| 
+      defaultFile = File.join(__dir__, file)
+      optionsFile = set_options_file(defaultFile, file)
+      set_options_from_file(defaultFile, optionsFile)
+    end
   end
 
-  def self.save_options
+  def self.save_options(optionsFile)
     json_str = JSON.pretty_generate(@@optsData)
-    File.open(@optionsFile,"w") {|io| io.write(json_str) }
+    File.open(optionsFile,"w") {|io| io.write(json_str) }
   end
 
-  def self.set_options_file
+  def self.set_options_file(defaultFile, file)
     # %APPDATA% #
     appdata = File::expand_path('../../..',Sketchup::find_support_file('Plugins'))
 
@@ -107,26 +113,28 @@ module Closets
     plugpath = File::join(dirpath,"Closets")
     Dir::mkdir(plugpath) unless Dir::exist?(plugpath)
 
-    @optionsFile = File::join(plugpath,"settings.json")
-    unless File::exist?(@optionsFile)
-      FileUtils.cp(@defaultOptionsFile, @optionsFile)
+    optionsFile = File::join(plugpath,file)
+    unless File::exist?(optionsFile)
+      FileUtils.cp(defaultFile, optionsFile)
     end
+    optionsFile
   end
 
-  def self.set_options_from_file
-    json_options = File.read(@optionsFile)
+  # Set values from default
+  def self.set_options_from_file(defaultFile, optionsFile)
+    json_options = File.read(optionsFile)
     options = JSON.parse(json_options)
 
-    def_json_options = File.read(@defaultOptionsFile)
+    def_json_options = File.read(defaultFile)
     def_options = JSON.parse(def_json_options)
 
     def_options.each do |key, option|
       options[key] = option unless options.key?(key)
     end
-    set_options(options)
+    set_options(options, optionsFile)
   end
 
-  def self.set_options(options)
+  def self.set_options(options, optionsFile)
     @@optsData = options
     @@optsData.each do |key, option|
       case option['type']
@@ -141,7 +149,7 @@ module Closets
       end
       @@opts[key] = value
     end
-    save_options
+    save_options(optionsFile)
 
   end
 

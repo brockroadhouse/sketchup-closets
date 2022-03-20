@@ -8,7 +8,8 @@ module Closets
       extMenu.add_item("Create Walls") {showRoomDialog}
       extMenu.add_item("Build Closet") {show_dialog}
     extMenu.add_separator
-      extMenu.add_item("View Quote") {exportCutList}
+      extMenu.add_item("View Quote") {viewQuoteList}
+      extMenu.add_item("Export Cut List") {exportCutList}
     extMenu.add_separator
       subMenu = extMenu.add_submenu("Change Units")
         subMenu.add_item("Set to mm") {setModelmm}

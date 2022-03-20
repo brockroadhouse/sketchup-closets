@@ -30,7 +30,7 @@
         </h1>
 
         <div class="ui button" v-on:click="toggleDiv">{{ toggleTitle }} Breakdown</div>
-        <table class="ui striped celled table breakdown" v-if="display_div">
+        <table class="ui striped celled table breakdown unstackable" v-if="display_div">
           <thead>
             <tr>
               <template v-for="header in headers">
@@ -54,7 +54,7 @@
           </tbody>
         </table>
 
-        <table class="ui striped celled fixed table totals">
+        <table class="ui striped celled fixed table totals unstackable">
         <form class="ui form">
           <tbody>
             <template v-for="(closetTotal, name) in closetsTotal">
@@ -66,6 +66,10 @@
             <tr>
               <td colspan="2">
               </td>
+            </tr>
+            <tr>
+                <td class="right aligned">Edgetape</td>
+                <td class="right aligned">{{ edgetape }} ft</td>
             </tr>
             <tr>
                 <td class="right aligned">Discount (%)</td>
@@ -82,7 +86,7 @@
               <td class="right aligned">${{ subTotalCalc }}</td>
             </tr>
             <tr>
-              <td class="right aligned">Tax ({{ tax*100 }}%)</td>
+              <td class="right aligned">Tax ({{ taxPercentCalc }}%)</td>
               <td class="right aligned">${{ taxCalc }}</td>
             </tr>
           </tbody>
@@ -117,6 +121,7 @@
         tax: null,
         total: null,
         discount: 0,
+        edgetape: 0,
         display_div: false,
         toggleTitle: "View",
       },
@@ -126,6 +131,9 @@
         },
         taxCalc: function () {
           return (this.subTotalCalc * this.tax).toFixed(2)
+        },
+        taxPercentCalc: function () {
+          return (this.tax * 100).toFixed(2)
         },
         totalCalc: function () {
           total = (this.subTotal * (1 - (this.discount/100)) ) * (1+this.tax)
@@ -158,13 +166,14 @@
         console.log($('.ui.accordion'));
       },
     });
-    function updateData(parts, headers, closetsTotal, subTotal, tax, total) {
+    function updateData(parts, headers, closetsTotal, subTotal, tax, total, edgetape) {
       app.parts   = parts;
       app.headers = headers;
       app.closetsTotal = closetsTotal;
       app.subTotal   = subTotal;
       app.tax   = tax;
       app.total   = total;
+      app.edgetape   = edgetape;
     };
   </script>
 </body>

@@ -16,7 +16,7 @@ module FVCC
     loader = File.join(File.dirname(__FILE__), "su_closets", "main.rb")
     extension = SketchupExtension.new("Closets", loader)
     extension.description = "Closet Builder"
-    extension.version     = "2.0.2"
+    extension.version     = "2.1.05"
     extension.creator     = "BROADHOUSE"
     extension.copyright   = "NONE"
 
@@ -24,17 +24,12 @@ module FVCC
     Sketchup.register_extension(extension, true)
 
     # Reload extension by running this method from the Ruby Console:
-    #   Example::HelloWorld.reload
     def self.reload
-      # original_verbose = $VERBOSE
-      # $VERBOSE = nil
-      pattern = File.join(__dir__, '**/*.rb')
+      pattern = File.join(__dir__, '*/*.rb')
       Dir.glob(pattern).each { |file|
         # Cannot use `Sketchup.load` because its an alias for `Sketchup.require`.
         load file
       }.size
-    #ensure
-      #$VERBOSE = original_verbose
     end
 
   end # module Closets

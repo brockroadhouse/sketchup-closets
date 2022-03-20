@@ -109,7 +109,7 @@ module Closets
     group
   end
 
-  def self.addComponent (x, y, z, name, dimension = false)
+  def self.addComponent (x, y, z, name, partName = '')
     face = [
       Geom::Point3d.new(0, 0, 0),
       Geom::Point3d.new(x, 0, 0),
@@ -119,6 +119,7 @@ module Closets
     group = addFace(face, @@opts['thickness'])
     comp = group.to_component
     comp.definition.name = name
+    comp.definition.description = partName
     comp
   end
 
@@ -194,8 +195,13 @@ module Closets
 
   end
 
-  def self.addGable (width, height, location = [0, 0, 0])
-    compName = "#{width} x #{height} x #{@@opts['thickness']}\" Gable"
+  def self.addGable (width, height, location = [0, 0, 0], partName = '', params = '')
+    ### Where was I? Oh yeah! ####
+    ## name = gable name + params
+    ## description = partname
+    ## I guess put cnc 'params' into dictionary of instance?
+
+    compName = partName
     compDefinition = Sketchup.active_model.definitions[compName]
     transformation = Geom::Transformation.new(location)
     if (!compDefinition)
@@ -207,7 +213,8 @@ module Closets
       ]
       group = addFace(gable, @@opts['thickness'])
       comp = group.to_component
-      comp.definition.name = compName
+      comp.definition.name = partName
+      comp.definition.description = params
 
       comp.move! transformation
     else
@@ -222,11 +229,15 @@ module Closets
   end
 
   def self.addShelf (width, depth, location, dimension = false)
-    compName = "#{width} x #{depth} x #{@@opts['thickness']}\" Shelf"
+    compName = "Shelf @ #{width.round()} x #{depth}"
+    partName = 'FixedShelf'
+
     compDefinition = Sketchup.active_model.definitions[compName]
     transformation = Geom::Transformation.new(location)
+
+    # create if part doesn't exist or not the same dimensions
     if (!compDefinition)
-      comp = addComponent(width, depth, @@opts['thickness'], compName)
+      comp = addComponent(width, depth, @@opts['thickness'], compName, partName)
       comp.move! transformation
     else
       comp = @@currentEnt.add_instance(compDefinition, transformation)
@@ -448,8 +459,6 @@ module Closets
       return
     end
 
-
-
     build.map.with_index do |closet, i|
       key = closet['floor'] ? 'depth' : 'height'
       floor = closet['floor']
@@ -514,50 +523,41 @@ module Closets
     dividedWidth(build, params)
     setHeights(build, params)
     setPlacements(build, params)
+    setCNCParams(build, params)
 
   end
 
-  def self.setMixedParams(build)
-    if (build.length == 1)
-      build[0][:placement] = "Center"
-      build[0][:offset]    = @@opts['thickness'] * 2
-      return
+  def self.setCNCParams(build, params)
+    build.map.with_index do |closet, i|
+
+      placement = closet['placement'] # Left/Center/Right/Shelves
+      loc = closet['floor'] ? 'FM' : 'WH' # Floor or Wall Hung
+      type = getGableType(closet['type']) # DH, LH, etc.
+      return unless type
+      
+      
+      if (["Left", "Center"].include? placement)
+        closet['leftGable'] = loc + type + placement
+        closet['leftParams'] = 'LH=1'
+      end
+      if (["Right", "Center"].include? placement)
+        closet['rightGable'] = loc + type + placement
+        closet['rightParams'] = 'DH=1'
+      end
     end
+  end
 
-    build.map.with_index do |buildOpts, i|
-      # Placements
-      if (i == 0) # First
-        placement = (build[i+1][:height] >= buildOpts[:height]) ? "Left" : "Center"
-      elsif (i == build.count-1) # Last
-        placement = (build[i-1][:height] > buildOpts[:height]) ? "Right" : "Center"
-      else
-        lastH = build[i-1][:height]
-        nextH = build[i+1][:height]
-        thisH = buildOpts[:height]
-
-        if    (lastH <= thisH && thisH > nextH)
-          placement = "Center"
-        elsif (lastH <= thisH && thisH <= nextH)
-          placement = "Left"
-        elsif (lastH > thisH && thisH > nextH)
-          placement = "Right"
-        elsif (lastH > thisH && thisH <= nextH)
-          placement = "Shelves"
-        end
-
-      end
-
-      # Offsets
-      if (placement == "Center")
-        offset = @@opts['thickness'] * 2
-      elsif (placement == "Shelves")
-        offset = 0
-      else
-        offset = @@opts['thickness']
-      end
-
-      buildOpts[:placement] = placement
-      buildOpts[:offset]    = offset
+  def self.getGableType(type)
+    case type
+    when 'LH','DH'
+      return type
+    when 'VH'
+      # VH is just a custom LH
+      return 'LH'
+    when 'Shelves'
+      return 'Gable'
+    when 'Corner'
+      return ''
     end
   end
 
