@@ -109,17 +109,15 @@ module Closets
     group
   end
 
-  def self.addComponent (x, y, z, name, partName = '')
-    face = [
-      Geom::Point3d.new(0, 0, 0),
-      Geom::Point3d.new(x, 0, 0),
-      Geom::Point3d.new(x, y, 0),
-      Geom::Point3d.new(0, y, 0),
-    ]
+  def self.addPartComponent (face, trans, name, partName, params = '')
     group = addFace(face, @@opts['thickness'])
     comp = group.to_component
+
     comp.definition.name = name
-    comp.definition.description = partName
+    comp.definition.set_attribute("cnc_params", "partName", partName)
+    comp.definition.set_attribute("cnc_params", "params", params)
+    
+    comp.move! trans
     comp
   end
 
@@ -195,28 +193,26 @@ module Closets
 
   end
 
-  def self.addGable (width, height, location = [0, 0, 0], partName = '', params = '')
-    ### Where was I? Oh yeah! ####
-    ## name = gable name + params
-    ## description = partname
-    ## I guess put cnc 'params' into dictionary of instance?
+  def self.gableExists(compDefinition, part)
+    params      = part.fetch('params', '')
+    compParams  = compDefinition.get_attribute("cnc_params", "params", '')
+    return params == compParams
+  end
 
-    compName = partName
+  def self.addGable (width, height, location = [0, 0, 0], part = {})
+
+    compName = part.fetch('partName', 'Gable')
+
     compDefinition = Sketchup.active_model.definitions[compName]
     transformation = Geom::Transformation.new(location)
-    if (!compDefinition)
+    if (!compDefinition || !gableExists(compDefinition, part))
       gable = [
         Geom::Point3d.new(0, 0, 0),
         Geom::Point3d.new(0, width, 0),
         Geom::Point3d.new(0, width, height),
         Geom::Point3d.new(0, 0, height),
       ]
-      group = addFace(gable, @@opts['thickness'])
-      comp = group.to_component
-      comp.definition.name = partName
-      comp.definition.description = params
-
-      comp.move! transformation
+      comp = addPartComponent(face, transformation, compName, partName, params)
     else
       @@currentEnt.add_instance compDefinition, transformation
     end
@@ -229,16 +225,21 @@ module Closets
   end
 
   def self.addShelf (width, depth, location, dimension = false)
-    compName = "Shelf @ #{width.round()} x #{depth}"
+    name = "Shelf @ #{width.round()} x #{depth}"
     partName = 'FixedShelf'
 
-    compDefinition = Sketchup.active_model.definitions[compName]
+    compDefinition = Sketchup.active_model.definitions[name]
     transformation = Geom::Transformation.new(location)
 
     # create if part doesn't exist or not the same dimensions
     if (!compDefinition)
-      comp = addComponent(width, depth, @@opts['thickness'], compName, partName)
-      comp.move! transformation
+      face = [
+        Geom::Point3d.new(0, 0, 0),
+        Geom::Point3d.new(x, 0, 0),
+        Geom::Point3d.new(x, y, 0),
+        Geom::Point3d.new(0, y, 0),
+      ]
+      comp = addPartComponent(face, transformation, name, partName)
     else
       comp = @@currentEnt.add_instance(compDefinition, transformation)
     end
@@ -260,7 +261,8 @@ module Closets
   end
 
   def self.addCleat (width, location)
-    compName = "#{width} x #{@@opts['cleat']}\" x #{@@opts['thickness']}\" Cleat"
+    compName = "#{width} Cleat"
+    partName = 'Cleat64'
 
     compDefinition = Sketchup.active_model.definitions[compName]
     transformation = Geom::Transformation.new(location)
@@ -271,11 +273,7 @@ module Closets
         Geom::Point3d.new(width, 0, @@opts['cleat']),
         Geom::Point3d.new(0, 0, @@opts['cleat']),
       ]
-      group = addFace(cleat, @@opts['thickness'])
-      comp = group.to_component
-      comp.definition.name = compName
-
-      comp.move! transformation
+      comp = addPartComponent(cleat, transformation, compName, partName)
     else
       @@currentEnt.add_instance(compDefinition, transformation)
     end
@@ -527,38 +525,60 @@ module Closets
 
   end
 
-  def self.setCNCParams(build, params)
-    build.map.with_index do |closet, i|
+  def self.setCNCParams(sections, params)
+    sections.map.with_index do |closet, i|
 
-      placement = closet['placement'] # Left/Center/Right/Shelves
-      loc = closet['floor'] ? 'FM' : 'WH' # Floor or Wall Hung
-      type = getGableType(closet['type']) # DH, LH, etc.
-      return unless type
+      return unless closet['type'] != 'Corner'
       
-      
+      placement = closet['placement']
       if (["Left", "Center"].include? placement)
-        closet['leftGable'] = loc + type + placement
-        closet['leftParams'] = 'LH=1'
+        closet['leftGable'] = self.getGableType(sections, i, closet, 'left')
+        puts 'LEFT:'
+        puts closet['leftGable']
       end
+
       if (["Right", "Center"].include? placement)
-        closet['rightGable'] = loc + type + placement
-        closet['rightParams'] = 'DH=1'
+        closet['rightGable'] = self.getGableType(sections, i, closet, 'right')
+        puts 'RIGHT:'
+        puts closet['rightGable']
       end
+
     end
   end
 
-  def self.getGableType(type)
-    case type
-    when 'LH','DH'
-      return type
-    when 'VH'
-      # VH is just a custom LH
-      return 'LH'
-    when 'Shelves'
-      return 'Gable'
-    when 'Corner'
-      return ''
+  def self.getGableType(sections, i, current, side)
+    # default to center gable
+    type = 'Center'
+    
+    type      = current['type']                # DH, LH, Shelves etc.
+    loc       = current['floor'] ? 'FM' : 'WH' # Floor or Wall Hung
+    finished  = current['finished']
+
+    first = (side == 'left' && i == 0)
+    last  = (side == 'right' && i == sections.length-1)
+
+    base = @@cncParts[type][loc]
+    if (first || last) 
+      # Left gable of first section or right gable of last section
+      if finished
+        part = base[side]['finished']
+      else
+        part = base['center']
+      end
+    else
+      other = side == 'left' ? sections[i-1] : sections[i+1]
+
+      otherType = other['type']
+      if (otherType == type)
+        part = base['center']
+      else
+        trans = 'to' + otherType # toDH/toLH
+        part = base[side][trans]
+      end
+
     end
+
+    return part
   end
 
   def self.displayError(e)

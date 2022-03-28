@@ -1,22 +1,146 @@
 {
-    "programLocation":{
-        "title": "Program Location",
-        "value": "C:\\Users\\XP600\\Documents\\bSolid\\ClosetParts\\",
-        "type": "text"
-    },
-    "programType":{
-        "title": "Program Type",
-        "value": "bSolid",
-        "type": "text"
-    },
-    "defaultWood":{
-        "title": "Default Wood",
-        "value": "White4x8_19mm",
-        "type": "text"
-    },
     "shelf":{
-        "title": "Shelf",
-        "value": "FixedShelf",
-        "type": "text"
+        "partName": "FixedShelf"
+    },
+    "Shelves":{
+        "WH":{
+            "center":{
+                "partName": "WHGableCenter"
+            },
+            "left":{
+                "finished":{
+                    "partName": "WHGableLeft"
+                },
+                "toLH":{
+                    "partName": "WHGableLeft",
+                    "params": "LH=1"
+                },
+                "toDH":{
+                    "partName": "WHGableLeft",
+                    "params": "DH=1"
+                },
+                "toCorner":{
+                    "partName": "WHGableLeft",
+                    "params": "THRU=1"
+                }
+            },
+            "right":{
+                "finished":{
+                    "partName": "WHGableRight"
+                },
+                "toLH":{
+                    "partName": "WHGableRight",
+                    "params": "LH=1"
+                },
+                "toDH":{
+                    "partName": "WHGableRight",
+                    "params": "DH=1"
+                },
+                "toCorner":{
+                    "partName": "WHGableRight",
+                    "params": "THRU=1"
+                }
+            }
+        },
+        "FM":{
+            "center":{
+                "partName": "WHGableCenter"
+            },
+            "left":{
+                "finished":{
+                    "partName": "WHGableLeft"
+                },
+                "toLH":{
+                    "partName": "WHGableLeft",
+                    "params": "LH=1"
+                },
+                "toDH":{
+                    "partName": "WHGableLeft",
+                    "params": "DH=1"
+                },
+                "toCorner":{
+                    "partName": "WHGableLeft",
+                    "params": "THRU=1"
+                }
+            },
+            "right":{
+                "finished":{
+                    "partName": "WHGableRight"
+                },
+                "toLH":{
+                    "partName": "WHGableRight",
+                    "params": "LH=1"
+                },
+                "toDH":{
+                    "partName": "WHGableRight",
+                    "params": "DH=1"
+                },
+                "toCorner":{
+                    "partName": "WHGableRight",
+                    "params": "THRU=1"
+                }
+            }
+        }
+    },
+    "LH":{
+        "WH":{
+            "center":{
+                "partName": "WHLHCenter"
+            },
+            "left":{
+                "finished":{
+                    "partName": "WHLHLeft"
+                }
+            },
+            "right":{
+                "finished":{
+                    "partName": "WHLHRight"
+                }
+            }
+        }
+    },
+    "DH":{
+        "WH":{
+            "center":{
+                "partName": "WHDHCenter"
+            },
+            "left":{
+                "finished":{
+                    "partName": "WHDHLeft"
+                },
+                "toLH":{
+                    "partName": "WHDH-LH"
+                }
+            },
+            "right":{
+                "finished":{
+                    "partName": "WHDHRight"
+                },
+                "toLH":{
+                    "partName": "WHDH-LH"
+                }
+            }
+        },
+        "FM":{
+            "center":{
+                "partName": "WHDHCenter"
+            },
+            "left":{
+                "finished":{
+                    "partName": "WHDHLeft"
+                },
+                "toLH":{
+                    "partName": "WHDH-LH"
+                }
+            },
+            "right":{
+                "finished":{
+                    "partName": "WHDHRight"
+                },
+                "toLH":{
+                    "partName": "WHDH-LH"
+                }
+            }
+        }
     }
 }

@@ -37,6 +37,7 @@ module Closets
   @defaultOptionsFile
   @@opts = {}
   @@optsData = {}
+  @@cncParts = {}
 
   ## Settings Dialog ##
   def self.create_settings_dialog
@@ -74,7 +75,8 @@ module Closets
 
   def self.update_settings_dialog
     options_json  = JSON.generate(@@optsData)
-    @settings_dialog.execute_script("updateData(#{options_json})")
+    cncParts_json  = JSON.generate(@@cncParts)
+    @settings_dialog.execute_script("updateData(#{options_json}, #{cncParts_json})")
   end
 
   def self.update_options_from_dialog(options)
@@ -86,14 +88,14 @@ module Closets
 
   ## Settings Functions ##
   def self.init
-    to_load = [
-      'settings.json',
-      'parts.json'
-    ]
-    to_load.each do |file| 
+    to_load = {
+      'settings.json' => @@opts,
+      'parts.json' => @@cncParts
+    }
+    to_load.each do |file, optsVar| 
       defaultFile = File.join(__dir__, file)
       optionsFile = set_options_file(defaultFile, file)
-      set_options_from_file(defaultFile, optionsFile)
+      set_options_from_file(defaultFile, optionsFile, optsVar)
     end
   end
 
@@ -121,7 +123,7 @@ module Closets
   end
 
   # Set values from default
-  def self.set_options_from_file(defaultFile, optionsFile)
+  def self.set_options_from_file(defaultFile, optionsFile, optsVar)
     json_options = File.read(optionsFile)
     options = JSON.parse(json_options)
 
@@ -131,10 +133,10 @@ module Closets
     def_options.each do |key, option|
       options[key] = option unless options.key?(key)
     end
-    set_options(options, optionsFile)
+    set_options(options, optionsFile, optsVar)
   end
 
-  def self.set_options(options, optionsFile)
+  def self.set_options(options, optionsFile, optsVar)
     @@optsData = options
     @@optsData.each do |key, option|
       case option['type']
@@ -144,10 +146,12 @@ module Closets
         value = option['value'].to_f
       when "percent"
         value = option['value'].to_f/100
-      else
+      when "text"
         value = option['value']
+      else
+        value = option
       end
-      @@opts[key] = value
+      optsVar[key] = value
     end
     save_options(optionsFile)
 

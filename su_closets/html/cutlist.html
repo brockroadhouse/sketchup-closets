@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="vendor/Semantic-UI/semantic.min.css" rel="stylesheet">
+  <script src="vendor/jquery.js"></script>
+  <script src="vendor/Semantic-UI/semantic.min.js"></script>
+  <script src="vendor/vue.js"></script>
+  <style>
+    .main.container {
+      padding: 2em 0.25em;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .ui.table.breakdown {
+      font-size: 0.8em;
+    }
+    .ui.table.totals tfoot {
+      font-size: 1.1em;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <template v-if="parts">
+      <div class="ui main container">
+        <h1 class="ui header">
+          <i class="dollar sign icon"></i>
+          <div class="content">Cutlist</div>
+        </h1>
+
+        <table class="ui striped celled table breakdown unstackable">
+          <thead>
+            <tr>
+              <template v-for="header in headers">
+                <th>{{ header }}</th>
+              </template>
+            </tr>
+          </thead>
+          <tbody>
+            <template v-for="part in parts">
+                <tr>
+                  <template v-for="piece in part">
+                    <td class="right aligned">{{ piece }}</td>
+                  </template>
+                </tr>
+            </template>
+          </tbody>
+        </table>
+
+        <div>
+          <div class="ui primary button" v-on:click="exportCsv">Export</div>
+          <div class="ui button" v-on:click="cancel">Cancel</div>
+        </div>
+      </div>
+    </template>
+    <template v-else>
+      <h2>Error loading data</h2>
+    </template>
+  </div><!-- app -->
+  <script>
+
+    var app = new Vue({
+      el: '#app',
+      data: {
+        parts: null,
+        headers: null,
+      },
+      methods: {
+        exportCsv: function() {
+          sketchup.exportCsv();
+        },
+        cancel: function() {
+          sketchup.cancel();
+        },
+      },
+      mounted: function() {
+        sketchup.ready();
+      },
+    });
+    function updateData(parts, headers) {
+      app.parts   = parts;
+      app.headers   = headers;
+    };
+  </script>
+</body>
+</html>

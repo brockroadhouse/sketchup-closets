@@ -29,7 +29,7 @@
         background-color: #c0c1c2;
       }
       .ui.grid .tight.column {
-        padding: 1rem 0.5rem;
+        padding: 0.75rem 0.25rem;
       }
       .hidden {
         display: none !important;
@@ -227,9 +227,16 @@
                       </div>
                     </div>
                     <div class="tight column field">
-                      <label>Floor</label>
+                      <label>Floor {{index}}</label>
                       <div class="ui toggle checkbox">
                         <input type="checkbox" v-model="closet.floor" />
+                        <label></label>
+                      </div>
+                    </div>
+                    <div class="tight column field" v-bind:class="{hidden: (index > 0 && index < closets.length - 1)}">
+                      <label>Finished {{closets.length}}</label>
+                      <div class="ui toggle checkbox">
+                        <input type="checkbox" v-model="closet.finished" />
                         <label></label>
                       </div>
                     </div>
@@ -362,6 +369,7 @@
               doors: false,
               drawerHeight: [10],
               floor: false,
+              finished: false,
             });
           },
           removeSection: function (i) {

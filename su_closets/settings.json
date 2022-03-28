@@ -38,5 +38,20 @@
         "title": "Cleat height",
         "value": "5\"",
         "type": "length"
+    },
+    "programLocation":{
+        "title": "Program Location",
+        "value": "C:\\Users\\XP600\\Documents\\bSolid\\ClosetParts\\",
+        "type": "text"
+    },
+    "programType":{
+        "title": "Program Type",
+        "value": "bSolid",
+        "type": "text"
+    },
+    "defaultWood":{
+        "title": "Default Wood",
+        "value": "White4x8_19mm",
+        "type": "text"
     }
 }

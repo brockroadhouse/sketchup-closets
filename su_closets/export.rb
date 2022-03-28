@@ -26,7 +26,8 @@ module Closets
 
     setParts
     setCutListParts
-    exportCutListCsv
+    showCutlistDialog
+    # exportCutListCsv
 
     endOperation
   end # export
@@ -182,7 +183,8 @@ module Closets
     @@cutList = Array.new
     @@comps.each do |group, components|
       components.each do |guid, comp|
-        name = comp[:instance].name
+        instname = comp[:instance].name
+        name = comp[:instance].get_attribute("cnc_params", "partName", instname)
         inst = comp[:instance].bounds
         c = comp[:count]
         w = inst.width.to_mm.round
@@ -190,19 +192,29 @@ module Closets
         d = inst.depth.to_mm.round
 
         # Only add parts to cut
-        if (name.include? "Gable")
+        if (["Rail", "Rod"].any?{|piece| name.include? piece})
+          next
+        elsif (name.include? "Gable")
           dimension = [h, d, w]
         elsif (name.include? "Shelf")
           dimension = [w, h, d]
         elsif (["Cleat", "Door", "Drawer"].any?{|piece| name.include? piece})
           dimension = [w, d, h]
         else
-          next
+          dimension = [d, h, w]
         end
 
-        puts comp
-        puts comp[:instance]
-        puts comp[:instance].description
+        # puts comp
+        # puts comp[:instance]
+        # puts comp[:instance].description
+        puts "INSTANCE:"
+        instince = comp[:instance]
+        puts instince.name
+        puts instince.get_attribute("cnc_params", "params")
+
+        # TODO: 
+        # a postprocessor for fixing widths
+        # ex. 305 -> 300, 1930 -> 1938 (int((h-18)/32)) * 32 + 18))
 
         # CNC Options
         partName = comp[:instance].get_attribute("cutlist", "partName", name)
@@ -257,7 +269,7 @@ module Closets
     dialog
   end
 
-  def self.onClose
+  def self.onClose(dialog)
     @quote_dialog = nil
   end
 
@@ -291,6 +303,43 @@ module Closets
       nil
     }
     @quote_dialog.visible? ? @quote_dialog.bring_to_front : @quote_dialog.show
+  end
+
+  def self.viewCutlist
+    title = @@model.title.length > 0 ? @@model.title + " Cutlist" : "Cutlist"
+    htmlFile = File.join(__dir__, 'html', 'cutlist.html')
+
+    options = {
+      :dialog_title => title,
+      :preferences_key => "com.fvcc.closets",
+      :style => UI::HtmlDialog::STYLE_DIALOG
+    }
+    dialog = UI::HtmlDialog.new(options)
+    dialog.set_file(htmlFile)
+    dialog.set_size(1200, 600)
+    dialog.set_on_closed { self.onCloseCutlist }
+    dialog.center
+    dialog
+  end
+
+  def self.onCloseCutlist(dialog)
+    @cutlist_dialog = nil
+  end
+
+  def self.showCutlistDialog
+
+    @cutlist_dialog ||= self.viewCutlist
+    @cutlist_dialog.add_action_callback("ready") { |action_context|
+      cutlist   = JSON.generate(@@cutList)
+      headers   = JSON.generate(["Qty", "material", "partname", "width", "height", "thickness", "margin", "grainDirection", "name", "params"])
+      @cutlist_dialog.execute_script("updateData(#{cutlist}, #{headers})")
+      nil
+    }
+    @cutlist_dialog.add_action_callback("exportCsv") { |action_context|
+      exportCutListCsv
+      nil
+    }
+    @cutlist_dialog.visible? ? @cutlist_dialog.bring_to_front : @cutlist_dialog.show
   end
 
 end # Module
