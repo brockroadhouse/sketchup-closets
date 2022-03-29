@@ -195,7 +195,7 @@ module Closets
         if (["Rail", "Rod"].any?{|piece| name.include? piece})
           next
         elsif (name.include? "Gable")
-          dimension = [h, d, w]
+          dimension = [d, h, w]
         elsif (name.include? "Shelf")
           dimension = [w, h, d]
         elsif (["Cleat", "Door", "Drawer"].any?{|piece| name.include? piece})
@@ -204,13 +204,7 @@ module Closets
           dimension = [d, h, w]
         end
 
-        # puts comp
-        # puts comp[:instance]
-        # puts comp[:instance].description
-        puts "INSTANCE:"
         instince = comp[:instance]
-        puts instince.name
-        puts instince.get_attribute("cnc_params", "params")
 
         # TODO: 
         # a postprocessor for fixing widths
@@ -220,7 +214,7 @@ module Closets
         partName = comp[:instance].get_attribute("cutlist", "partName", name)
         part = @@opts["programLocation"] + partName + "." + @@opts["programType"]
         material = 'White'
-        params = comp[:instance].description
+        params = instince.get_attribute("cnc_params", "params") #comp[:instance].description
 
 
         # Headers for import:

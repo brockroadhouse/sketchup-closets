@@ -15,6 +15,10 @@
                     "partName": "WHGableLeft",
                     "params": "LH=1"
                 },
+                "toVH":{
+                    "partName": "WHGableLeft",
+                    "params": "LH=1 LHHEIGHT={HEIGHT} LHSHELVES={SHELVES}"
+                },
                 "toDH":{
                     "partName": "WHGableLeft",
                     "params": "DH=1"
@@ -31,6 +35,10 @@
                 "toLH":{
                     "partName": "WHGableRight",
                     "params": "LH=1"
+                },
+                "toVH":{
+                    "partName": "WHGableRight",
+                    "params": "LH=1 LHHEIGHT={HEIGHT} LHSHELVES={SHELVES}"
                 },
                 "toDH":{
                     "partName": "WHGableRight",
@@ -44,39 +52,39 @@
         },
         "FM":{
             "center":{
-                "partName": "WHGableCenter"
+                "partName": "FMGableCenter"
             },
             "left":{
                 "finished":{
-                    "partName": "WHGableLeft"
+                    "partName": "FMGableLeft"
                 },
                 "toLH":{
-                    "partName": "WHGableLeft",
+                    "partName": "FMGableLeft",
                     "params": "LH=1"
                 },
                 "toDH":{
-                    "partName": "WHGableLeft",
+                    "partName": "FMGableLeft",
                     "params": "DH=1"
                 },
                 "toCorner":{
-                    "partName": "WHGableLeft",
+                    "partName": "FMGableLeft",
                     "params": "THRU=1"
                 }
             },
             "right":{
                 "finished":{
-                    "partName": "WHGableRight"
+                    "partName": "FHGableRight"
                 },
                 "toLH":{
-                    "partName": "WHGableRight",
+                    "partName": "FHGableRight",
                     "params": "LH=1"
                 },
                 "toDH":{
-                    "partName": "WHGableRight",
+                    "partName": "FHGableRight",
                     "params": "DH=1"
                 },
                 "toCorner":{
-                    "partName": "WHGableRight",
+                    "partName": "FHGableRight",
                     "params": "THRU=1"
                 }
             }

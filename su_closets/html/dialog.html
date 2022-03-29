@@ -227,14 +227,14 @@
                       </div>
                     </div>
                     <div class="tight column field">
-                      <label>Floor {{index}}</label>
+                      <label>Floor</label>
                       <div class="ui toggle checkbox">
                         <input type="checkbox" v-model="closet.floor" />
                         <label></label>
                       </div>
                     </div>
                     <div class="tight column field" v-bind:class="{hidden: (index > 0 && index < closets.length - 1)}">
-                      <label>Finished {{closets.length}}</label>
+                      <label>Finished</label>
                       <div class="ui toggle checkbox">
                         <input type="checkbox" v-model="closet.finished" />
                         <label></label>

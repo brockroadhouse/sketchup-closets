@@ -109,18 +109,6 @@ module Closets
     group
   end
 
-  def self.addPartComponent (face, trans, name, partName, params = '')
-    group = addFace(face, @@opts['thickness'])
-    comp = group.to_component
-
-    comp.definition.name = name
-    comp.definition.set_attribute("cnc_params", "partName", partName)
-    comp.definition.set_attribute("cnc_params", "params", params)
-    
-    comp.move! trans
-    comp
-  end
-
   def self.addMaterial (face, addit)
     filename = 'Materials/Metal/Metal Corrugated Shiny.skm'
     path = Sketchup.find_support_file(filename)
@@ -193,26 +181,34 @@ module Closets
 
   end
 
-  def self.gableExists(compDefinition, part)
-    params      = part.fetch('params', '')
-    compParams  = compDefinition.get_attribute("cnc_params", "params", '')
-    return params == compParams
+  def self.addPartComponent (face, trans, name, partName, params = '')
+    group = addFace(face, @@opts['thickness'])
+    comp = group.to_component
+
+    comp.definition.name = name
+    comp.definition.set_attribute("cnc_params", "partName", partName)
+    comp.definition.set_attribute("cnc_params", "params", params)
+    
+    comp.move! trans
+    comp
   end
 
   def self.addGable (width, height, location = [0, 0, 0], part = {})
 
-    compName = part.fetch('partName', 'Gable')
+    partName = part.fetch('partName', 'Gable')
+    params   = part.fetch('params', '')
+    compName = "#{partName} @ #{height} x #{width} " + params
 
     compDefinition = Sketchup.active_model.definitions[compName]
     transformation = Geom::Transformation.new(location)
-    if (!compDefinition || !gableExists(compDefinition, part))
+    if (!compDefinition)
       gable = [
         Geom::Point3d.new(0, 0, 0),
         Geom::Point3d.new(0, width, 0),
         Geom::Point3d.new(0, width, height),
         Geom::Point3d.new(0, 0, height),
       ]
-      comp = addPartComponent(face, transformation, compName, partName, params)
+      comp = addPartComponent(gable, transformation, compName, partName, params)
     else
       @@currentEnt.add_instance compDefinition, transformation
     end
@@ -225,7 +221,7 @@ module Closets
   end
 
   def self.addShelf (width, depth, location, dimension = false)
-    name = "Shelf @ #{width.round()} x #{depth}"
+    name = "Shelf @ #{width} x #{depth}"
     partName = 'FixedShelf'
 
     compDefinition = Sketchup.active_model.definitions[name]
@@ -235,9 +231,9 @@ module Closets
     if (!compDefinition)
       face = [
         Geom::Point3d.new(0, 0, 0),
-        Geom::Point3d.new(x, 0, 0),
-        Geom::Point3d.new(x, y, 0),
-        Geom::Point3d.new(0, y, 0),
+        Geom::Point3d.new(width, 0, 0),
+        Geom::Point3d.new(width, depth, 0),
+        Geom::Point3d.new(0, depth, 0),
       ]
       comp = addPartComponent(face, transformation, name, partName)
     else
@@ -533,14 +529,10 @@ module Closets
       placement = closet['placement']
       if (["Left", "Center"].include? placement)
         closet['leftGable'] = self.getGableType(sections, i, closet, 'left')
-        puts 'LEFT:'
-        puts closet['leftGable']
       end
 
       if (["Right", "Center"].include? placement)
         closet['rightGable'] = self.getGableType(sections, i, closet, 'right')
-        puts 'RIGHT:'
-        puts closet['rightGable']
       end
 
     end
@@ -557,6 +549,8 @@ module Closets
     first = (side == 'left' && i == 0)
     last  = (side == 'right' && i == sections.length-1)
 
+    puts type
+    puts loc
     base = @@cncParts[type][loc]
     if (first || last) 
       # Left gable of first section or right gable of last section
@@ -574,11 +568,36 @@ module Closets
       else
         trans = 'to' + otherType # toDH/toLH
         part = base[side][trans]
+        setPartParams(part, other)
       end
 
     end
 
     return part
+  end
+
+  def self.setPartParams(part, section)
+    if part.has_key? 'params'
+      params = part['params']
+
+      replaceable = [
+        'shelves',
+        'height'
+      ]
+      replaceable.each do |key|
+        if section.has_key? key
+          puts key
+          if section[key].is_a? Length
+            value = section[key].to_mm.round
+          else
+            value = section[key]
+          end
+          puts value
+          params.sub!("{#{key.upcase}}", value.to_s)
+        end
+      end
+
+    end
   end
 
   def self.displayError(e)
