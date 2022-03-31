@@ -49,9 +49,9 @@
         "value": "bSolid",
         "type": "text"
     },
-    "defaultWood":{
+    "woodType":{
         "title": "Default Wood",
-        "value": "White4x8_19mm",
+        "value": "White",
         "type": "text"
     }
 }

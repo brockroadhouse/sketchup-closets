@@ -4,6 +4,8 @@ require "su_closets/export.rb"
 require "su_closets/dialog.rb"
 require 'su_closets/settings.rb'
 require "su_closets/prompts.rb"
+require "su_closets/logic.rb"
+require "su_closets/parts.rb"
 
 module Closets
 
@@ -92,7 +94,7 @@ module Closets
       addShelf(width, depth, [posX, posY, posZ+@@opts['thickness']+drawerZ]) if n==0
 
       profile = closet['drawerHeight'][n].to_f.inch
-      addDrawer(width+@@opts['thickness'], profile, [posX-@@opts['thickness']/2, posY, posZ+drawerHeight+drawerZ])
+      addDrawer(width, profile, [posX, posY, posZ+drawerHeight+drawerZ])
       drawerHeight += profile
     end
 
@@ -319,7 +321,8 @@ module Closets
     shelves = closet['shelves']
 
     # Shelves
-    addShelf(width, depth, [posX, posY, posZ+height], true)
+    shelfName = @@cncParts['cornerShelf'][closet['side']]
+    addShelf(width, depth, [posX, posY, posZ+height], true, shelfName)
 
   end
 
@@ -408,7 +411,10 @@ module Closets
 
       posX = closet['location'][0]
     end
-    addWallRail(buildWidth, [start, buildDepth-5.mm, buildHeight-3.inch]) if hang
+
+    if hang && buildWidth > 0
+      addWallRail(buildWidth, [start, buildDepth-5.mm, buildHeight-3.inch])
+    end
 
 
     @@move = true

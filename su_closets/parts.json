@@ -2,6 +2,48 @@
     "shelf":{
         "partName": "FixedShelf"
     },
+    "cornerShelf":{
+        "left":{
+            "partName": "FixedShelf",
+            "params": "LEFT=1"
+        },
+        "right":{
+            "partName": "FixedShelf",
+            "params": "RIGHT=1"
+        }
+    },
+    "cleat":{
+        "partName": "Cleat64"
+    },
+    "drawer":{
+        "front":{
+            "partName":"DrawerFrontLarge",
+            "width": "SHELFWIDTH + 14",
+            "params": "SHELFWIDTH={SHELFWIDTH}"
+        },
+        "bottom":{
+            "partName": "DrawerBottom19mm",
+            "width": "SHELFWIDTH - 42",
+            "params": "SHELFWIDTH={SHELFWIDTH}"
+        },
+        "back":{
+            "small":{
+                "partName": "DrawerBackSmall19mm",
+                "width": "SHELFWIDTH - 21",
+                "params": "SHELFWIDTH={SHELFWIDTH}"
+            },
+            "medium":{
+                "partName": "DrawerBack19mm",
+                "width": "SHELFWIDTH - 21",
+                "params": "SHELFWIDTH={SHELFWIDTH}"
+            },
+            "large":{
+                "partName": "DrawerBack19mm",
+                "width": "SHELFWIDTH - 21",
+                "params": "SHELFWIDTH={SHELFWIDTH}"
+            }
+        }
+    },
     "Shelves":{
         "WH":{
             "center":{
@@ -98,11 +140,17 @@
             "left":{
                 "finished":{
                     "partName": "WHLHLeft"
+                },
+                "toCorner":{
+                    "partName": "WHLHCenter"
                 }
             },
             "right":{
                 "finished":{
                     "partName": "WHLHRight"
+                },
+                "toCorner":{
+                    "partName": "WHLHCenter"
                 }
             }
         }
@@ -118,6 +166,9 @@
                 },
                 "toLH":{
                     "partName": "WHDH-LH"
+                },
+                "toCorner":{
+                    "partName": "WHDHCenter"
                 }
             },
             "right":{
@@ -126,6 +177,9 @@
                 },
                 "toLH":{
                     "partName": "WHDH-LH"
+                },
+                "toCorner":{
+                    "partName": "WHDHCenter"
                 }
             }
         },

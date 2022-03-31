@@ -104,7 +104,7 @@ module Closets
         end
         closetTotal += cost
       end
-      @@edgetape = @@edgetape.to_feet
+      @@edgetape = @@edgetape.to_feet.round
       @@parts[group].sort! {|a,b| a[0] <=> b[0] }
       @@parts[group] << ["", "", "", "", "", "Closet Total", sprintf("$%2.2f", closetTotal)]
       @@closetTotals[group] = closetTotal.round(2)
@@ -178,49 +178,67 @@ module Closets
     end
   end
 
+  def self.postProcessGable(height, depth, thickness)
+
+    height = (( (height-18) / 32 ).to_i) * 32 + 18
+    depth  = 376 if depth == 375
+
+    return [height, depth, thickness]
+  end
+
+  def self.postProcessShelf(width, depth, thickness)
+
+    if depth == 375
+      depth  = 376 
+    elsif depth == 305
+      depth = 300
+    end
+
+    return [width, depth, thickness]
+  end
 
   def self.setCutListParts
     @@cutList = Array.new
     @@comps.each do |group, components|
       components.each do |guid, comp|
-        instname = comp[:instance].name
-        name = comp[:instance].get_attribute("cnc_params", "partName", instname)
-        inst = comp[:instance].bounds
+        instance = comp[:instance]
+        instname = instance.name
+        name = instance.get_attribute("cnc_params", "partName", instname)
+        inst = instance.bounds
         c = comp[:count]
         w = inst.width.to_mm.round
         h = inst.height.to_mm.round
         d = inst.depth.to_mm.round
 
+        # CNC Options
+        partName = instance.get_attribute("cutlist", "partName", name)
+        part = @@opts["programLocation"] + partName + "." + @@opts["programType"]
+        material = @@opts["woodType"]
+        params = instance.get_attribute("cnc_params", "params")
+
         # Only add parts to cut
         if (["Rail", "Rod"].any?{|piece| name.include? piece})
           next
         elsif (name.include? "Gable")
-          dimension = [d, h, w]
+          dimension = postProcessGable(d, h, w)
         elsif (name.include? "Shelf")
-          dimension = [w, h, d]
-        elsif (["Cleat", "Door", "Drawer"].any?{|piece| name.include? piece})
+          dimension = postProcessShelf(w, h, d)
+        elsif (name.include? "Drawer")
+          width = @@cncParts['drawer']['front']['width']
+          shelfwidth = instance.get_attribute("cnc_params", "shelfwidth")
+          
+          params.sub!("{SHELFWIDTH}", shelfwidth.to_s) if params
+          dimension = [width, d, h]
+        elsif (["Cleat", "Door"].any?{|piece| name.include? piece})
           dimension = [w, d, h]
         else
           dimension = [d, h, w]
         end
 
-        instince = comp[:instance]
-
-        # TODO: 
-        # a postprocessor for fixing widths
-        # ex. 305 -> 300, 1930 -> 1938 (int((h-18)/32)) * 32 + 18))
-
-        # CNC Options
-        partName = comp[:instance].get_attribute("cutlist", "partName", name)
-        part = @@opts["programLocation"] + partName + "." + @@opts["programType"]
-        material = 'White'
-        params = instince.get_attribute("cnc_params", "params") #comp[:instance].description
-
-
         # Headers for import:
         # ["Qty", "material", "partname", "width", "height", "thickness", "margin", "grainDirection", "name", "params"]
 
-        @@cutList << [c, material, part, 0, nil, partName, params].insert(3, *dimension)
+        @@cutList << [c, material, part, 0, 0, partName, params].insert(3, *dimension)
       end
     end
 
@@ -248,23 +266,7 @@ module Closets
 
   def self.viewQuote
     title = @@model.title.length > 0 ? @@model.title + " Quote" : "Quote"
-    htmlFile = File.join(__dir__, 'html', 'quote.html')
-
-    options = {
-      :dialog_title => title,
-      :preferences_key => "com.fvcc.closets",
-      :style => UI::HtmlDialog::STYLE_DIALOG
-    }
-    dialog = UI::HtmlDialog.new(options)
-    dialog.set_file(htmlFile)
-    dialog.set_size(800, 800)
-    dialog.set_on_closed { self.onClose }
-    dialog.center
-    dialog
-  end
-
-  def self.onClose(dialog)
-    @quote_dialog = nil
+    createDialog('quote.html', title, [800, 800])
   end
 
   def self.showQuoteDialog
@@ -301,23 +303,8 @@ module Closets
 
   def self.viewCutlist
     title = @@model.title.length > 0 ? @@model.title + " Cutlist" : "Cutlist"
-    htmlFile = File.join(__dir__, 'html', 'cutlist.html')
 
-    options = {
-      :dialog_title => title,
-      :preferences_key => "com.fvcc.closets",
-      :style => UI::HtmlDialog::STYLE_DIALOG
-    }
-    dialog = UI::HtmlDialog.new(options)
-    dialog.set_file(htmlFile)
-    dialog.set_size(1200, 600)
-    dialog.set_on_closed { self.onCloseCutlist }
-    dialog.center
-    dialog
-  end
-
-  def self.onCloseCutlist(dialog)
-    @cutlist_dialog = nil
+    createDialog('cutlist.html', title, [800, 800])
   end
 
   def self.showCutlistDialog
@@ -331,6 +318,10 @@ module Closets
     }
     @cutlist_dialog.add_action_callback("exportCsv") { |action_context|
       exportCutListCsv
+      nil
+    }
+    @cutlist_dialog.add_action_callback("cancel") { |action_context|
+      @cutlist_dialog.close
       nil
     }
     @cutlist_dialog.visible? ? @cutlist_dialog.bring_to_front : @cutlist_dialog.show

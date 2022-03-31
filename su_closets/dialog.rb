@@ -2,20 +2,26 @@ require 'json'
 
 module Closets
 
-  ## Room Dialog ##
-  def self.createRoomDialog
-    htmlFile = File.join(__dir__, 'html', 'room.html')
-
+  def self.createDialog(file, title, size, options = {})
+    htmlFile = File.join(__dir__, 'html', file)
     options = {
-      :dialog_title => "Create Walls",
+      :dialog_title => title,
       :preferences_key => "com.fvcc.closets",
       :style => UI::HtmlDialog::STYLE_DIALOG
     }
+
     dialog = UI::HtmlDialog.new(options)
     dialog.set_file(htmlFile)
-    dialog.set_size(520, 875)
+    dialog.set_size(size[0], size[1])
     dialog.center
+    # dialog.set_on_closed { self.onClose }
     dialog
+
+  end
+
+  ## Room Dialog ##
+  def self.createRoomDialog
+    createDialog('room.html', "Create Walls", [520, 875])
   end
 
   def self.showRoomDialog
@@ -75,23 +81,7 @@ module Closets
 
   ## Build Dialog ##
   def self.create_dialog
-    htmlFile = File.join(__dir__, 'html', 'dialog.html')
-
-    options = {
-      :dialog_title => "Build Closet",
-      :preferences_key => "com.fvcc.closets",
-      :style => UI::HtmlDialog::STYLE_DIALOG
-    }
-    dialog = UI::HtmlDialog.new(options)
-    dialog.set_file(htmlFile)
-    dialog.set_size(800, 800)
-    dialog.set_on_closed { self.onClose }
-    dialog.center
-    dialog
-  end
-
-  def self.onClose
-    @dialog = nil
+    createDialog('dialog.html', "Build Closet", [800, 800])
   end
 
   def self.show_dialog
