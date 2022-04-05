@@ -35,7 +35,7 @@ module Closets
     comp
   end
 
-  def self.addPart(compName, location, face, partName, params)
+  def self.addPart(compName, location, face, partName = compName, params = '')
     
     compDefinition = Sketchup.active_model.definitions[compName]
     transformation = Geom::Transformation.new(location)
@@ -68,7 +68,7 @@ module Closets
   end
 
   def self.addShelf (width, depth, location, dimension = false, part = {})
-    part = @@cncParts['shelf'] unless part
+    part = @@cncParts['shelf'] if part.empty?
     partName = part.fetch('partName', '')
     params   = part.fetch('params', '')
     name = "Shelf @ #{width} x #{depth} " + params
@@ -102,23 +102,19 @@ module Closets
     compName = "#{width} Cleat"
     partName = @@cncParts['cleat']['partName']
 
-    compDefinition = Sketchup.active_model.definitions[compName]
-    transformation = Geom::Transformation.new(location)
-    if (!compDefinition)
-      cleat = [
-        Geom::Point3d.new(0, 0, 0),
-        Geom::Point3d.new(width, 0, 0),
-        Geom::Point3d.new(width, 0, @@opts['cleat']),
-        Geom::Point3d.new(0, 0, @@opts['cleat']),
-      ]
-      comp = addPartComponent(cleat, transformation, compName, partName)
-    else
-      @@currentEnt.add_instance(compDefinition, transformation)
-    end
+    cleat = [
+      Geom::Point3d.new(0, 0, 0),
+      Geom::Point3d.new(width, 0, 0),
+      Geom::Point3d.new(width, 0, @@opts['cleat']),
+      Geom::Point3d.new(0, 0, @@opts['cleat']),
+    ]
+    addPart(compName, location, cleat, partName)
   end
 
   def self.addDrawer(width, height, location)
     addDrawerFront(width, height, location)
+    addDrawerBottom(width, location)
+    addDrawerBack(width, location)
   end
 
   def self.addDrawerFront (width, height, location=[0,0,0])
@@ -152,22 +148,48 @@ module Closets
     end
   end
 
-  def self.addDoor (width, height, location=[0,0,0])
-    compName = "#{width} x #{height} Door"
+  def self.addDrawerBottom (width, location)
+    name  = "#{width} Drawer Bottom"
+    partName  = @@cncParts['drawer']['bottom']['partName']
+    params    = @@cncParts['drawer']['bottom']['params']
 
-    compDefinition = Sketchup.active_model.definitions[compName]
-    transformation = Geom::Transformation.new(location)
-    if (!compDefinition)
-      door = [
+    face = [
         Geom::Point3d.new(0, 0, 0),
         Geom::Point3d.new(width, 0, 0),
-        Geom::Point3d.new(width, 0, height),
-        Geom::Point3d.new(0, 0, height),
-      ]
-      comp = addPartComponent(door, transformation, compName)
-    else
-      comp = @@currentEnt.add_instance(compDefinition, transformation)
-    end
+        Geom::Point3d.new(width, 340.mm, 0),
+        Geom::Point3d.new(0, 340.mm, 0),
+    ]
+    location[1] += @@opts['thickness']
+    comp = addPart(name, location, face, partName, params)
+    cncWidth = width.to_mm.round
+    comp.definition.set_attribute("cnc_params", "width", cncWidth)
+  end
+
+  def self.addDrawerBack (width, location)
+    name  = "#{width} Drawer Back"
+    partName  = @@cncParts['drawer']['back']['large']['partName']
+    params    = @@cncParts['drawer']['back']['large']['params']
+
+    face = [
+        Geom::Point3d.new(0, 0, 0),
+        Geom::Point3d.new(width, 0, 0),
+        Geom::Point3d.new(width, 0, 159.mm),
+        Geom::Point3d.new(0, 0, 159.mm),
+    ]
+    comp = addPart(name, location, face, partName, params)
+    cncWidth = width.to_mm.round
+    comp.definition.set_attribute("cnc_params", "width", cncWidth)
+  end
+
+  def self.addDoor (width, height, location=[0,0,0])
+    compName = "#{width} x #{height} Door"
+    door = [
+      Geom::Point3d.new(0, 0, 0),
+      Geom::Point3d.new(width, 0, 0),
+      Geom::Point3d.new(width, 0, height),
+      Geom::Point3d.new(0, 0, height),
+    ]
+    comp = addPart(compName, location, door)
     addToLayer(comp, "Doors")
   end
   
@@ -177,21 +199,16 @@ module Closets
     compName = "#{width} Closet Rod"
 
     compDefinition = Sketchup.active_model.definitions[compName]
-    transformation = Geom::Transformation.new([location[0]+0, location[1]+2, location[2]-(1.5+@@opts['thickness'])])
-    if (!compDefinition)
-      rod = [
-        Geom::Point3d.new(0, 0, 0),
-        Geom::Point3d.new(0, 0, -1.5),
-        Geom::Point3d.new(0, 1, -1.5),
-      ]
-      group = addFace(rod, width, true)
-      comp = group.to_component
-      comp.definition.name = compName
-
-      comp.move! transformation
-    else
-      @@currentEnt.add_instance(compDefinition, transformation)
-    end
+    newLocation = [
+        location[0]+0, 
+        location[1]+2, 
+        location[2]-(1.5+@@opts['thickness'])]
+    rod = [
+      Geom::Point3d.new(0, 0, 0),
+      Geom::Point3d.new(0, 0, -1.5),
+      Geom::Point3d.new(0, 1, -1.5),
+    ]
+    addPart(compName, location, rod)
   end
 
   def self.addWallRail (width, location)

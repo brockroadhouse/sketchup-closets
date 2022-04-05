@@ -39,20 +39,17 @@ module Closets
   @@optsData = {}
   @@cncParts = {}
 
+  @@settingsFile = 'settings.json'
+  @@partsFile = 'parts.json'
+  
+  @@settings = {
+    @@settingsFile => @@opts,
+    @@partsFile => @@cncParts
+  }
+
   ## Settings Dialog ##
   def self.create_settings_dialog
-    htmlFile = File.join(__dir__, 'html', 'settings.html')
-
-    options = {
-      :dialog_title => "Settings",
-      :preferences_key => "com.fvcc.closets",
-      :style => UI::HtmlDialog::STYLE_DIALOG
-    }
-    dialog = UI::HtmlDialog.new(options)
-    dialog.set_file(htmlFile)
-    dialog.set_size(520, 750)
-    dialog.center
-    dialog
+    createDialog('settings.html', "Settings", [520, 750])
   end
 
   def self.show_settings_dialog
@@ -62,7 +59,7 @@ module Closets
       nil
     }
     @settings_dialog.add_action_callback("save") { |action_context, options|
-      self.update_options_from_dialog(options)
+      self.update_options_from_dialog(options, @@settingsFile)
       @settings_dialog.close
       nil
     }
@@ -74,33 +71,33 @@ module Closets
   end
 
   def self.update_settings_dialog
-    options_json  = JSON.generate(@@optsData)
-    cncParts_json  = JSON.generate(@@cncParts)
-    @settings_dialog.execute_script("updateData(#{options_json}, #{cncParts_json})")
+    options_json  = JSON.generate(@@optsData[@@settingsFile])
+    @settings_dialog.execute_script("updateData(#{options_json})")
   end
 
-  def self.update_options_from_dialog(options)
-    @@optsData.each do |key, data|
+  def self.update_options_from_dialog(options, file)
+    puts options
+    puts '--------------'
+    puts @@optsData[file]
+    puts 'NEED TO SAVE...'
+    return
+    @@optsData[file].each do |key, data|
       data['value'] = options[key]['value'] if options.has_key?(key)
     end
-    set_options(@@optsData)
+    set_options(@@opts, 'something.json')
   end
 
   ## Settings Functions ##
   def self.init
-    to_load = {
-      'settings.json' => @@opts,
-      'parts.json' => @@cncParts
-    }
-    to_load.each do |file, optsVar| 
+    @@settings.each do |file, optsVar| 
       defaultFile = File.join(__dir__, file)
       optionsFile = set_options_file(defaultFile, file)
-      set_options_from_file(defaultFile, optionsFile, optsVar)
+      set_options_from_file(defaultFile, optionsFile, optsVar, file)
     end
   end
 
-  def self.save_options(optionsFile)
-    json_str = JSON.pretty_generate(@@optsData)
+  def self.save_options(optionsFile, file)
+    json_str = JSON.pretty_generate(@@optsData[file])
     File.open(optionsFile,"w") {|io| io.write(json_str) }
   end
 
@@ -123,7 +120,7 @@ module Closets
   end
 
   # Set values from default
-  def self.set_options_from_file(defaultFile, optionsFile, optsVar)
+  def self.set_options_from_file(defaultFile, optionsFile, optsVar, file)
     json_options = File.read(optionsFile)
     options = JSON.parse(json_options)
 
@@ -133,12 +130,12 @@ module Closets
     def_options.each do |key, option|
       options[key] = option unless options.key?(key)
     end
-    set_options(options, optionsFile, optsVar)
+    set_options(options, optionsFile, optsVar, file)
   end
 
-  def self.set_options(options, optionsFile, optsVar)
-    @@optsData = options
-    @@optsData.each do |key, option|
+  def self.set_options(options, optionsFile, optsVar, file)
+    @@optsData[file] = options
+    options.each do |key, option|
       case option['type']
       when "length"
         value = option['value'].to_l
@@ -153,8 +150,7 @@ module Closets
       end
       optsVar[key] = value
     end
-    save_options(optionsFile)
-
+    save_options(optionsFile, file)
   end
 
   init

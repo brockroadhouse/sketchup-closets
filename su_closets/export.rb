@@ -224,7 +224,7 @@ module Closets
         elsif (name.include? "Shelf")
           dimension = postProcessShelf(w, h, d)
         elsif (name.include? "Drawer")
-          width = @@cncParts['drawer']['front']['width']
+          width       = instance.get_attribute("cnc_params", "width")
           shelfwidth = instance.get_attribute("cnc_params", "shelfwidth")
           
           params.sub!("{SHELFWIDTH}", shelfwidth.to_s) if params
