@@ -47,9 +47,39 @@ module Closets
     @@partsFile => @@cncParts
   }
 
+  ## Parts Dialog ##
+  def self.create_parts_dialog
+    puts ('created')
+    createDialog('parts.html', 'Parts List', [520, 750])
+  end
+
+  def self.show_parts_dialog
+    puts 'showing'
+    @parts_dialog ||= self.create_parts_dialog
+    @parts_dialog.add_action_callback("ready") { |action_context|
+      self.update_parts_dialog
+      nil
+    }
+    @parts_dialog.add_action_callback("save") { |action_context, options|
+      # self.update_options_from_dialog(options, @@settingsFile)
+      @parts_dialog.close
+      nil
+    }
+    @parts_dialog.add_action_callback("cancel") { |action_context|
+      @parts_dialog.close
+      nil
+    }
+    @parts_dialog.visible? ? @parts_dialog.bring_to_front : @parts_dialog.show
+  end
+
+  def self.update_parts_dialog
+    parts  = JSON.generate(@@cncParts)
+    @parts_dialog.execute_script("updateData(#{parts})")
+  end
+
   ## Settings Dialog ##
   def self.create_settings_dialog
-    createDialog('settings.html', "Settings", [520, 750])
+    createDialog('settings.html', 'Settings', [520, 750])
   end
 
   def self.show_settings_dialog

@@ -16,6 +16,7 @@ module Closets
         subMenu.add_item("Set to 1/16\"") {setModelInch}
     extMenu.add_separator
       extMenu.add_item("Settings") {show_settings_dialog}
+      extMenu.add_item("Parts List") {show_parts_dialog}
       #extMenu.add_item("Settings") {showSettingsDialog}
     #extMenu.add_item("Export SVG") {exportSvg} #NOTREADY
 

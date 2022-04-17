@@ -24,33 +24,11 @@
 <body>
   <div id="app">
     <template v-if="parts">
-      <div class="ui main container">
-        <h1 class="ui header">
-          <i class="newspaper icon"></i>
-          <div class="content">Cutlist</div>
-        </h1>
-
-        <table class="ui striped celled table breakdown unstackable">
-          <thead>
-            <tr>
-              <template v-for="header in headers">
-                <th>{{ header }}</th>
-              </template>
-            </tr>
-          </thead>
-          <tbody>
-            <template v-for="part in parts">
-                <tr>
-                  <template v-for="piece in part">
-                    <td class="right aligned">{{ piece }}</td>
-                  </template>
-                </tr>
-            </template>
-          </tbody>
-        </table>
-
+        <div id="components-demo">
+            <tree-view v-bind:tree-data="parts"></tree-view>
+        </div>
         <div>
-          <div class="ui primary button" v-on:click="exportCsv">Export</div>
+          <div class="ui primary button" v-on:click="saveParts">Save</div>
           <div class="ui button" v-on:click="cancel">Cancel</div>
         </div>
       </div>
@@ -65,23 +43,24 @@
       el: '#app',
       data: {
         parts: null,
-        headers: null,
       },
       methods: {
-        exportCsv: function() {
-          sketchup.exportCsv();
+        saveParts: function() {
+            console.log('not implemented');
+        //   sketchup.saveParts();
         },
         cancel: function() {
           sketchup.cancel();
         },
       },
       mounted: function() {
+          console.log('mounted');
         sketchup.ready();
       },
     });
-    function updateData(parts, headers) {
+    function updateData(parts) {
+        console.log(parts);
       app.parts   = parts;
-      app.headers   = headers;
     };
   </script>
 </body>

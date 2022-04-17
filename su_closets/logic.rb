@@ -77,15 +77,15 @@ module Closets
     params['buildDepth'] = buildDepth.to_l
   end
 
-  def self.setPlacements(build, params)
+  def self.setPlacements(sections, params)
     totalPlacement = params['placement']
-    if (build.length == 1)
-      build[0]['placement'] = totalPlacement
-      build[0]['offset']    = @@opts['thickness'] * 2
+    if (sections.length == 1)
+      sections[0]['placement'] = totalPlacement
+      sections[0]['offset']    = @@opts['thickness'] * 2
       return
     end
 
-    build.map.with_index do |closet, i|
+    sections.map.with_index do |closet, i|
       key = closet['floor'] ? 'depth' : 'height'
       floor = closet['floor']
 
@@ -93,55 +93,64 @@ module Closets
       if (closet['type']=='Corner')
         placement = "Shelves"
       elsif (i == 0) # First
-        nextF = build[i+1]['floor']
+        nextF = sections[i+1]['floor']
 
-        taller = (build[i+1]['height'] >= closet['height'])
-        deeper = (build[i+1]['depth'] >= closet['depth'])
+        taller = (sections[i+1]['height'] >= closet['height'])
+        deeper = (sections[i+1]['depth'] >= closet['depth'])
         isNextTaller = ((taller && !floor) || (deeper && nextF)) 
         if (totalPlacement=="Right")
           placement = isNextTaller ? "Shelves" : "Right"
         else
           placement = isNextTaller ? "Left" : "Center"
         end
-      elsif (i == build.count-1) # Last
-        lastF = build[i-1]['floor']
-        isPrevTaller = (build[i-1][key] > closet[key])
+      elsif (i == sections.count-1) # Last
+        lastF = sections[i-1]['floor']
+        isPrevTaller = (sections[i-1][key] > closet[key])
         if (totalPlacement=="Left")
           placement = isPrevTaller ? "Shelves" : "Left"
         else
           placement = isPrevTaller ? "Right" : "Center"
         end
       else
-        lastH = build[i-1][key]
-        nextH = build[i+1][key]
-        thisH = closet[key]
-        lastF = build[i-1]['floor']
-        nextF = build[i+1]['floor']
-
-        if    (lastH <= thisH && (thisH > nextH || build[i+1]['type'] == 'Corner' || (floor && !nextF )))
-          placement = "Center"
-        elsif (lastH <= thisH && thisH <= nextH)
-          placement = "Left"
-        elsif ((lastH > thisH && thisH > nextH) || (floor && !nextF))
-          placement = "Right"
-        elsif (lastH > thisH && thisH <= nextH)
-          placement = "Shelves"
-        end
-
+        placement = set_section_placement(sections, i)
       end
 
       # Offsets
-      if (placement == "Center")
-        offset = @@opts['thickness'] * 2
-      elsif (placement == "Shelves")
-        offset = 0
-      else
-        offset = @@opts['thickness']
-      end
+      offset = if placement == "Center"
+                  @@opts['thickness'] * 2
+                elsif placement == "Shelves"
+                  0
+                else
+                  @@opts['thickness']
+                end
 
       closet['placement'] = placement
       closet['offset']    = offset
     end
+  end
+
+  def self.set_section_placement(sections, i)
+    closet  = sections[i]
+    key     = closet['floor'] ? 'depth' : 'height'
+    floor   = closet['floor']
+
+    lastH = sections[i-1][key]
+    nextH = sections[i+1][key]
+    thisH = closet[key]
+    lastF = sections[i-1]['floor']
+    nextF = sections[i+1]['floor']
+
+    if    (lastH <= thisH && (thisH > nextH || sections[i+1]['type'] == 'Corner' || (floor && !nextF )))
+      placement = "Center"
+    elsif (lastH <= thisH && thisH <= nextH)
+      placement = "Left"
+    elsif ((lastH > thisH && thisH > nextH) || (floor && !nextF))
+      placement = "Right"
+    elsif (lastH > thisH && thisH <= nextH)
+      placement = "Shelves"
+    end
+    
+    placement
   end
 
   def self.setClosets(build, params)
@@ -182,7 +191,7 @@ module Closets
     last  = (side == 'right' && i == sections.length-1)
 
     base = @@cncParts[type][loc]
-    if (first || last) 
+    if first || last 
       # Left gable of first section or right gable of last section
       if finished
         part = base[side]['finished']
@@ -190,41 +199,42 @@ module Closets
         part = base['center']
       end
     else
-      other = side == 'left' ? sections[i-1] : sections[i+1]
+      other = side == 'left' ? sections[i - 1] : sections[i + 1]
 
       otherType = other['type']
       if (otherType == type)
         part = base['center']
       else
         trans = 'to' + otherType # toDH/toLH
-        part = base[side][trans]
+        part = base.fetch(side).fetch(trans)
         setPartParams(part, other)
       end
 
     end
 
-    return part
+    part
   end
 
   def self.setPartParams(part, section)
-    if part.has_key? 'params'
-      params = part['params']
+    return unless part && part.fetch('params', false)
+    
+    params = part['params']
 
-      replaceable = [
-        'shelves',
-        'height'
-      ]
-      replaceable.each do |key|
-        if section.has_key? key
-          if section[key].is_a? Length
-            value = section[key].to_mm.round
-          else
-            value = section[key]
-          end
-          params.sub!("{#{key.upcase}}", value.to_s)
+    replaceable = [
+      'shelves',
+      'height'
+    ]
+    replaceable.each do |key|
+      if section.has_key? key
+        if section[key].is_a? Length
+          value = section[key].to_mm.round
+        else
+          value = section[key] 
+
         end
-      end
-
+        params.sub!("{#{key.upcase}}", value.to_s)
+      end  
     end
+
   end
 end

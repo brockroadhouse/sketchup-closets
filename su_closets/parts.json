@@ -18,29 +18,27 @@
     "drawer":{
         "front":{
             "partName":"DrawerFrontLarge",
-            "width": "SHELFWIDTH + 14",
-            "params": "SHELFWIDTH={SHELFWIDTH}"
+            "overlay": "14mm"
         },
         "bottom":{
             "partName": "DrawerBottom19mm",
-            "width": "SHELFWIDTH - 42",
-            "params": "SHELFWIDTH={SHELFWIDTH}"
+            "inset": "21mm"
         },
         "back":{
             "small":{
                 "partName": "DrawerBackSmall19mm",
-                "width": "SHELFWIDTH - 21",
-                "params": "SHELFWIDTH={SHELFWIDTH}"
+                "height": "91mm",
+                "inset": "42mm"
             },
             "medium":{
                 "partName": "DrawerBack19mm",
-                "width": "SHELFWIDTH - 21",
-                "params": "SHELFWIDTH={SHELFWIDTH}"
+                "height": "121mm",
+                "inset": "42mm"
             },
             "large":{
                 "partName": "DrawerBack19mm",
-                "width": "SHELFWIDTH - 21",
-                "params": "SHELFWIDTH={SHELFWIDTH}"
+                "height": "159mm",
+                "inset": "42mm"
             }
         }
     },
