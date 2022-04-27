@@ -174,4 +174,30 @@ module Closets
     message
   end
 
+  def self.postProcessGable(height, depth, thickness)
+	
+    height = postProcessHeight(height)
+    depth  = postProcessDepth(depth)
+
+    return [height, depth, thickness]
+  end
+
+  def self.postProcessShelf(width, depth, thickness)
+    [width, postProcessDepth(depth), thickness]
+  end
+  
+  def self.postProcessHeight(height)
+	(( (height-18) / 32 ).to_i) * 32 + 18
+  end
+  
+  def self.postProcessDepth(depth)
+    if depth == 375
+      depth  = 376 
+    elsif depth == 305
+      depth = 300
+    end
+	
+	depth
+  end
+
 end # module FVCC::Closets

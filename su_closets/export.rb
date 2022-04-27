@@ -178,25 +178,6 @@ module Closets
     end
   end
 
-  def self.postProcessGable(height, depth, thickness)
-
-    height = (( (height-18) / 32 ).to_i) * 32 + 18
-    depth  = 376 if depth == 375
-
-    return [height, depth, thickness]
-  end
-
-  def self.postProcessShelf(width, depth, thickness)
-
-    if depth == 375
-      depth  = 376 
-    elsif depth == 305
-      depth = 300
-    end
-
-    return [width, depth, thickness]
-  end
-
   def self.setCutListParts
     @@cutList = Array.new
     @@comps.each do |group, components|
@@ -219,7 +200,7 @@ module Closets
         # Only add parts to cut
         if (["Rail", "Rod"].any?{|piece| name.include? piece})
           next
-        elsif (name.include? "Gable")
+        elsif (["WH", "FM"].any?{|piece| name.include? piece})
           dimension = postProcessGable(d, h, w)
         elsif (name.include? "Shelf")
           dimension = postProcessShelf(w, h, d)
@@ -242,8 +223,9 @@ module Closets
   end # setCutListParts
 
   def self.exportCutListCsv()
+	dir = (@@opts.has_key? 'cutlistOutput') ? @@opts['cutlistOutput'] : Dir::pwd
     title = @@model.title.length > 0 ? @@model.title : "Cut List"
-    filename = UI.savepanel("Save Cut List", Dir::pwd, 'CSV file|*.csv||')
+    filename = UI.savepanel("Save Cut List", dir, "#{title}.csv")
     return unless filename
     filename << ".csv" unless filename[-4..-1] == ".csv"
 
