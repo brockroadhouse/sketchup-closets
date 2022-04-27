@@ -5,11 +5,11 @@
     "cornerShelf":{
         "left":{
             "partName": "FixedShelf",
-            "params": "LEFT=1"
+            "params": "RIGHT=0"
         },
         "right":{
             "partName": "FixedShelf",
-            "params": "RIGHT=1"
+            "params": "LEFT=0"
         }
     },
     "cleat":{
@@ -37,7 +37,7 @@
             },
             "large":{
                 "partName": "DrawerBack19mm",
-                "height": "159mm",
+                "height": "152mm",
                 "inset": "42mm"
             }
         }
@@ -134,6 +134,30 @@
         "WH":{
             "center":{
                 "partName": "WHLHCenter"
+            },
+            "left":{
+                "finished":{
+                    "partName": "WHLHLeft"
+                },
+                "toCorner":{
+                    "partName": "WHLHCenter"
+                }
+            },
+            "right":{
+                "finished":{
+                    "partName": "WHLHRight"
+                },
+                "toCorner":{
+                    "partName": "WHLHCenter"
+                }
+            }
+        }
+    },
+    "VH":{
+        "WH":{
+            "center":{
+                "partName": "WHLHCenter",
+                "params": "SHELVES={SHELVES}"
             },
             "left":{
                 "finished":{
