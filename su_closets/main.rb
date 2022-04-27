@@ -64,7 +64,7 @@ module Closets
     addDimension(closet[2], closet[3], [0, 0, wallHeight+5]) if depthR > 0
 
     # Add title
-    addTitle(name, Geom::Point3d.new(width/2-name.length*2, depthL, wallHeight-8.inch)) unless name == ""
+    add_title(name, Geom::Point3d.new(width/2-name.length*2, depthL, wallHeight-8.inch)) unless name == ""
 
   end
 

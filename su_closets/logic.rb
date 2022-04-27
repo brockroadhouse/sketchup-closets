@@ -211,6 +211,7 @@ module Closets
       end
 
     end
+    setPartParams(part, current)
 
     part
   end
@@ -220,17 +221,21 @@ module Closets
     
     params = part['params']
 
-    replaceable = [
-      'shelves',
-      'height'
-    ]
-    replaceable.each do |key|
+    replaceable = {
+      'shelves' => 'int',
+      'height' => 'height',
+      'depth' => 'depth'
+    }
+    replaceable.each do |key, type|
       if section.has_key? key
-        if section[key].is_a? Length
+        if type == 'height'
+          value = postProcessHeight(section[key].to_mm.round)
+        elsif type == 'depth'
+          value = postProcessDepth(section[key].to_mm.round)
+        elsif section[key].is_a? Length
           value = section[key].to_mm.round
         else
           value = section[key] 
-
         end
         params.sub!("{#{key.upcase}}", value.to_s)
       end  

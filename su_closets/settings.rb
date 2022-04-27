@@ -61,7 +61,6 @@ module Closets
       nil
     }
     @parts_dialog.add_action_callback("save") { |action_context, options|
-      # self.update_options_from_dialog(options, @@settingsFile)
       @parts_dialog.close
       nil
     }
@@ -106,15 +105,13 @@ module Closets
   end
 
   def self.update_options_from_dialog(options, file)
-    puts options
-    puts '--------------'
-    puts @@optsData[file]
-    puts 'NEED TO SAVE...'
-    return
     @@optsData[file].each do |key, data|
       data['value'] = options[key]['value'] if options.has_key?(key)
     end
-    set_options(@@opts, 'something.json')
+	optionsFile = File::join(getPluginPath(),file)
+	optsVar = @@settings[file]
+	set_options(options, optionsFile, optsVar, file)
+    # save_options(, file)
   end
 
   ## Settings Functions ##
@@ -132,7 +129,17 @@ module Closets
   end
 
   def self.set_options_file(defaultFile, file)
-    # %APPDATA% #
+    plugpath = getPluginPath()
+
+    optionsFile = File::join(plugpath,file)
+    unless File::exist?(optionsFile)
+      FileUtils.cp(defaultFile, optionsFile)
+    end
+    optionsFile
+  end
+  
+  def self.getPluginPath()
+	# %APPDATA% #
     appdata = File::expand_path('../../..',Sketchup::find_support_file('Plugins'))
 
     # %APPDATA%/FVCC/Closets #
@@ -141,12 +148,8 @@ module Closets
 
     plugpath = File::join(dirpath,"Closets")
     Dir::mkdir(plugpath) unless Dir::exist?(plugpath)
-
-    optionsFile = File::join(plugpath,file)
-    unless File::exist?(optionsFile)
-      FileUtils.cp(defaultFile, optionsFile)
-    end
-    optionsFile
+	
+	plugpath
   end
 
   # Set values from default
