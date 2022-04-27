@@ -49,12 +49,10 @@ module Closets
 
   ## Parts Dialog ##
   def self.create_parts_dialog
-    puts ('created')
     createDialog('parts.html', 'Parts List', [520, 750])
   end
 
   def self.show_parts_dialog
-    puts 'showing'
     @parts_dialog ||= self.create_parts_dialog
     @parts_dialog.add_action_callback("ready") { |action_context|
       self.update_parts_dialog

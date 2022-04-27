@@ -31,8 +31,8 @@ module Closets
       self.updateRoomDialog
       nil
     }
-    @room_dialog.add_action_callback("buildRoom") { |action_context, room|
-      @room_dialog.close if self.buildRoom(room)
+    @room_dialog.add_action_callback("buildRoom") { |action_context, room, close|
+      @room_dialog.close if self.buildRoom(room) && close
       nil
     }
     @room_dialog.add_action_callback("cancel") { |action_context, value|
@@ -139,8 +139,8 @@ module Closets
     ]
     closetParams = {
       :width => defaultWidth.to_l,
-      :gapLeft => 0,
-      :gapRight => 0,
+      :gapLeft => 0.25.inch,
+      :gapRight => 0.25.inch,
       :height => selectionHeight==0 ? 84.inch : selectionHeight.to_l,
       :placement => 'Center'
     }

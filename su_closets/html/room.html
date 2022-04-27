@@ -24,7 +24,7 @@
         </div>
 
         <div class="row">
-          <div class="left aligned four wide column">
+          <div class="left aligned six wide column">
             <div class="field">
               <label>Name</label>
               <input placeholder="Name" v-model="closet.name">
@@ -94,7 +94,8 @@
       <div class="ui divider"></div>
 
       <div style="padding: 1em;">
-        <div class="ui primary button" v-on:click="build">Create</div>
+        <div class="ui green button" v-on:click="build(true)">Create and Close</div>
+        <div class="ui primary button" v-on:click="build(false)">Create</div>
         <div class="ui button" v-on:click="cancel">Cancel</div>
       </div>
     </form>
@@ -110,8 +111,8 @@
         closet: null,
       },
       methods: {
-        build: function() {
-          sketchup.buildRoom(this.closet);
+        build: function(closeDialog) {
+          sketchup.buildRoom(this.closet, closeDialog);
         },
         cancel: function() {
           sketchup.cancel();

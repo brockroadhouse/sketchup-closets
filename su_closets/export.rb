@@ -283,7 +283,7 @@ module Closets
   def self.viewCutlist
     title = @@model.title.length > 0 ? @@model.title + " Cutlist" : "Cutlist"
 
-    createDialog('cutlist.html', title, [800, 800])
+    createDialog('cutlist.html', title, [1200, 800])
   end
 
   def self.showCutlistDialog

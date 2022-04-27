@@ -200,25 +200,23 @@ module Closets
       end
     else
       other = side == 'left' ? sections[i - 1] : sections[i + 1]
-
       otherType = other['type']
       if (otherType == type)
         part = base['center']
       else
         trans = 'to' + otherType # toDH/toLH
-        part = base.fetch(side).fetch(trans)
-        setPartParams(part, other)
+        part = setPartParams(base.fetch(side).fetch(trans), other)
       end
 
     end
-    setPartParams(part, current)
-
+    part = setPartParams(part, current)
     part
   end
 
   def self.setPartParams(part, section)
-    return unless part && part.fetch('params', false)
+    return part unless part && part.fetch('params', false)
     
+	part = part.dup
     params = part['params']
 
     replaceable = {
@@ -237,9 +235,10 @@ module Closets
         else
           value = section[key] 
         end
-        params.sub!("{#{key.upcase}}", value.to_s)
+        part['params'] = part['params'].sub("{#{key.upcase}}", value.to_s)
       end  
     end
 
+	part
   end
 end
