@@ -1,0 +1,242 @@
+{
+  "shelf": {
+    "partName": "FixedShelf",
+      "params": "LEFT=1 RIGHT=1 VB=1"
+  },
+  "cornerShelf": {
+    "left": {
+      "partName": "FixedShelf",
+      "params": "RIGHT=0 VB=1"
+    },
+    "right": {
+      "partName": "FixedShelf",
+      "params": "LEFT=0 VB=1"
+    }
+  },
+  "cleat": {
+    "partName": "Cleat64mm",
+      "params": "LEFT=1 RIGHT=1 VB=1"
+  },
+  "drawer": {
+    "front": {
+      "partName": "DrawerFrontLarge",
+      "overlay": "14mm"
+    },
+    "bottom": {
+      "partName": "DrawerBottom19mm",
+      "inset": "21mm"
+    },
+    "back": {
+      "small": {
+        "partName": "DrawerBackSmall19mm",
+        "height": "91mm",
+        "inset": "42mm"
+      },
+      "medium": {
+        "partName": "DrawerBack19mm",
+        "height": "121mm",
+        "inset": "42mm"
+      },
+      "large": {
+        "partName": "DrawerBack19mm",
+        "height": "159mm",
+        "inset": "42mm"
+      }
+    }
+  },
+  "Shelves": {
+    "WH": {
+      "center": {
+        "partName": "WHGableCenter"
+      },
+      "left": {
+        "finished": {
+          "partName": "WHGableLeft"
+        },
+        "toLH": {
+          "partName": "WHGableLeft",
+          "params": "LH=1"
+        },
+        "toVH": {
+          "partName": "WHGableLeft",
+          "params": "LH=1 LHHEIGHT={HEIGHT} LHSHELVES={SHELVES} TRANSWIDTH={DEPTH}"
+        },
+        "toDH": {
+          "partName": "WHGableLeft",
+          "params": "DH=1"
+        },
+        "toCorner": {
+          "partName": "WHGableLeft",
+          "params": "THRU=1"
+        }
+      },
+      "right": {
+        "finished": {
+          "partName": "WHGableRight"
+        },
+        "toLH": {
+          "partName": "WHGableRight",
+          "params": "LH=1"
+        },
+        "toVH": {
+          "partName": "WHGableRight",
+          "params": "LH=1 LHHEIGHT={HEIGHT} LHSHELVES={SHELVES} TRANSWIDTH={DEPTH}"
+        },
+        "toDH": {
+          "partName": "WHGableRight",
+          "params": "DH=1"
+        },
+        "toCorner": {
+          "partName": "WHGableRight",
+          "params": "THRU=1"
+        }
+      }
+    },
+    "FM": {
+      "center": {
+        "partName": "FMGableCenter"
+      },
+      "left": {
+        "finished": {
+          "partName": "FMGableLeft"
+        },
+        "toLH": {
+          "partName": "FMGableLeft",
+          "params": "LH=1"
+        },
+        "toDH": {
+          "partName": "FMGableLeft",
+          "params": "DH=1"
+        },
+        "toCorner": {
+          "partName": "FMGableLeft",
+          "params": "THRU=1"
+        }
+      },
+      "right": {
+        "finished": {
+          "partName": "FHGableRight"
+        },
+        "toLH": {
+          "partName": "FHGableRight",
+          "params": "LH=1"
+        },
+        "toDH": {
+          "partName": "FHGableRight",
+          "params": "DH=1"
+        },
+        "toCorner": {
+          "partName": "FHGableRight",
+          "params": "THRU=1"
+        }
+      }
+    }
+  },
+  "LH": {
+    "WH": {
+      "center": {
+        "partName": "WHLHCenter"
+      },
+      "left": {
+        "finished": {
+          "partName": "WHLHLeft"
+        },
+        "toCorner": {
+          "partName": "WHLHCenter"
+        }
+      },
+      "right": {
+        "finished": {
+          "partName": "WHLHRight"
+        },
+        "toCorner": {
+          "partName": "WHLHCenter"
+        }
+      }
+    }
+  },
+  "DH": {
+    "WH": {
+      "center": {
+        "partName": "WHDHCenter"
+      },
+      "left": {
+        "finished": {
+          "partName": "WHDHLeft"
+        },
+        "toLH": {
+          "partName": "WHDH-LH",
+          "params": "LHHEIGHT={HEIGHT} LHSHELVES={SHELVES}"
+        },
+        "toVH": {
+          "partName": "WHDH-LH",
+          "params": "LHHEIGHT={HEIGHT} LHSHELVES={SHELVES}"
+        },
+        "toCorner": {
+          "partName": "WHDHCenter"
+        }
+      },
+      "right": {
+        "finished": {
+          "partName": "WHDHRight"
+        },
+        "toLH": {
+          "partName": "WHDH-LH",
+          "params": "LHHEIGHT={HEIGHT} LHSHELVES={SHELVES}"
+        },
+        "toVH": {
+          "partName": "WHDH-LH",
+          "params": "LHHEIGHT={HEIGHT} LHSHELVES={SHELVES}"
+        },
+        "toCorner": {
+          "partName": "WHDHCenter"
+        }
+      }
+    },
+    "FM": {
+      "center": {
+        "partName": "WHDHCenter"
+      },
+      "left": {
+        "finished": {
+          "partName": "WHDHLeft"
+        },
+        "toLH": {
+          "partName": "WHDH-LH"
+        }
+      },
+      "right": {
+        "finished": {
+          "partName": "WHDHRight"
+        },
+        "toLH": {
+          "partName": "WHDH-LH"
+        }
+      }
+    }
+  },
+  "VH": {
+    "WH": {
+      "center": {
+        "partName": "WHLHCenter",
+        "params": "SHELVES={SHELVES}"
+      },
+      "left": {
+        "finished": {
+          "partName": "WHLHLeft"
+        },
+        "toCorner": {
+          "partName": "WHLHCenter"
+        }
+      },
+      "right": {
+        "finished": {
+          "partName": "WHLHRight"
+        },
+        "toCorner": {
+          "partName": "WHLHCenter"
+        }
+      }
+    }
+  }
+}

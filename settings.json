@@ -1,0 +1,62 @@
+{
+  "cleat": {
+    "title": "Cleat height",
+    "type": "length",
+    "value": "5\""
+  },
+  "cost": {
+    "title": "Wood cost per square inch",
+    "type": "currency",
+    "value": "0.09"
+  },
+  "cutlistOutput": {
+    "title": "Cutlist Location",
+    "type": "text",
+    "value": "F:\\"
+  },
+  "drawerCost": {
+    "title": "Drawer hardware cost",
+    "type": "currency",
+    "value": "77.50"
+  },
+  "hingeCost": {
+    "title": "Cost per hinge",
+    "type": "currency",
+    "value": "10.00"
+  },
+  "programLocation": {
+    "title": "Program Location",
+    "type": "text",
+    "value": "C:\\Users\\XP600\\Documents\\bSolid\\ClosetParts\\"
+  },
+  "programType": {
+    "title": "Program Type",
+    "type": "text",
+    "value": "bSolid"
+  },
+  "railCost": {
+    "title": "Wall rail cost per linear inch",
+    "type": "currency",
+    "value": "0.40"
+  },
+  "rodCost": {
+    "title": "Hanger rod cost per linear inch",
+    "type": "currency",
+    "value": "0.50"
+  },
+  "tax": {
+    "title": "Tax (%)",
+    "type": "percent",
+    "value": "7"
+  },
+  "thickness": {
+    "title": "Wood thickness",
+    "type": "length",
+    "value": "0.75\""
+  },
+  "woodType": {
+    "title": "Default Wood",
+    "type": "text",
+    "value": "White"
+  }
+}
