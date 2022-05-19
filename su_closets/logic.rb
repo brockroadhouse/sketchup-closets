@@ -205,7 +205,7 @@ module Closets
         part = base['center']
       else
         trans = 'to' + otherType # toDH/toLH
-        part = setPartParams(base.fetch(side).fetch(trans), other)
+        part = setPartParams(base.fetch(side).fetch(trans, nil), other)
       end
 
     end

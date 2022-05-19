@@ -47,8 +47,8 @@ module Closets
   end
 
   def self.addGable(width, height, location = [0, 0, 0], part = {})
-    part_name = part.fetch('partName', 'Gable')
-    params = part.fetch('params', '')
+    part_name = part == nil ? 'Gable' : part.fetch('partName', 'Gable')
+    params = part == nil ? '' : part.fetch('params', '')
     comp_name = "#{part_name} @ #{height} x #{width} " + params
     face = make_yz_face(width, height)
     add_part(comp_name, location, face, part_name, params)

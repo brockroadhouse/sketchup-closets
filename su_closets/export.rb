@@ -104,12 +104,12 @@ module Closets
         end
         closetTotal += cost
       end
-      @@edgetape = @@edgetape.to_feet.round
       @@parts[group].sort! {|a,b| a[0] <=> b[0] }
       @@parts[group] << ["", "", "", "", "", "Closet Total", sprintf("$%2.2f", closetTotal)]
       @@closetTotals[group] = closetTotal.round(2)
       @@subTotal += closetTotal
     end
+    @@edgetape = @@edgetape.to_feet.round
     @@subTotal = @@subTotal.round(2)
     @@total = (@@subTotal * (1+@@opts['tax'])).round(2)
 
@@ -214,9 +214,9 @@ module Closets
         end
 
         # Headers for import:
-        # ["Qty", "material", "partname", "width", "height", "thickness", "margin", "grainDirection", "name", "params"]
+        # ["Qty", "material", "partname", "width", "height", "thickness", "margin", "grainDirection", "name", "params", "customerName"]
 
-        @@cutList << [c, material, part, 0, 0, partName, params].insert(3, *dimension)
+        @@cutList << [c, material, part, 0, 0, partName, params, group].insert(3, *dimension)
       end
     end
 
@@ -224,7 +224,7 @@ module Closets
 
   def self.exportCutListCsv()
 	dir = (@@opts.has_key? 'cutlistOutput') ? @@opts['cutlistOutput'] : Dir::pwd
-    title = @@model.title.length > 0 ? @@model.title : "Cut List"
+    title = @@model.title.length > 0 ? @@model.title.sub(/\s/, '_') : "Cut_List"
     filename = UI.savepanel("Save Cut List", dir, "#{title}.csv")
     return unless filename
     filename << ".csv" unless filename[-4..-1] == ".csv"
@@ -232,7 +232,7 @@ module Closets
     begin
       CSV.open(filename, "wb") do |file|
 
-        file << ["Qty", "material", "partname", "width", "height", "thickness", "margin", "grainDirection", "name", "params"]
+        file << ["Qty", "material", "partname", "width", "height", "thickness", "margin", "grainDirection", "name", "params", "customerName"]
         @@cutList.each do |line|
           file << line
         end
@@ -291,7 +291,7 @@ module Closets
     @cutlist_dialog ||= self.viewCutlist
     @cutlist_dialog.add_action_callback("ready") { |action_context|
       cutlist   = JSON.generate(@@cutList)
-      headers   = JSON.generate(["Qty", "material", "partname", "width", "height", "thickness", "margin", "grainDirection", "name", "params"])
+      headers   = JSON.generate(["Qty", "material", "partname", "width", "height", "thickness", "margin", "grainDirection", "name", "params", "room"])
       @cutlist_dialog.execute_script("updateData(#{cutlist}, #{headers})")
       nil
     }

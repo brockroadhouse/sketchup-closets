@@ -1,19 +1,21 @@
 {
   "shelf": {
-    "partName": "FixedShelf"
+    "partName": "FixedShelf",
+      "params": "LEFT=1 RIGHT=1 VB=1"
   },
   "cornerShelf": {
     "left": {
       "partName": "FixedShelf",
-      "params": "LEFT=1"
+      "params": "RIGHT=0 VB=1"
     },
     "right": {
       "partName": "FixedShelf",
-      "params": "RIGHT=1"
+      "params": "LEFT=0 VB=1"
     }
   },
   "cleat": {
-    "partName": "Cleat64mm"
+    "partName": "Cleat64mm",
+      "params": "LEFT=1 RIGHT=1 VB=1"
   },
   "drawer": {
     "front": {
@@ -163,7 +165,12 @@
           "partName": "WHDHLeft"
         },
         "toLH": {
-          "partName": "WHDH-LH"
+          "partName": "WHDH-LH",
+          "params": "LHHEIGHT={HEIGHT} LHSHELVES={SHELVES}"
+        },
+        "toVH": {
+          "partName": "WHDH-LH",
+          "params": "LHHEIGHT={HEIGHT} LHSHELVES={SHELVES}"
         },
         "toCorner": {
           "partName": "WHDHCenter"
@@ -174,7 +181,12 @@
           "partName": "WHDHRight"
         },
         "toLH": {
-          "partName": "WHDH-LH"
+          "partName": "WHDH-LH",
+          "params": "LHHEIGHT={HEIGHT} LHSHELVES={SHELVES}"
+        },
+        "toVH": {
+          "partName": "WHDH-LH",
+          "params": "LHHEIGHT={HEIGHT} LHSHELVES={SHELVES}"
         },
         "toCorner": {
           "partName": "WHDHCenter"
