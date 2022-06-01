@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="vendor/Semantic-UI/semantic.min.css" rel="stylesheet">
+  <script src="vendor/jquery.js"></script>
+  <script src="vendor/Semantic-UI/semantic.min.js"></script>
+  <script src="vendor/vue.js"></script>
+  <style>
+    .field .ui.toggle.checkbox {
+      margin-top: 0.5em;
+    }
+    .ui.toggle.checkbox .box:before, .ui.toggle.checkbox label:before {
+      background-color: #c0c1c2;
+    }
+    </style>
+</head>
+<body>
+  <div id="app">
+    <template v-if="closet">
+    <form class="ui form">
+      <div class="ui middle aligned padded centered grid">
+        <div class="centered column row">
+          <h1 class="ui dividing header">Create Walls</h1>
+        </div>
+
+        <div class="row">
+          <div class="left aligned six wide column">
+            <div class="field">
+              <label>Name</label>
+              <input placeholder="Name" v-model="closet.name">
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="left aligned four wide column">
+            <div class="field">
+              <label>Width</label>
+              <input placeholder="Width" v-model="closet.width">
+            </div>
+          </div>
+        </div>
+
+        <div class="left aligned three wide column">
+          <div class="field">
+            <label>Left Depth</label>
+            <input placeholder="Left Depth" v-model="closet.depthLeft">
+          </div>
+        </div>
+
+        <div class="ten wide column">
+          <img src="closetWalls.png" width="100%" />
+        </div>
+
+        <div class="left aligned three wide column">
+          <div class="field">
+              <label>Right Depth</label>
+              <input placeholder="Right Depth" v-model="closet.depthRight">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="left aligned three wide column">
+            <div class="field">
+              <label>Return Left</label>
+              <input v-model="closet.returnL">
+            </div>
+          </div>
+          <div class="two wide column"></div>
+          <div class="left aligned three wide column">
+            <div class="field">
+              <label>Return Right</label>
+              <input v-model="closet.returnR">
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="left aligned four wide column">
+            <div class="field">
+              <label>Closet Height</label>
+              <input placeholder="Closet Height" v-model="closet.height">
+            </div>
+          </div>
+          <div class="left aligned four wide column">
+            <div class="field">
+              <label>Wall Height</label>
+              <input placeholder="Wall Height" v-model="closet.wallHeight">
+            </div>
+          </div>
+        </div>
+      </div> <!-- grid -->
+
+      <div class="ui divider"></div>
+
+      <div style="padding: 1em;">
+        <div class="ui green button" v-on:click="build(true)">Create and Close</div>
+        <div class="ui primary button" v-on:click="build(false)">Create</div>
+        <div class="ui button" v-on:click="cancel">Cancel</div>
+      </div>
+    </form>
+    </template>
+    <template v-else>
+      <h2>Error loading data</h2>
+    </template>
+  </div><!-- app -->
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+        closet: null,
+      },
+      methods: {
+        build: function(closeDialog) {
+          sketchup.buildRoom(this.closet, closeDialog);
+        },
+        cancel: function() {
+          sketchup.cancel();
+        },
+      },
+      mounted: function() {
+        sketchup.ready();
+      },
+    });
+    function updateCloset(closet) {
+      app.closet  = closet;
+    }
+  </script>
+</body>
+</html>

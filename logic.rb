@@ -60,7 +60,7 @@ module Closets
           closet['side'] = 'left'
         end
         depth  = closet['depth'].empty? ? (floor ? @@floorDepth : @@hangDepth) : closet['depth']
-        height = floor ? floorHeight : (closet['height'].empty? ? @@lhHeight : closet['height'])
+        height = floor ? floorHeight : (closet['height'].empty? ? @@lhHeight : closet['height']) - 1
       when "Shelves"
         closet['shelves'] = closet['shelves'].empty? ? 5 : closet['shelves'].to_i
         closet['drawers'] = closet['drawers'].nil? ? 0 : closet['drawers'].to_i
@@ -95,6 +95,10 @@ module Closets
       elsif (i == 0) # First
         nextF = sections[i+1]['floor']
 
+		puts 'heights'
+		puts closet['height']
+		puts sections[i+1]['height']
+		puts '-------'
         taller = (sections[i+1]['height'] >= closet['height'])
         deeper = (sections[i+1]['depth'] >= closet['depth'])
         isNextTaller = ((taller && !floor) || (deeper && nextF)) 
@@ -205,10 +209,6 @@ module Closets
         part = base['center']
       else
         trans = 'to' + otherType # toDH/toLH
-		puts '----',i,'-----'
-		puts 'babse'
-		puts base
-		puts 'trans'
 		puts trans
         part = setPartParams(base.fetch(side).fetch(trans, nil), other)
       end
