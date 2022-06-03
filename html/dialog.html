@@ -14,8 +14,8 @@
         margin-top: 0.5em;
       }
       .ui.super.mini.buttons .ui.button.checkbox {
-        padding-left: 1.1em;
-        padding-right: 1.1em;
+        padding-left: 0.75em;
+        padding-right: 0.75em;
       }
       .ui.button.checkbox input {
         width: 100%;
@@ -243,16 +243,16 @@
                     <template
                       v-if="closet.type == 'Shelves' && closet.drawers > 0"
                     >
-                      <div class="centered row">
+                      <div class="ui padded grid centered row">
                         <template v-for="d in closet.drawers">
-                          <div class="tight column field">
+                          <div class="tight column field" v-bind:style="{width: (80 / closet.drawers) + '%'}">
                             <label>Drawer {{ d }} Height</label>
                             <div
                               class="ui super mini buttons"
                               :run="!closet.drawerHeight[d-1] ? closet.drawerHeight[d-1] = 10 : true"
                             >
                               <div
-                                class="ui button checkbox"
+                                class="ui button checkbox drawer-heights"
                                 v-bind:class='{ "active": closet.drawerHeight[d-1] == "10" }'
                               >
                                 <input
@@ -263,7 +263,7 @@
                                 <label>10"</label>
                               </div>
                               <div
-                                class="ui button checkbox"
+                                class="ui button checkbox drawer-heights"
                                 v-bind:class='{ "active": closet.drawerHeight[d-1] == "7.5" }'
                               >
                                 <input
@@ -274,7 +274,7 @@
                                 <label>7.5"</label>
                               </div>
                               <div
-                                class="ui button checkbox"
+                                class="ui button checkbox drawer-heights"
                                 v-bind:class='{ "active": closet.drawerHeight[d-1] == "5" }'
                               >
                                 <input
@@ -287,7 +287,8 @@
                             </div>
                           </div>
                         </template>
-                      </div>
+						
+					  </div>
                     </template>
                   </div>
                 </div>

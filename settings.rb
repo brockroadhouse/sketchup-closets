@@ -17,7 +17,7 @@ module Closets
   @@floorSpacing = 250.mm
 
   @@lhHeight  = 24.inch
-  @@dhHeight  = 48.inch
+  @@dhHeight  = 1202.mm
 
   @@nameCount = 0
 
