@@ -177,21 +177,16 @@ module Closets
 
   def self.addRod(width, location)
     # location[x,y,z] are the coords of the bottom corner of shelf
-    compName = "#{width} Closet Rod"
-
-    compDefinition = Sketchup.active_model.definitions[compName]
-    newLocation = [
+    comp_name = "#{width} Closet Rod"
+    new_location = [
       location[0] + 0,
       location[1] + 2,
-      location[2] - (1.5 + @@opts['thickness'])
+      location[2] - (3 + @@opts['thickness'])
     ]
-    rod = [
-      Geom::Point3d.new(0, 0, 0),
-      Geom::Point3d.new(0, 0, -1.5),
-      Geom::Point3d.new(0, 1, -1.5)
-    ]
-    add_part(compName, newLocation, rod)
     
+    rod_face = make_xz_face(width, 1.5.inch)
+    rod = add_part(comp_name, new_location, rod_face)
+    addMaterial(rod)
   end
 
   def self.addWallRail(width, location)

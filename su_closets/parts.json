@@ -39,7 +39,7 @@
       },
       "large": {
         "partName": "DrawerBack19mm",
-        "height": "159mm",
+        "height": "152mm",
         "inset": "42mm"
       }
     }
@@ -57,10 +57,6 @@
           "partName": "WHGableLeft",
           "params": "LH=1"
         },
-        "toVH": {
-          "partName": "WHGableLeft",
-          "params": "LH=1 LHHEIGHT={HEIGHT} LHSHELVES={SHELVES} TRANSWIDTH={DEPTH}"
-        },
         "toDH": {
           "partName": "WHGableLeft",
           "params": "DH=1"
@@ -77,10 +73,6 @@
         "toLH": {
           "partName": "WHGableRight",
           "params": "LH=1"
-        },
-        "toVH": {
-          "partName": "WHGableRight",
-          "params": "LH=1 LHHEIGHT={HEIGHT} LHSHELVES={SHELVES} TRANSWIDTH={DEPTH}"
         },
         "toDH": {
           "partName": "WHGableRight",
@@ -102,7 +94,7 @@
         },
         "toLH": {
           "partName": "FMGableLeft",
-          "params": "LH=1"
+          "params": "LH=1 SHELVES={SHELVES}"
         },
         "toDH": {
           "partName": "FMGableLeft",
@@ -152,6 +144,14 @@
         "toCorner": {
           "partName": "WHLHCenter"
         }
+      }
+    },
+    "FM": {
+      "center": {
+        "partName": "WHLHCenter"
+      },
+      "right": {
+        "partName": "FMLHRight"
       }
     }
   },
@@ -211,30 +211,6 @@
         },
         "toLH": {
           "partName": "WHDH-LH"
-        }
-      }
-    }
-  },
-  "VH": {
-    "WH": {
-      "center": {
-        "partName": "WHLHCenter",
-        "params": "SHELVES={SHELVES}"
-      },
-      "left": {
-        "finished": {
-          "partName": "WHLHLeft"
-        },
-        "toCorner": {
-          "partName": "WHLHCenter"
-        }
-      },
-      "right": {
-        "finished": {
-          "partName": "WHLHRight"
-        },
-        "toCorner": {
-          "partName": "WHLHCenter"
         }
       }
     }
