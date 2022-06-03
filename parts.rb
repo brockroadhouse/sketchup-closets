@@ -90,6 +90,7 @@ module Closets
   def self.addDrawer(width, height, location)
     add_drawer_front(width, height, location)
     add_drawer_bottom(width, location)
+	location[1] += 340.mm
     add_drawer_back(width, location)
   end
 
@@ -141,8 +142,8 @@ module Closets
     name = "#{width} Drawer Back"
     part = @@cncParts['drawer']['back']['large']
     part_name = part['partName']
-    
-    face = make_xy_face(width, 159.mm)
+	
+    face = make_xz_face(width, part['height'].to_l)
     comp = add_part(name, location, face, part_name)
 
     set_drawer_width_params(comp.definition, part, width)
@@ -159,10 +160,6 @@ module Closets
                   shelf_width
                 end
 
-    puts '-------'
-    puts part
-    puts shelf_width
-    puts width_mod
     comp_def.set_attribute('cnc_params', 'width', width_mod.round)
   end
 

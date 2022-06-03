@@ -364,6 +364,9 @@ module Closets
   end
 
   def self.build(closets, params)
+	puts 'building'
+	puts closets
+	puts '-----'
     startOperation('Build Closet')
     @@move = false
 

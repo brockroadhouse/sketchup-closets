@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="vendor/Semantic-UI/semantic.min.css" rel="stylesheet">
+  <script src="vendor/jquery.js"></script>
+  <script src="vendor/Semantic-UI/semantic.min.js"></script>
+  <script src="vendor/vue.js"></script>
+  <style>
+    .main.container {
+      padding: 2em 2em;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .ui.table.breakdown {
+      font-size: 0.8em;
+    }
+    .ui.table.totals tfoot {
+      font-size: 1.1em;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <template v-if="parts">
+      <div class="ui main container">
+        <h1 class="ui header">
+          <i class="dollar sign icon"></i>
+          <div class="content">Quote</div>
+        </h1>
+
+        <div class="ui button" v-on:click="toggleDiv">{{ toggleTitle }} Breakdown</div>
+        <table class="ui striped celled table breakdown unstackable" v-if="display_div">
+          <thead>
+            <tr>
+              <template v-for="header in headers">
+                <th>{{ header }}</th>
+              </template>
+            </tr>
+          </thead>
+          <tbody>
+            <template v-for="(part, closet) in parts">
+              <tr>
+                <td colspan="7"><strong>{{ closet }}</strong></td>
+              </tr>
+              <template v-for="piece in part">
+                <tr>
+                  <template v-for="attr in piece">
+                    <td class="right aligned">{{ attr }}</td>
+                  </template>
+                </tr>
+              </template>
+            </template>
+          </tbody>
+        </table>
+
+        <table class="ui striped celled fixed table totals unstackable">
+        <form class="ui form">
+          <tbody>
+            <template v-for="(closetTotal, name) in closetsTotal">
+              <tr>
+                <td class="right aligned"><strong>{{ name }}</strong></td>
+                <td class="right aligned">${{ closetTotal }}</td>
+              </tr>
+            </template>
+            <tr>
+              <td colspan="2">
+              </td>
+            </tr>
+            <tr>
+                <td class="right aligned">Edgetape</td>
+                <td class="right aligned">{{ edgetape }} ft</td>
+            </tr>
+            <tr>
+                <td class="right aligned">Discount (%)</td>
+                <td class="ui right aligned fluid input">
+                  <input class="right aligned" v-model="discount">
+                </td>
+            </tr>
+            <tr>
+              <td class="right aligned">Discount ($)</td>
+              <td class="right aligned">${{ (subTotal * (-discount/100)).toFixed(2) }}</td>
+            </tr>
+            <tr>
+              <td class="right aligned">Sub-Total</td>
+              <td class="right aligned">${{ subTotalCalc }}</td>
+            </tr>
+            <tr>
+              <td class="right aligned">Tax ({{ taxPercentCalc }}%)</td>
+              <td class="right aligned">${{ taxCalc }}</td>
+            </tr>
+          </tbody>
+          <tfoot class="full-width">
+            <tr>
+              <th class="right aligned"><strong>Total</strong></th>
+              <th class="right aligned"><strong>${{ totalCalc }}<strong></th>
+            </tr>
+          </tfoot>
+        </form>
+        </table>
+
+        <div>
+          <div class="ui primary button" v-on:click="exportCsv">Export</div>
+          <div class="ui button" v-on:click="cancel">Cancel</div>
+        </div>
+      </div>
+    </template>
+    <template v-else>
+      <h2>Error loading data</h2>
+    </template>
+  </div><!-- app -->
+  <script>
+
+    var app = new Vue({
+      el: '#app',
+      data: {
+        parts: null,
+        headers: null,
+        closetsTotal: null,
+        subTotal: null,
+        tax: null,
+        total: null,
+        discount: 0,
+        edgetape: 0,
+        display_div: false,
+        toggleTitle: "View",
+      },
+      computed: {
+        subTotalCalc: function () {
+          return (this.subTotal * (1 - (this.discount/100)) ).toFixed(2)
+        },
+        taxCalc: function () {
+          return (this.subTotalCalc * this.tax).toFixed(2)
+        },
+        taxPercentCalc: function () {
+          return (this.tax * 100).toFixed(2)
+        },
+        totalCalc: function () {
+          total = (this.subTotal * (1 - (this.discount/100)) ) * (1+this.tax)
+          return total.toFixed(2)
+        },
+      },
+      methods: {
+        exportCsv: function() {
+          console.log(this.discount);
+          sketchup.exportCsv(this.discount);
+        },
+        cancel: function() {
+          sketchup.cancel();
+        },
+        toggleDiv: function() {
+            if (this.display_div) {
+              this.display_div = false;
+              this.toggleTitle = "View";
+            } else {
+              this.display_div = true;
+              this.toggleTitle = "Hide";
+            }
+        },
+      },
+      mounted: function() {
+      $('.ui.accordion')
+        .accordion()
+      ;
+        sketchup.ready();
+        console.log($('.ui.accordion'));
+      },
+    });
+    function updateData(parts, headers, closetsTotal, subTotal, tax, total, edgetape) {
+      app.parts   = parts;
+      app.headers = headers;
+      app.closetsTotal = closetsTotal;
+      app.subTotal   = subTotal;
+      app.tax   = tax;
+      app.total   = total;
+      app.edgetape   = edgetape;
+    };
+  </script>
+</body>
+</html>
