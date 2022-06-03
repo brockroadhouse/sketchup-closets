@@ -181,7 +181,7 @@
                     <div
                       class="tight column field"
                       v-bind:data-tooltip='(closet.type ? "Defaults to " + types[closet.type].height + "\"" : "")'
-                      v-bind:class="[ (closet.type == 'LH' || closet.type == 'DH' || closet.type == 'Corner' || closet.floor) ? 'hidden' : '' ]"
+                      v-bind:class="[ (closet.type == 'DH' || closet.type == 'Corner' || closet.floor) ? 'hidden' : '' ]"
                     >
                       <label>Height</label>
                       <input v-model="closet.height" placeholder="Height" />
@@ -189,7 +189,7 @@
                     <div
                       class="tight column field"
                       v-bind:data-tooltip='(closet.type ? "Defaults to " + types[closet.type].shelves : "")'
-                      v-bind:class="[ (closet.type != 'VH' && closet.type != 'Shelves') ? 'hidden' : '' ]"
+                      v-bind:class="[ (closet.type != 'LH' && closet.type != 'Shelves') ? 'hidden' : '' ]"
                     >
                       <label>Shelves</label>
                       <input v-model="closet.shelves" placeholder="Shelves" />
@@ -208,7 +208,7 @@
                     </div>
                     <div
                       class="tight column field"
-                      v-bind:class="[ (closet.type == 'VH' && closet.floor) ? '' : 'hidden' ]"
+                      v-bind:class="[ (closet.type == 'LH' && closet.floor) ? '' : 'hidden' ]"
                     >
                       <label>High Rod</label>
                       <div class="ui toggle checkbox">

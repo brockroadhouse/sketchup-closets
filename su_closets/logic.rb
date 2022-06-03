@@ -43,15 +43,12 @@ module Closets
       floor = closet['floor']
       case closet['type']
       when "LH"
-        depth  = closet['depth'].empty? ? (floor ? @@floorDepth : @@hangDepth) : closet['depth']
-        height = floor ? floorHeight : @@lhHeight
-      when "DH"
-        depth  = closet['depth'].empty? ? (floor ? @@floorDepth : @@hangDepth) : closet['depth']
-        height = floor ? floorHeight : @@dhHeight
-      when "VH"
         closet['shelves'] = closet['shelves'].empty? ? 2 : closet['shelves'].to_i
         depth  = closet['depth'].empty? ? (floor ? @@floorDepth : @@hangDepth) : closet['depth']
         height = floor ? floorHeight : (closet['height'].empty? ? @@lhHeight : closet['height'])
+      when "DH"
+        depth  = closet['depth'].empty? ? (floor ? @@floorDepth : @@hangDepth) : closet['depth']
+        height = floor ? floorHeight : @@dhHeight
       when "Corner"
         closet['shelves'] = floor ? 2 : 1
         if (i == 0)
@@ -78,9 +75,9 @@ module Closets
   end
 
   def self.setPlacements(sections, params)
-    totalPlacement = params['placement']
+    overall_placement = params['placement']
     if (sections.length == 1)
-      sections[0]['placement'] = totalPlacement
+      sections[0]['placement'] = overall_placement
       sections[0]['offset']    = @@opts['thickness'] * 2
       return
     end
@@ -93,23 +90,18 @@ module Closets
       if (closet['type']=='Corner')
         placement = "Shelves"
       elsif (i == 0) # First
-        nextF = sections[i+1]['floor']
-
-        taller = (sections[i+1]['height'] >= closet['height'])
-        deeper = (sections[i+1]['depth'] >= closet['depth'])
-        isNextTaller = ((taller && !floor) || (deeper && nextF)) 
-        if (totalPlacement=="Right")
-          placement = isNextTaller ? "Shelves" : "Right"
+        is_trans = is_section_transitional(closet, sections[i + 1])
+        if (overall_placement == "Right")
+          placement = is_trans ? "Right" : "Shelves"
         else
-          placement = isNextTaller ? "Left" : "Center"
+          placement = is_trans ? "Center" : "Left"
         end
       elsif (i == sections.count-1) # Last
-        lastF = sections[i-1]['floor']
-        isPrevTaller = (sections[i-1][key] > closet[key])
-        if (totalPlacement=="Left")
-          placement = isPrevTaller ? "Shelves" : "Left"
+        is_trans = is_section_transitional(closet, sections[i - 1])
+        if (overall_placement == "Left")
+          placement = is_trans ? "Left" : "Shelves"
         else
-          placement = isPrevTaller ? "Right" : "Center"
+          placement = is_trans ? "Center" : "Right"
         end
       else
         placement = set_section_placement(sections, i)
@@ -129,26 +121,67 @@ module Closets
     end
   end
 
+  def self.is_section_transitional(section, other_section)
+    # nextF = other_section['floor']
+
+    # taller = (other_section['height'] >= section['height'])
+    # deeper = (other_section['depth'] >= section['depth'])
+    # return ((taller && !section['floor']) || (nextF && deeper))
+
+    type = section['type']
+    other_type = other_section['type']
+    if type == 'Shelves' && !(section['floor'] && !other_section['floor'])
+      true
+    elsif section['floor'] && !other_section['floor']
+      true
+    elsif type == 'DH'
+      ['LH', 'Corner'].include? other_type
+    elsif type == 'LH'
+      other_type == 'Corner'
+    else
+      false
+    end
+  end
+
   def self.set_section_placement(sections, i)
-    closet  = sections[i]
-    key     = closet['floor'] ? 'depth' : 'height'
-    floor   = closet['floor']
+    prev_type = sections[i-1]['type']
+    curr_type = sections[i]['type']
+    next_type = sections[i+1]['type']
 
-    lastH = sections[i-1][key]
-    nextH = sections[i+1][key]
-    thisH = closet[key]
-    lastF = sections[i-1]['floor']
-    nextF = sections[i+1]['floor']
+    trans_left = is_section_transitional(sections[i], sections[i-1])
+    trans_right = is_section_transitional(sections[i], sections[i+1])
 
-    if    (lastH <= thisH && (thisH > nextH || sections[i+1]['type'] == 'Corner' || (floor && !nextF )))
-      placement = "Center"
-    elsif (lastH <= thisH && thisH <= nextH)
+    if (curr_type == next_type) || (trans_left && !trans_right)
       placement = "Left"
-    elsif ((lastH > thisH && thisH > nextH) || (floor && !nextF))
+    elsif (trans_left && trans_right)
+      placement = "Center"
+    elsif (!trans_left && trans_right)
       placement = "Right"
-    elsif (lastH > thisH && thisH <= nextH)
+    else
       placement = "Shelves"
     end
+
+
+    # closet = sections[i]
+    # key     = closet['floor'] ? 'depth' : 'height'
+    # floor   = closet['floor']
+
+    # lastH = sections[i-1][key]
+    # nextH = sections[i+1][key]
+    # thisH = closet[key]
+    # nextF = sections[i+1]['floor']
+
+    # if    (lastH <= thisH && (thisH > nextH || sections[i+1]['type'] == 'Corner' || (floor && !nextF )))
+    #   placement = "Center"
+    # elsif (lastH <= thisH && thisH <= nextH)
+    #   placement = "Left"
+    # elsif ((lastH > thisH && thisH > nextH) || (floor && !nextF))
+    #   placement = "Right"
+    # elsif (lastH > thisH && thisH <= nextH)
+    #   placement = "Shelves"
+    # end
+
+
     
     placement
   end
@@ -180,17 +213,15 @@ module Closets
   end
 
   def self.getGableType(sections, i, current, side)
-    # default to center gable
-    type = 'Center'
-    
-    type      = current['type']                # DH, LH, Shelves etc.
     loc       = current['floor'] ? 'FM' : 'WH' # Floor or Wall Hung
+    type      = current['type']                # DH, LH, Shelves etc.
     finished  = current['finished']
 
-    first = (side == 'left' && i == 0)
-    last  = (side == 'right' && i == sections.length-1)
-
     base = @@cncParts[type][loc]
+    return unless base
+    
+    first = (side == 'left' && i.zero?)
+    last  = (side == 'right' && i == sections.length-1)
     if first || last 
       # Left gable of first section or right gable of last section
       if finished
@@ -216,7 +247,7 @@ module Closets
   def self.setPartParams(part, section)
     return part unless part && part.fetch('params', false)
     
-	part = part.dup
+	  part = part.dup
     params = part['params']
 
     replaceable = {

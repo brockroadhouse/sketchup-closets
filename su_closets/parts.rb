@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'part.rb'
 
 module Closets
   def self.add_title(name, pt)
@@ -20,7 +21,7 @@ module Closets
     name_group.transform!(new_transform)
   end
 
-  def self.add_part_component(face, trans, name, part = name, params = '', handle = [], width = 0)
+  def self.add_part_component(face, trans, name, part = name, params = '', handle = [])
     push_distance = @@opts['thickness']
     # push_distance = name.include? 'rod' ? width : @@opts['thickness']
     group = addFace(face, push_distance)
@@ -159,10 +160,6 @@ module Closets
                   shelf_width
                 end
 
-    puts '-------'
-    puts part
-    puts shelf_width
-    puts width_mod
     comp_def.set_attribute('cnc_params', 'width', width_mod.round)
   end
 

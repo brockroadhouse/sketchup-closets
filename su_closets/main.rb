@@ -139,24 +139,39 @@ module Closets
     posX = closet['location'][0]
     posY = closet['location'][1]
 
+    shelves = closet['shelves']
+    reverse = closet['reverse']
+
     topHeight = height
     if (height > @@floorHeight)
       addShelf(width, depth, [posX, posY, height])
       height = @@floorHeight
     end
 
-    spacing = @@floorSpacing
+    bottomShelf = @@opts['cleat']+@@opts['thickness']
     addShelf(width, depth, [posX, posY, height], true)
-    addShelf(width, depth, [posX, posY, height-spacing])
-    addShelf(width, depth, [posX, posY, height-spacing*2])
-    addShelf(width, depth, [posX, posY, @@opts['cleat']+@@opts['thickness']])
+
+    spacing = @@floorSpacing
+    if (reverse)
+      addRod(width, [posX, posY+2, height])
+      shelfHeight = bottomShelf
+    else
+      addRod(width, [posX, posY+2, height - spacing*(shelves - 1)])
+      spacing = -spacing
+      shelfHeight = height
+    end
+
+    (shelves-1).times do
+      shelfHeight += spacing
+      addShelf(width, depth, [posX, posY, shelfHeight])
+    end
+
+    addShelf(width, depth, [posX, posY, bottomShelf])
 
     backPosY = depth + posY
     addCleat(width, [posX, backPosY, topHeight-@@opts['thickness']-@@opts['cleat']])
     addCleat(width, [posX, backPosY-1, 0])
     addCleat(width, [posX, posY+2, 0])
-
-    addRod(width, [posX, posY+2, height-spacing*2])
 
   end
 
@@ -169,16 +184,26 @@ module Closets
     posY = closet['location'][1]
     posZ = closet['location'][2]
 
+    shelves = closet['shelves']
+
     # Shelves
-    bottom = @@opts['cleat'] + @@opts['thickness']
-    mid = (height+bottom)/2
     addShelf(width, depth, [posX, posY, posZ+height], true)
-    addShelf(width, depth, [posX, posY, posZ+mid])
-    addShelf(width, depth, [posX, posY, posZ+bottom])
+    bottom = @@opts['cleat'] + @@opts['thickness']
+    addShelf(width, depth, [posX, posY, posZ+bottom]) if (shelves > 1)
+
+    if (shelves > 2)
+      spacing = (height - bottom)/(shelves - 1)
+      shelfHeight = posZ + height - spacing
+      (shelves-2).times do
+        addShelf(width, depth, [posX, posY, shelfHeight])
+        shelfHeight -= spacing
+      end
+    end
 
     addCleat(width, [posX, posY+depth, posZ])
 
-    addRod(width, [posX, posY, posZ+bottom])
+    rodZ = shelves > 1 ? posZ+bottom : posZ+height
+    addRod(width, [posX, posY, rodZ])
   end
 
   def self.buildFloorDHShelves (closet)
@@ -231,82 +256,6 @@ module Closets
 
     addRod(width, [posX, posY, posZ+height])
     addRod(width, [posX, posY, posZ+bottom])
-  end
-
-  def self.buildFloorVHShelves (closet)
-    width   = closet['width']
-    depth   = closet['depth']
-    height  = closet['height']
-
-    posX = closet['location'][0]
-    posY = closet['location'][1]
-    posZ = closet['location'][2]
-
-    shelves = closet['shelves']
-    reverse = closet['reverse']
-
-    topHeight = height
-    if (height > @@floorHeight)
-      addShelf(width, depth, [posX, posY, height])
-      height = @@floorHeight
-    end
-
-    bottomShelf = @@opts['cleat']+@@opts['thickness']
-    addShelf(width, depth, [posX, posY, height], true)
-
-    spacing = @@floorSpacing
-    if (reverse)
-      addRod(width, [posX, posY+2, height])
-      shelfHeight = bottomShelf
-    else
-      addRod(width, [posX, posY+2, height - spacing*(shelves - 1)])
-      spacing = -spacing
-      shelfHeight = height
-    end
-
-    (shelves-1).times do
-      shelfHeight += spacing
-      addShelf(width, depth, [posX, posY, shelfHeight])
-    end
-
-    addShelf(width, depth, [posX, posY, bottomShelf])
-
-    backPosY = depth + posY
-    addCleat(width, [posX, backPosY, topHeight-@@opts['thickness']-@@opts['cleat']])
-    addCleat(width, [posX, backPosY-1, 0])
-    addCleat(width, [posX, posY+2, 0])
-
-  end
-
-  def self.buildVHShelves (closet)
-    width   = closet['width']
-    depth   = closet['depth']
-    height  = closet['height']
-
-    posX = closet['location'][0]
-    posY = closet['location'][1]
-    posZ = closet['location'][2]
-
-    shelves = closet['shelves']
-
-    # Shelves
-    addShelf(width, depth, [posX, posY, posZ+height], true)
-    bottom = @@opts['cleat'] + @@opts['thickness']
-    addShelf(width, depth, [posX, posY, posZ+bottom]) if (shelves > 1)
-
-    if (shelves > 2)
-      spacing = (height - bottom)/(shelves - 1)
-      shelfHeight = posZ + height - spacing
-      (shelves-2).times do
-        addShelf(width, depth, [posX, posY, shelfHeight])
-        shelfHeight -= spacing
-      end
-    end
-
-    addCleat(width, [posX, posY+depth, posZ])
-
-    rodZ = shelves > 1 ? posZ+bottom : posZ+height
-    addRod(width, [posX, posY, rodZ])
   end
 
   def self.buildCornerShelves (closet)
@@ -395,8 +344,6 @@ module Closets
         floor ? buildFloorLHShelves(closet) : buildLHShelves(closet)
       when 'DH'
         floor ? buildFloorDHShelves(closet) : buildDHShelves(closet)
-      when 'VH'
-        floor ? buildFloorVHShelves(closet) : buildVHShelves(closet)
       when 'Corner'
         floor ? buildFloorCornerShelves(closet) : buildCornerShelves(closet)
       when "Shelves"

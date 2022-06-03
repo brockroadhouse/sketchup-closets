@@ -6,26 +6,21 @@
   <script src="vendor/Semantic-UI/semantic.min.js"></script>
   <script src="vendor/vue.js"></script>
   <script src="treeview.js"></script>
+  <link rel = "stylesheet" type = "text/css" href = "css/treeview.css">
   <style>
     .main.container {
       padding: 0.25em 1em;
-    }
-    .hidden {
-      display: none !important;
-    }
-    .ui.table.breakdown {
-      font-size: 0.8em;
-    }
-    .ui.table.totals tfoot {
-      font-size: 1.1em;
     }
   </style>
 </head>
 <body>
   <div id="app">
     <template v-if="parts">
-        <div id="components-demo">
-            <tree-view v-bind:tree-data="parts"></tree-view>
+      <div class="main container">
+        <div id="components-tree" class="treeview">
+          <div class="ui form parts-tree">
+            <tree-view v-bind:tree-data="parts" v-bind:input-name="''"></tree-view>
+          </div>
         </div>
         <div>
           <div class="ui primary button" v-on:click="saveParts">Save</div>

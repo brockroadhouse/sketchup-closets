@@ -109,8 +109,8 @@ module Closets
     group
   end
 
-  def self.addMaterial (face, addit)
-    filename = 'Materials/Metal/Metal Corrugated Shiny.skm'
+  def self.addMaterial (face, material_name='Metal Corrugated Shiny')
+    filename = "Materials/Metal/#{material_name}.skm"
     path = Sketchup.find_support_file(filename)
     materials = Sketchup.active_model.materials
     if path

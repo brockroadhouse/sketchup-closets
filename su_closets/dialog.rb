@@ -138,16 +138,16 @@ module Closets
       }
     ]
     closetParams = {
-      :width => defaultWidth.to_l,
-      :gapLeft => 0.25.inch,
-      :gapRight => 0.25.inch,
-      :height => selectionHeight==0 ? 84.inch : selectionHeight.to_l,
-      :placement => 'Center'
+      width: defaultWidth.to_l,
+      gapLeft: 0.25.inch,
+      gapRight: 0.25.inch,
+      height: selectionHeight == 0 ? 84.inch : selectionHeight.to_l,
+      bbHeight: 5.5.inch,
+      placement: 'Center'
     }
     types = {
-      'LH' => {:sections => 'four', :floorSections => 'four', :depth => 12, :height => 24, :shelves => 0},
+      'LH' => {:sections => 'six', :floorSections => 'six', :depth => 12, :height => 24, :shelves => 3},
       'DH' => {:sections => 'four', :floorSections => 'four', :depth => 12, :height => 48, :shelves => 0},
-      'VH' => {:sections => 'six', :floorSections => 'six', :depth => 12, :height => 12, :shelves => 2},
       'Shelves' => {:sections => 'eight', :floorSections => 'seven', :depth => '14 3/4', :height => 76, :shelves => 5},
       'Corner' => {:sections => 'four', :floorSections => 'four', :depth => 12},
     }
