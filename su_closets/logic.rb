@@ -57,7 +57,7 @@ module Closets
           closet['side'] = 'left'
         end
         depth  = closet['depth'].empty? ? (floor ? @@floorDepth : @@hangDepth) : closet['depth']
-        height = floor ? floorHeight : (closet['height'].empty? ? @@lhHeight : closet['height'])
+        height = floor ? floorHeight : (closet['height'].empty? ? @@lhHeight : closet['height']) - 1
       when "Shelves"
         closet['shelves'] = closet['shelves'].empty? ? 5 : closet['shelves'].to_i
         closet['drawers'] = closet['drawers'].nil? ? 0 : closet['drawers'].to_i

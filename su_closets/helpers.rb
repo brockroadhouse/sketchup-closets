@@ -187,7 +187,7 @@ module Closets
   end
   
   def self.postProcessHeight(height)
-	(( (height) / 32 ).to_i) * 32 + 18
+	(( (height-18) / 32 ).to_i) * 32 + 18
   end
   
   def self.postProcessDepth(depth)

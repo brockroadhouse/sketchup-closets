@@ -206,7 +206,7 @@ module Closets
           dimension = postProcessShelf(w, h, d)
         elsif (name.include? "Drawer")
           width      = instance.get_attribute("cnc_params", "width")
-          dimension = [width, d, h]
+          dimension  = (name.include? "Bottom") ? [width, h, d] : [width, d, h]
         elsif (["Cleat", "Door"].any?{|piece| name.include? piece})
           dimension = [w, d, h]
         else
@@ -224,7 +224,7 @@ module Closets
 
   def self.exportCutListCsv()
 	dir = (@@opts.has_key? 'cutlistOutput') ? @@opts['cutlistOutput'] : Dir::pwd
-    title = @@model.title.length > 0 ? @@model.title.sub(/\s/, '_') : "Cut_List"
+    title = @@model.title.length > 0 ? @@model.title.gsub(/\s/, '_') : "Cut_List"
     filename = UI.savepanel("Save Cut List", dir, "#{title}.csv")
     return unless filename
     filename << ".csv" unless filename[-4..-1] == ".csv"
