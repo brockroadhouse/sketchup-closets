@@ -1,13 +1,14 @@
-require "sketchup.rb"
-require "su_closets/helpers.rb"
-require "su_closets/export.rb"
-require "su_closets/dialog.rb"
-require 'su_closets/settings.rb'
-require "su_closets/prompts.rb"
-require "su_closets/logic.rb"
-require "su_closets/parts.rb"
+# frozen_string_literal: true
 
-module Closets
+require_relative 'helpers.rb'
+require_relative 'export.rb'
+require_relative 'dialog.rb'
+require_relative 'settings.rb'
+require_relative 'prompts.rb'
+require_relative 'logic.rb'
+require_relative 'parts.rb'
+
+module FVCC::Closets
 
   def self.buildWalls (name, width, depthL, depthR, returnL, returnR, closetHeight, wallHeight)
     offset = 4.inch

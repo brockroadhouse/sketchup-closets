@@ -1,7 +1,9 @@
-require "csv"
-require "su_closets/svg.rb"
+# frozen_string_literal: true
 
-module Closets
+# require "csv"
+require_relative 'svg.rb'
+
+module FVCC::Closets
 
   def self.viewQuoteList
     startOperation("View Quote", false)

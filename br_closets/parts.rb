@@ -1,7 +1,9 @@
 # frozen_string_literal: true
-require 'part.rb'
 
-module Closets
+require_relative 'part.rb'
+
+module FVCC::Closets
+
   def self.add_title(name, pt)
     name_group = @@currentEnt.add_group
 
@@ -63,6 +65,10 @@ module Closets
 
   def self.addShelf(width, depth, location, dimension = false, part = {})
     part = @@cncParts['shelf'] if part.empty?
+    shelf = Shelf.new(width, depth, @@opts['thickness'], location, part)
+    shelf.add_dimension if dimension
+    
+    return
     partName = part.fetch('partName', '')
     params   = part.fetch('params', '')
     name = "Shelf @ #{width} x #{depth} " + params
@@ -70,9 +76,6 @@ module Closets
     # create if part doesn't exist or not the same dimensions
     face = make_xy_face(width, depth)
     add_part(name, location, face, partName, params)
-
-    # Add dimension line
-    add_shelf_dimension(width, depth, location) if dimension == true
   end
 
   def self.addCleat(width, location)
@@ -210,20 +213,6 @@ module Closets
     else
       @@currentEnt.add_instance(compDefinition, transformation)
     end
-  end
-
-  def self.add_shelf_dimension(width, depth, location)
-    x = location[0]
-    xEnd = location[0] + width
-    y = location[1]
-    yEnd = location[1] + depth
-    z = location[2]
-
-    # Width
-    addDimension([x, y, z], [xEnd, y, z], [0, 0, -5])
-
-    # Depth
-    addDimension([x, y, z], [x, yEnd, z], [width / 2, 0, 0])
   end
 
   def self.make_xy_face(_x, _y)

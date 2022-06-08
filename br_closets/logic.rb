@@ -1,5 +1,7 @@
-module Closets
+# frozen_string_literal: true
 
+module FVCC::Closets
+  
   def self.splitWidth(width, place)
     if (placement == "Center")
       numGables = 0
@@ -43,7 +45,7 @@ module Closets
       floor = closet['floor']
       case closet['type']
       when "LH"
-        closet['shelves'] = closet['shelves'].empty? ? 2 : closet['shelves'].to_i
+        closet['shelves'] = closet['shelves'].empty? ? 3 : closet['shelves'].to_i
         depth  = closet['depth'].empty? ? (floor ? @@floorDepth : @@hangDepth) : closet['depth']
         height = floor ? floorHeight : (closet['height'].empty? ? @@lhHeight : closet['height'])
       when "DH"
@@ -75,9 +77,9 @@ module Closets
   end
 
   def self.setPlacements(sections, params)
-    overall_placement = params['placement']
+    totalPlacement = params['placement']
     if (sections.length == 1)
-      sections[0]['placement'] = overall_placement
+      sections[0]['placement'] = totalPlacement
       sections[0]['offset']    = @@opts['thickness'] * 2
       return
     end
@@ -90,18 +92,22 @@ module Closets
       if (closet['type']=='Corner')
         placement = "Shelves"
       elsif (i == 0) # First
-        is_trans = is_section_transitional(closet, sections[i + 1])
-        if (overall_placement == "Right")
-          placement = is_trans ? "Right" : "Shelves"
+        nextF = sections[i+1]['floor']
+        taller = (sections[i+1]['height'] >= closet['height'])
+        deeper = (sections[i+1]['depth'] >= closet['depth'])
+        isNextTaller = ((taller && !floor) || (deeper && nextF)) 
+        if (totalPlacement=="Right")
+          placement = isNextTaller ? "Shelves" : "Right"
         else
-          placement = is_trans ? "Center" : "Left"
+          placement = isNextTaller ? "Left" : "Center"
         end
       elsif (i == sections.count-1) # Last
-        is_trans = is_section_transitional(closet, sections[i - 1])
-        if (overall_placement == "Left")
-          placement = is_trans ? "Left" : "Shelves"
+        lastF = sections[i-1]['floor']
+        isPrevTaller = (sections[i-1][key] > closet[key])
+        if (totalPlacement=="Left")
+          placement = isPrevTaller ? "Shelves" : "Left"
         else
-          placement = is_trans ? "Center" : "Right"
+          placement = isPrevTaller ? "Right" : "Center"
         end
       else
         placement = set_section_placement(sections, i)
@@ -144,44 +150,25 @@ module Closets
   end
 
   def self.set_section_placement(sections, i)
-    prev_type = sections[i-1]['type']
-    curr_type = sections[i]['type']
-    next_type = sections[i+1]['type']
+    closet  = sections[i]
+    key     = closet['floor'] ? 'depth' : 'height'
+    floor   = closet['floor']
 
-    trans_left = is_section_transitional(sections[i], sections[i-1])
-    trans_right = is_section_transitional(sections[i], sections[i+1])
+    lastH = sections[i-1][key]
+    nextH = sections[i+1][key]
+    thisH = closet[key]
+    lastF = sections[i-1]['floor']
+    nextF = sections[i+1]['floor']
 
-    if (curr_type == next_type) || (trans_left && !trans_right)
-      placement = "Left"
-    elsif (trans_left && trans_right)
+    if    (lastH <= thisH && (thisH > nextH || sections[i+1]['type'] == 'Corner' || (floor && !nextF )))
       placement = "Center"
-    elsif (!trans_left && trans_right)
+    elsif (lastH <= thisH && thisH <= nextH)
+      placement = "Left"
+    elsif ((lastH > thisH && thisH > nextH) || (floor && !nextF))
       placement = "Right"
-    else
+    elsif (lastH > thisH && thisH <= nextH)
       placement = "Shelves"
     end
-
-
-    # closet = sections[i]
-    # key     = closet['floor'] ? 'depth' : 'height'
-    # floor   = closet['floor']
-
-    # lastH = sections[i-1][key]
-    # nextH = sections[i+1][key]
-    # thisH = closet[key]
-    # nextF = sections[i+1]['floor']
-
-    # if    (lastH <= thisH && (thisH > nextH || sections[i+1]['type'] == 'Corner' || (floor && !nextF )))
-    #   placement = "Center"
-    # elsif (lastH <= thisH && thisH <= nextH)
-    #   placement = "Left"
-    # elsif ((lastH > thisH && thisH > nextH) || (floor && !nextF))
-    #   placement = "Right"
-    # elsif (lastH > thisH && thisH <= nextH)
-    #   placement = "Shelves"
-    # end
-
-
     
     placement
   end
@@ -213,15 +200,17 @@ module Closets
   end
 
   def self.getGableType(sections, i, current, side)
-    loc       = current['floor'] ? 'FM' : 'WH' # Floor or Wall Hung
+    # default to center gable
+    type = 'Center'
+    
     type      = current['type']                # DH, LH, Shelves etc.
+    loc       = current['floor'] ? 'FM' : 'WH' # Floor or Wall Hung
     finished  = current['finished']
 
-    base = @@cncParts[type][loc]
-    return unless base
-    
-    first = (side == 'left' && i.zero?)
+    first = (side == 'left' && i == 0)
     last  = (side == 'right' && i == sections.length-1)
+
+    base = @@cncParts[type][loc]
     if first || last 
       # Left gable of first section or right gable of last section
       if finished
@@ -247,7 +236,7 @@ module Closets
   def self.setPartParams(part, section)
     return part unless part && part.fetch('params', false)
     
-	  part = part.dup
+	part = part.dup
     params = part['params']
 
     replaceable = {

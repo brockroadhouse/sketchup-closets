@@ -1,6 +1,6 @@
+# frozen_string_literal: true
 
-module Closets
-
+module FVCC::Closets
   # Add a menu for creating 3D shapes
   # Checks if this script file has been loaded before in this SU session
   unless file_loaded?(__FILE__) # If not, create menu entries

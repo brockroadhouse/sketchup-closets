@@ -1,5 +1,6 @@
 
-module Closets
+module FVCC::Closets
+  
   @svgResult
   @max = 800
   @nextH

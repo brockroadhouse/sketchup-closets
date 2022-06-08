@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 require 'json'
 require 'fileutils'
 
-module Closets
+module FVCC::Closets
 
   ## Closet params
   attr_reader :thickness,
@@ -113,7 +115,7 @@ module Closets
   end
 
   ## Settings Functions ##
-  def self.init
+  def self.init_settings
     @@settings.each do |file, optsVar| 
       defaultFile = File.join(__dir__, file)
       optionsFile = set_options_file(defaultFile, file)
@@ -184,7 +186,11 @@ module Closets
     save_options(optionsFile, file)
   end
 
-  init
+  def self.parts_reload
+    src = File.join(__dir__, @@partsFile)
+    dest = File::join(getPluginPath, @@partsFile)
+    FileUtils.cp(src, dest)
+  end
 
   unless file_loaded?(__FILE__)
     file_loaded(__FILE__)

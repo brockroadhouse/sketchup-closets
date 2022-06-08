@@ -1,5 +1,6 @@
+# frozen_string_literal: true
 
-module Closets
+module FVCC::Closets
 
   def self.unit_length
     # Get model units (imperial or metric) and length format.

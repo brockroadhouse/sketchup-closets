@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 require 'json'
 
-module Closets
+module FVCC::Closets
 
   def self.createDialog(file, title, size, options = {})
     htmlFile = File.join(__dir__, 'html', file)
