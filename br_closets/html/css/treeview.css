@@ -1,0 +1,38 @@
+.treeview {
+    font-size: 20px;
+}
+.treeview input[type=checkbox]:checked ~ ul {
+    display: block;
+}
+.treeview .tree-list{
+    font-size:16px;
+}
+
+.treeview input[type=checkbox] {
+    display: none !important;
+}
+.treeview input[type=checkbox] ~ ul{
+    display: none;
+}
+
+.treeview ul {
+    padding: 5px 20px;
+    list-style-type: none;
+}
+
+.parts-tree > .part-list {
+    border: 1px solid #DFDFDF;
+}
+
+.treeview .part span{
+    text-transform: capitalize;
+}
+
+.treeview .part span.has-children{
+    cursor: pointer;
+    display: block;
+    padding: 4px;
+}
+.treeview .part span.has-children:hover{
+    background-color: #EFEFEF;;
+}
