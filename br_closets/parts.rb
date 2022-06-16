@@ -99,6 +99,8 @@ module FVCC::Closets
   end
 
   def self.add_drawer_front(width, height, location = [0, 0, 0])
+    front = Drawer.new(width, height, location)
+	return 
     compName  = "#{width} x #{height} Drawer"
     part      = @@cncParts['drawer']['front']
     partName  = part['partName']
