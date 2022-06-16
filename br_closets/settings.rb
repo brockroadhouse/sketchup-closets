@@ -48,6 +48,10 @@ module FVCC::Closets
     @@settingsFile => @@opts,
     @@partsFile => @@cncParts
   }
+	
+  def self.current_entities
+    @@currentEnt
+  end
 
   ## Parts Dialog ##
   def self.create_parts_dialog
