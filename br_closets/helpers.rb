@@ -188,7 +188,11 @@ module FVCC::Closets
   end
   
   def self.postProcessHeight(height)
-	(( (height-18) / 32 ).to_i) * 32 + 18
+	if (height == 1930)
+		1938
+	else
+		(( (height-18) / 32 ).to_i) * 32 + 18
+	end
   end
   
   def self.postProcessDepth(depth)

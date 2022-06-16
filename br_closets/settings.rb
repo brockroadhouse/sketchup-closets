@@ -48,10 +48,6 @@ module FVCC::Closets
     @@settingsFile => @@opts,
     @@partsFile => @@cncParts
   }
-	
-  def self.current_entities
-    @@currentEnt
-  end
 
   ## Parts Dialog ##
   def self.create_parts_dialog
@@ -194,6 +190,18 @@ module FVCC::Closets
     src = File.join(__dir__, @@partsFile)
     dest = File::join(getPluginPath, @@partsFile)
     FileUtils.cp(src, dest)
+  end
+  
+  def self.thickness
+	@@opts['thickness']
+  end
+  
+  def self.current_entities
+	@@currentEnt
+  end
+  
+  def self.cnc_parts
+	@@cncParts
   end
 
   unless file_loaded?(__FILE__)

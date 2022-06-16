@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# require "csv"
+require "csv"
 require_relative 'svg.rb'
 
 module FVCC::Closets
