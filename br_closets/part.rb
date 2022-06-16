@@ -24,7 +24,7 @@ module FVCC::Closets
       comp = if !definition
               add_part_component(trans)
             else
-              @@currentEnt.add_instance definition, trans
+              FVCC::Closets.current_entities.add_instance definition, trans
             end
       comp
     end
