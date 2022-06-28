@@ -114,7 +114,7 @@ module FVCC::Closets
       width_modified = width + @overlay
 
       super(width_modified, height, thickness, @location, @part)
-      @comp.definition.set_attribute('cnc_params', 'width', @width.round)
+      @comp.definition.set_attribute('cnc_params', 'width', @width.to_mm.round)
       
       add_handle
     end
