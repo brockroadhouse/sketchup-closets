@@ -143,9 +143,12 @@ module FVCC::Closets
 
   def self.rotateTo (location, left)
     pt = Geom::Point3d.new location
-    vector = left ? Geom::Vector3d.new(0, 0, 1) : Geom::Vector3d.new(0, 0, -1)
-    angle = 90.degrees
-    t = Geom::Transformation.rotation(pt, vector, angle)
+    vector_about = left ? Geom::Vector3d.new(0, 0, 1) : Geom::Vector3d.new(0, 0, -1)
+    
+    selection_vector = Geom::Vector3d.new(@@selection[0].line[1])
+    angle = Geom::Vector3d.new(1,0,0).angle_between selection_vector
+    
+    t = Geom::Transformation.rotation(pt, vector_about, angle)
     @currentGroup = @currentGroup.transform! t
   end
 

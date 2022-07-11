@@ -243,7 +243,8 @@
                     <template
                       v-if="closet.type == 'Shelves' && closet.drawers > 0"
                     >
-                      <div class="centered row">
+                      <div class="ui six column grid row">
+                        <div class="centered row">
                         <template v-for="d in closet.drawers">
                           <div class="tight column field">
                             <label>Drawer {{ d }} Height</label>
@@ -287,6 +288,7 @@
                             </div>
                           </div>
                         </template>
+                        </div>
                       </div>
                     </template>
                   </div>

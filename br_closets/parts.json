@@ -168,7 +168,7 @@
           "params": "THRU=1 BBHEIGHT=145 BBDEPTH=19"
         },
         "toDH": {
-          "partName": "FMDH-LH",
+          "partName": "FMDH-LHCenter",
           "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT=145 BBDEPTH=19"
         }
       },
@@ -182,7 +182,7 @@
           "params": "THRU=1 BBHEIGHT=145 BBDEPTH=19"
         },
         "toDH": {
-          "partName": "FMDH-LH",
+          "partName": "FMDH-LHCenter",
           "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT=145 BBDEPTH=19"
         }
       }
@@ -228,7 +228,7 @@
     },
     "FM": {
       "center": {
-        "partName": "FHDHCenter",
+        "partName": "FMDHCenter",
         "params": "DH=1 BBHEIGHT=145 BBDEPTH=19"
       },
       "left": {
@@ -241,7 +241,7 @@
           "params": "DH=1 BBHEIGHT=145 BBDEPTH=19"
         },
         "toLH": {
-          "partName": "FMDH-LH",
+          "partName": "FMDH-LHCenter",
           "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT=145 BBDEPTH=19"
         },
         "toCorner": {
@@ -259,7 +259,7 @@
           "params": "DH=1 BBHEIGHT=145 BBDEPTH=19"
         },
         "toLH": {
-          "partName": "FMDH-LH",
+          "partName": "FMDH-LHCenter",
           "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT=145 BBDEPTH=19"
         },
         "toCorner": {

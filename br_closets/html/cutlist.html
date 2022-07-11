@@ -11,7 +11,7 @@
 		width: 95% !important;
 	}
     .main.container {
-      padding: 0.25em 1em;
+      padding: 1em;
     }
     .hidden {
       display: none !important;
@@ -33,6 +33,11 @@
           <div class="content">Cutlist</div>
         </h1>
 
+        <div>
+          <div class="ui primary button" v-on:click="exportCsv">Export</div>
+          <div class="ui button" v-on:click="cancel">Cancel</div>
+        </div>
+        
         <table class="ui striped celled table breakdown unstackable">
           <thead>
             <tr>
@@ -44,18 +49,20 @@
           <tbody>
             <template v-for="part in parts">
                 <tr>
-                  <template v-for="piece in part">
-                    <td class="right aligned">{{ piece }}</td>
+                  <template v-for="piece, index in part">
+                    <td class="right aligned">
+                      <template v-if="index == 2">
+                         <span v-bind:data-tooltip="piece" >... {{ piece.slice(-25, piece.length) }}</span>
+                      </template>
+                      <template v-else>
+                        {{ piece }}
+                      </template>
+                    </td>
                   </template>
                 </tr>
             </template>
           </tbody>
         </table>
-
-        <div>
-          <div class="ui primary button" v-on:click="exportCsv">Export</div>
-          <div class="ui button" v-on:click="cancel">Cancel</div>
-        </div>
       </div>
     </template>
     <template v-else>
