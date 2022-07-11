@@ -228,7 +228,7 @@
     },
     "FM": {
       "center": {
-        "partName": "FHDHCenter",
+        "partName": "FMDHCenter",
         "params": "DH=1 BBHEIGHT=145 BBDEPTH=19"
       },
       "left": {

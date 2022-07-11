@@ -133,7 +133,7 @@ module FVCC::Closets
     end	
     
     def set_name
-      "#{@width} x #{@height} Drawer"
+      "#{@width} x #{@height} Drawer Front"
     end
     
     def make_face

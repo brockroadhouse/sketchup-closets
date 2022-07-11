@@ -20,7 +20,7 @@ module FVCC
 
     # Reload extension by running this method from the Ruby Console:
     def self.reload
-      pattern = File.join(__dir__, '*/*.rb')
+      pattern = File.join(__dir__, 'br_closets/*.rb')
       files = Dir.glob(pattern).each { |file|
         # Cannot use `Sketchup.load` because its an alias for `Sketchup.require`.
         load file

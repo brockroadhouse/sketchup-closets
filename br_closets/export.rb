@@ -92,7 +92,7 @@ module FVCC::Closets
           cost = c*rate
           @@parts[group] << ["Door", c, w, d, h, sprintf("$%2.2f",rate), sprintf("$%2.2f", cost)]
           @@edgetape +=  c*(w.to_f + d.to_f)*2
-        elsif (name.include? "Drawer")
+        elsif (name.include? "Front")
           rate = (w.to_f*d.to_f*@@opts['cost'].to_f+@@opts['drawerCost'].to_f)
           cost = c*rate
           @@parts[group] << ["Drawer", c, w, d, h,sprintf("$%2.2f",rate), sprintf("$%2.2f", cost)]
