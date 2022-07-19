@@ -60,8 +60,13 @@ module FVCC::Closets
       self.update_parts_dialog
       nil
     }
-    @parts_dialog.add_action_callback("save") { |action_context, options|
+    @parts_dialog.add_action_callback("saveParts") { |action_context, parts|
+      update_options_from_dialog(parts, @@partsFile)
       @parts_dialog.close
+      nil
+    }
+    @parts_dialog.add_action_callback("reset") { |action_context|
+      parts_reload
       nil
     }
     @parts_dialog.add_action_callback("cancel") { |action_context|
@@ -108,9 +113,9 @@ module FVCC::Closets
     @@optsData[file].each do |key, data|
       data['value'] = options[key]['value'] if options.has_key?(key)
     end
-	optionsFile = File::join(getPluginPath(),file)
-	optsVar = @@settings[file]
-	set_options(options, optionsFile, optsVar, file)
+    optionsFile = File::join(getPluginPath(),file)
+    optsVar = @@settings[file]
+    set_options(options, optionsFile, optsVar, file)
     # save_options(, file)
   end
 
@@ -187,21 +192,35 @@ module FVCC::Closets
   end
 
   def self.parts_reload
-    src = File.join(__dir__, @@partsFile)
-    dest = File::join(getPluginPath, @@partsFile)
-    FileUtils.cp(src, dest)
+    
+    message = "Are you sure you want to reload default parts?" +
+      "\nThis will overwrite current parts"
+    res = UI.messagebox(message, MB_YESNO)
+
+    if (res == IDYES)
+      src = File.join(__dir__, @@partsFile)
+      dest = File.join(getPluginPath, @@partsFile)
+
+      # backup
+      FileUtils.cp(dest, dest + '.old')
+
+      # new copy
+      FileUtils.cp(src, dest)
+
+      @parts_dialog.close
+    end
   end
   
   def self.thickness
-	@@opts['thickness']
+	  @@opts['thickness']
   end
   
   def self.current_entities
-	@@currentEnt
+	  @@currentEnt
   end
   
   def self.cnc_parts
-	@@cncParts
+	  @@cncParts
   end
 
   unless file_loaded?(__FILE__)
