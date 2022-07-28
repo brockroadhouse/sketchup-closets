@@ -1,10 +1,6 @@
 .treeview {
     font-size: 20px;
 }
-.treeview .part-list .part.inline.field input[type=text] {
-    width: 60%;
-    font-size: 0.8em;
-}
 .treeview input[type=checkbox]:checked ~ ul {
     display: block;
 }
@@ -70,14 +66,7 @@ ul.tree-list li:last-child:after {
 
 li.part-list:before {content: "";border-bottom: 1px solid blue;width: 10px;position: absolute;left: 0;top: 13px;display: none;}
 
-label.part span:before {
-    content: "";
-    border-bottom: 1px solid #AAA;
-    width: 10px;
-    position: absolute;
-    left: 0;
-    top: 13px;
-}
+label.part span:before {content: "";border-bottom: 1px solid #AAA;width: 10px;position: absolute;left: 0;top: 19px;}
 
 label.part span.has-children:before {
     top: 13px;
