@@ -59,7 +59,7 @@ module FVCC::Closets
           closet['side'] = 'left'
         end
         depth  = closet['depth'].empty? ? (floor ? @@floorDepth : @@hangDepth) : closet['depth']
-        height = floor ? floorHeight : (closet['height'].empty? ? @@lhHeight : closet['height']) - 1
+        height = floor ? floorHeight : 0
       when "Shelves"
         closet['shelves'] = closet['shelves'].empty? ? 5 : closet['shelves'].to_i
         closet['drawers'] = closet['drawers'].nil? ? 0 : closet['drawers'].to_i
@@ -189,17 +189,17 @@ module FVCC::Closets
       
       placement = closet['placement']
       if (["Left", "Center"].include? placement)
-        closet['leftGable'] = self.getGableType(sections, i, closet, 'left')
+        closet['leftGable'] = self.getGableType(sections, i, closet, 'left', params)
       end
 
       if (["Right", "Center"].include? placement)
-        closet['rightGable'] = self.getGableType(sections, i, closet, 'right')
+        closet['rightGable'] = self.getGableType(sections, i, closet, 'right', params)
       end
 
     end
   end
 
-  def self.getGableType(sections, i, current, side)
+  def self.getGableType(sections, i, current, side, params)
     # default to center gable
     type = 'Center'
     
@@ -225,15 +225,15 @@ module FVCC::Closets
         part = base['center']
       else
         trans = 'to' + otherType # toDH/toLH
-        part = setPartParams(base.fetch(side).fetch(trans, nil), other)
+        part = setPartParams(base.fetch(side).fetch(trans, nil), other, params)
       end
 
     end
-    part = setPartParams(part, current)
+    part = setPartParams(part, current, params)
     part
   end
 
-  def self.setPartParams(part, section)
+  def self.setPartParams(part, section, closet)
     return part unless part && part.fetch('params', false)
     
 	part = part.dup
@@ -242,14 +242,21 @@ module FVCC::Closets
     replaceable = {
       'shelves' => 'int',
       'height' => 'height',
-      'depth' => 'depth'
+      'depth' => 'depth',
+      'bbHeight' => 'bbHeight',
+      'bbDepth' => 'bbDepth',
     }
     replaceable.each do |key, type|
+      if type[0..1] == 'bb'
+          value = closet[key].to_l.to_mm.round
+        part['params'] = part['params'].sub("{#{key.upcase}}", value.to_s)
+      end
       if section.has_key? key
         if type == 'height'
           value = postProcessHeight(section[key].to_mm.round)
         elsif type == 'depth'
           value = postProcessDepth(section[key].to_mm.round)
+        
         elsif section[key].is_a? Length
           value = section[key].to_mm.round
         else

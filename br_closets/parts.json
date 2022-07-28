@@ -19,12 +19,26 @@
   },
   "drawer": {
     "front": {
-      "partName": "DrawerFrontLarge",
-      "overlay": "14mm"
+      "small": {
+        "partName": "DrawerFrontSmall",
+        "overlay": "14mm",
+        "params": ""
+      },
+      "medium": {
+        "partName": "DrawerFrontMedium",
+        "overlay": "14mm",
+        "params": ""
+      },
+      "large": {
+        "partName": "DrawerFrontLarge",
+        "overlay": "14mm",
+        "params": ""
+      }
     },
     "bottom": {
       "partName": "DrawerBottom19mm",
-      "inset": "21mm"
+      "inset": "21mm",
+      "params": ""
     },
     "back": {
       "small": {
@@ -47,11 +61,13 @@
   "Shelves": {
     "WH": {
       "center": {
-        "partName": "WHGableCenter"
+        "partName": "WHGableCenter",
+        "params": ""
       },
       "left": {
         "finished": {
-          "partName": "WHGableLeft"
+          "partName": "WHGableLeft",
+          "params": ""
         },
         "toLH": {
           "partName": "WHGableLeft",
@@ -68,7 +84,8 @@
       },
       "right": {
         "finished": {
-          "partName": "WHGableRight"
+          "partName": "WHGableRight",
+          "params": ""
         },
         "toLH": {
           "partName": "WHGableRight",
@@ -134,22 +151,27 @@
   "LH": {
     "WH": {
       "center": {
-        "partName": "WHLHCenter"
+        "partName": "WHLHCenter",
+        "params": "SHELVES={SHELVES}"
       },
       "left": {
         "finished": {
-          "partName": "WHLHLeft"
+          "partName": "WHLHLeft",
+          "params": "SHELVES={SHELVES}"
         },
         "toCorner": {
-          "partName": "WHLHCenter"
+          "partName": "WHLHCenter",
+          "params": "SHELVES={SHELVES}"
         }
       },
       "right": {
         "finished": {
-          "partName": "WHLHRight"
+          "partName": "WHLHRight",
+          "params": "SHELVES={SHELVES}"
         },
         "toCorner": {
-          "partName": "WHLHCenter"
+          "partName": "WHLHCenter",
+          "params": "SHELVES={SHELVES}"
         }
       }
     },
@@ -168,7 +190,7 @@
           "params": "THRU=1 BBHEIGHT=145 BBDEPTH=19"
         },
         "toDH": {
-          "partName": "FMDH-LHCenter",
+          "partName": "FMDH-LH",
           "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT=145 BBDEPTH=19"
         }
       },
@@ -182,7 +204,7 @@
           "params": "THRU=1 BBHEIGHT=145 BBDEPTH=19"
         },
         "toDH": {
-          "partName": "FMDH-LHCenter",
+          "partName": "FMDH-LH",
           "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT=145 BBDEPTH=19"
         }
       }
@@ -191,11 +213,13 @@
   "DH": {
     "WH": {
       "center": {
-        "partName": "WHDHCenter"
+        "partName": "WHDHCenter",
+        "params": ""
       },
       "left": {
         "finished": {
-          "partName": "WHDHLeft"
+          "partName": "WHDHLeft",
+          "params": ""
         },
         "toLH": {
           "partName": "WHDH-LH",
@@ -206,12 +230,14 @@
           "params": "LHHEIGHT={HEIGHT} LHSHELVES={SHELVES}"
         },
         "toCorner": {
-          "partName": "WHDHCenter"
+          "partName": "WHDHCenter",
+          "params": ""
         }
       },
       "right": {
         "finished": {
-          "partName": "WHDHRight"
+          "partName": "WHDHRight",
+          "params": ""
         },
         "toLH": {
           "partName": "WHDH-LH",
@@ -222,7 +248,8 @@
           "params": "LHHEIGHT={HEIGHT} LHSHELVES={SHELVES}"
         },
         "toCorner": {
-          "partName": "WHDHCenter"
+          "partName": "WHDHCenter",
+          "params": ""
         }
       }
     },
@@ -241,7 +268,7 @@
           "params": "DH=1 BBHEIGHT=145 BBDEPTH=19"
         },
         "toLH": {
-          "partName": "FMDH-LHCenter",
+          "partName": "FMDH-LH",
           "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT=145 BBDEPTH=19"
         },
         "toCorner": {
@@ -259,7 +286,7 @@
           "params": "DH=1 BBHEIGHT=145 BBDEPTH=19"
         },
         "toLH": {
-          "partName": "FMDH-LHCenter",
+          "partName": "FMDH-LH",
           "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT=145 BBDEPTH=19"
         },
         "toCorner": {
