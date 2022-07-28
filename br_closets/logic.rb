@@ -186,7 +186,6 @@ module FVCC::Closets
     sections.map.with_index do |closet, i|
 
       next if closet['type'] == 'Corner'
-      
       placement = closet['placement']
       if (["Left", "Center"].include? placement)
         closet['leftGable'] = self.getGableType(sections, i, closet, 'left', params)
@@ -225,7 +224,10 @@ module FVCC::Closets
         part = base['center']
       else
         trans = 'to' + otherType # toDH/toLH
-        part = setPartParams(base.fetch(side).fetch(trans, nil), other, params)
+        part = base.fetch(side).fetch(trans, nil)
+        if (otherType != 'Shelves')
+          part = setPartParams(base.fetch(side).fetch(trans, nil), other, params)
+        end
       end
 
     end

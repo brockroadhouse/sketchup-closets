@@ -52,14 +52,14 @@
             </div>
 
             <div class="row">
-              <div class="five wide column">
+              <div class="three wide column">
                 <div class="fluid field">
                   <label>Total Width</label>
                   <input placeholder="Width" v-model="closetParams.width" />
                 </div>
               </div>
 
-              <div class="three wide column">
+              <div class="two wide column">
                 <div class="fluid field">
                   <label>Gap Left</label>
                   <input
@@ -69,7 +69,7 @@
                 </div>
               </div>
 
-              <div class="three wide column">
+              <div class="two wide column">
                 <div class="fluid field">
                   <label>Gap Right</label>
                   <input
@@ -78,8 +78,28 @@
                   />
                 </div>
               </div>
+              
+              <div class="two wide column">
+                <div class="fluid field">
+                  <label>BB Height</label>
+                  <input
+                    placeholder="Gap Right"
+                    v-model="closetParams.bbHeight"
+                  />
+                </div>
+              </div>
+              
+              <div class="two wide column">
+                <div class="fluid field">
+                  <label>BB Depth</label>
+                  <input
+                    placeholder="Gap Right"
+                    v-model="closetParams.bbDepth"
+                  />
+                </div>
+              </div>
 
-              <div class="five wide column">
+              <div class="four wide column">
                 <div class="fluid field">
                   <label>Placement</label>
                   <div class="ui fluid mini buttons">
@@ -243,8 +263,7 @@
                     <template
                       v-if="closet.type == 'Shelves' && closet.drawers > 0"
                     >
-                      <div class="ui six column grid row">
-                        <div class="centered row">
+                      <div class="centered six column row">
                         <template v-for="d in closet.drawers">
                           <div class="tight column field">
                             <label>Drawer {{ d }} Height</label>

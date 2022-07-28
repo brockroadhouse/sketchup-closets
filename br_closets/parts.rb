@@ -99,7 +99,6 @@ module FVCC::Closets
   end
 
   def self.add_drawer_front(width, height, location = [0, 0, 0])
-    puts height
     front = Drawer.new(width, height, location)
 	return 
     compName  = "#{width} x #{height} Drawer"

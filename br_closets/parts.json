@@ -1,16 +1,16 @@
 {
   "shelf": {
     "partName": "FixedShelf",
-    "params": "LEFT=1 RIGHT=1 VB=1"
+    "params": "LEFT=1 RIGHT=1 VB=0"
   },
   "cornerShelf": {
     "left": {
       "partName": "FixedShelf",
-      "params": "RIGHT=0 VB=1"
+      "params": "RIGHT=0 VB=0"
     },
     "right": {
       "partName": "FixedShelf",
-      "params": "LEFT=0 VB=1"
+      "params": "LEFT=0 VB=0"
     }
   },
   "cleat": {
@@ -104,46 +104,46 @@
     "FM": {
       "center": {
         "partName": "FMGableCenter",
-        "params": "BBHEIGHT=145 BBDEPTH=19"
+        "params": "BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
       },
       "left": {
         "finished": {
           "partName": "FMGableLeft",
-          "params": "BBHEIGHT=145 BBDEPTH=19"
+          "params": "BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toLH": {
           "partName": "FMGableLeft",
-          "params": "LH=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toDH": {
           "partName": "FMGableLeft",
-          "params": "DH=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "DH=1 BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toCorner": {
           "partName": "FMGableLeft",
-          "params": "THRU=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "THRU=1 BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         }
       },
       "right": {
         "finished": {
           "partName": "FMGableRight",
-          "params": "BBHEIGHT=145 BBDEPTH=19"
+          "params": "BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toLH": {
           "partName": "FMGableRight",
-          "params": "LH=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toVH": {
           "partName": "FMGableRight",
-          "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT=145 BBDEPTH=19"
+          "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toDH": {
           "partName": "FMGableRight",
-          "params": "DH=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "DH=1 BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toCorner": {
           "partName": "FMGableRight",
-          "params": "THRU=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "THRU=1 BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         }
       }
     }
@@ -178,34 +178,42 @@
     "FM": {
       "center": {
         "partName": "FMLHCenter",
-        "params": "BBHEIGHT=145 BBDEPTH=19"
+        "params": "SHELVES={SHELVES} BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
       },
       "left": {
         "finished": {
           "partName": "FMLHLeft",
-          "params": "BBHEIGHT=145 BBDEPTH=19"
+          "params": "SHELVES={SHELVES} BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toCorner": {
           "partName": "FMLHLeft",
-          "params": "THRU=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "SHELVES={SHELVES} THRU=1 BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
+        },
+        "toShelves": {
+          "partName": "FMGableRight",
+          "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toDH": {
           "partName": "FMDH-LH",
-          "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT=145 BBDEPTH=19"
+          "params": "SHELVES={SHELVES} LH=1 LHSHELVES={SHELVES} BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         }
       },
       "right": {
         "finished": {
           "partName": "FMLHRight",
-          "params": "THRU=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "SHELVES={SHELVES} THRU=1 BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toCorner": {
           "partName": "FMLHRight",
-          "params": "THRU=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "SHELVES={SHELVES} THRU=1 BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
+        },
+        "toShelves": {
+          "partName": "FMGableLeft",
+          "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toDH": {
           "partName": "FMDH-LH",
-          "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT=145 BBDEPTH=19"
+          "params": "SHELVES={SHELVES} LH=1 LHSHELVES={SHELVES} BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         }
       }
     }
@@ -256,42 +264,42 @@
     "FM": {
       "center": {
         "partName": "FMDHCenter",
-        "params": "DH=1 BBHEIGHT=145 BBDEPTH=19"
+        "params": "DH=1 BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
       },
       "left": {
         "finished": {
           "partName": "FMDHLeft",
-          "params": "DH=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "DH=1 BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toShelves": {
           "partName": "FMGableRight",
-          "params": "DH=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "DH=1 BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toLH": {
           "partName": "FMDH-LH",
-          "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT=145 BBDEPTH=19"
+          "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toCorner": {
           "partName": "FMDHLeft",
-          "params": "THRU=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "THRU=1 BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         }
       },
       "right": {
         "finished": {
           "partName": "FMDHRight",
-          "params": "DH=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "DH=1 BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toShelves": {
           "partName": "FMGableLeft",
-          "params": "DH=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "DH=1 BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toLH": {
           "partName": "FMDH-LH",
-          "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT=145 BBDEPTH=19"
+          "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toCorner": {
           "partName": "FMDHRight",
-          "params": "THRU=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "THRU=1 BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         }
       }
     }

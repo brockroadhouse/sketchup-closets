@@ -19,12 +19,13 @@
       <div class="main container">
         <div id="components-tree" class="treeview">
           <div class="ui form parts-tree">
-            <tree-view v-bind:tree-data="parts" v-bind:input-name="''"></tree-view>
+            <tree-view :tree-data="parts" :input-name="''" :handle-change="partChange" :parts="parts"></tree-view>
           </div>
         </div>
         <div>
           <div class="ui primary button" v-on:click="saveParts">Save</div>
           <div class="ui button" v-on:click="cancel">Cancel</div>
+          <div class="ui negative button" v-on:click="reset">Reset</div>
         </div>
       </div>
     </template>
@@ -40,12 +41,22 @@
         parts: null,
       },
       methods: {
+        partChange: function(e) {
+          console.log('partChagnge');
+          console.log(this.parts);
+          console.log(e.target);
+          console.log(e.target.name);
+          console.log(e.target.value);
+          console.log(this.parts.shelf);
+        },
         saveParts: function() {
-            console.log('not implemented');
-        //   sketchup.saveParts();
+          sketchup.saveParts(this.parts);
         },
         cancel: function() {
           sketchup.cancel();
+        },
+        reset: function() {
+          sketchup.reset();
         },
       },
       mounted: function() {
