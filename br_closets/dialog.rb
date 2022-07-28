@@ -96,7 +96,7 @@ module FVCC::Closets
             success = self.build(closet, params)
           rescue => e
             message = displayError(e)
-            self.dialogError([errors])
+            self.dialogError([e])
             success = false
           end
         else
@@ -145,6 +145,7 @@ module FVCC::Closets
       gapRight: 0.25.inch,
       height: selectionHeight == 0 ? 84.inch : selectionHeight.to_l,
       bbHeight: 5.5.inch,
+      bbDepth: 0.625.inch,
       placement: 'Center'
     }
     types = {

@@ -1,16 +1,16 @@
 {
   "shelf": {
     "partName": "FixedShelf",
-    "params": "LEFT=1 RIGHT=1 VB=1"
+    "params": "LEFT=1 RIGHT=1 VB=0"
   },
   "cornerShelf": {
     "left": {
       "partName": "FixedShelf",
-      "params": "RIGHT=0 VB=1"
+      "params": "RIGHT=0 VB=0"
     },
     "right": {
       "partName": "FixedShelf",
-      "params": "LEFT=0 VB=1"
+      "params": "LEFT=0 VB=0"
     }
   },
   "cleat": {
@@ -19,12 +19,26 @@
   },
   "drawer": {
     "front": {
-      "partName": "DrawerFrontLarge",
-      "overlay": "14mm"
+      "small": {
+        "partName": "DrawerFrontSmall",
+        "overlay": "14mm",
+        "params": ""
+      },
+      "medium": {
+        "partName": "DrawerFrontMedium",
+        "overlay": "14mm",
+        "params": ""
+      },
+      "large": {
+        "partName": "DrawerFrontLarge",
+        "overlay": "14mm",
+        "params": ""
+      }
     },
     "bottom": {
       "partName": "DrawerBottom19mm",
-      "inset": "21mm"
+      "inset": "21mm",
+      "params": ""
     },
     "back": {
       "small": {
@@ -47,11 +61,13 @@
   "Shelves": {
     "WH": {
       "center": {
-        "partName": "WHGableCenter"
+        "partName": "WHGableCenter",
+        "params": ""
       },
       "left": {
         "finished": {
-          "partName": "WHGableLeft"
+          "partName": "WHGableLeft",
+          "params": ""
         },
         "toLH": {
           "partName": "WHGableLeft",
@@ -68,7 +84,8 @@
       },
       "right": {
         "finished": {
-          "partName": "WHGableRight"
+          "partName": "WHGableRight",
+          "params": ""
         },
         "toLH": {
           "partName": "WHGableRight",
@@ -87,46 +104,46 @@
     "FM": {
       "center": {
         "partName": "FMGableCenter",
-        "params": "BBHEIGHT=145 BBDEPTH=19"
+        "params": "BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
       },
       "left": {
         "finished": {
           "partName": "FMGableLeft",
-          "params": "BBHEIGHT=145 BBDEPTH=19"
+          "params": "BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toLH": {
           "partName": "FMGableLeft",
-          "params": "LH=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toDH": {
           "partName": "FMGableLeft",
-          "params": "DH=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "DH=1 BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toCorner": {
           "partName": "FMGableLeft",
-          "params": "THRU=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "THRU=1 BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         }
       },
       "right": {
         "finished": {
           "partName": "FMGableRight",
-          "params": "BBHEIGHT=145 BBDEPTH=19"
+          "params": "BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toLH": {
           "partName": "FMGableRight",
-          "params": "LH=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toVH": {
           "partName": "FMGableRight",
-          "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT=145 BBDEPTH=19"
+          "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toDH": {
           "partName": "FMGableRight",
-          "params": "DH=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "DH=1 BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toCorner": {
           "partName": "FMGableRight",
-          "params": "THRU=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "THRU=1 BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         }
       }
     }
@@ -134,56 +151,69 @@
   "LH": {
     "WH": {
       "center": {
-        "partName": "WHLHCenter"
+        "partName": "WHLHCenter",
+        "params": "SHELVES={SHELVES}"
       },
       "left": {
         "finished": {
-          "partName": "WHLHLeft"
+          "partName": "WHLHLeft",
+          "params": "SHELVES={SHELVES}"
         },
         "toCorner": {
-          "partName": "WHLHCenter"
+          "partName": "WHLHCenter",
+          "params": "SHELVES={SHELVES}"
         }
       },
       "right": {
         "finished": {
-          "partName": "WHLHRight"
+          "partName": "WHLHRight",
+          "params": "SHELVES={SHELVES}"
         },
         "toCorner": {
-          "partName": "WHLHCenter"
+          "partName": "WHLHCenter",
+          "params": "SHELVES={SHELVES}"
         }
       }
     },
     "FM": {
       "center": {
         "partName": "FMLHCenter",
-        "params": "BBHEIGHT=145 BBDEPTH=19"
+        "params": "SHELVES={SHELVES} BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
       },
       "left": {
         "finished": {
           "partName": "FMLHLeft",
-          "params": "BBHEIGHT=145 BBDEPTH=19"
+          "params": "SHELVES={SHELVES} BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toCorner": {
           "partName": "FMLHLeft",
-          "params": "THRU=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "SHELVES={SHELVES} THRU=1 BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
+        },
+        "toShelves": {
+          "partName": "FMGableRight",
+          "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toDH": {
           "partName": "FMDH-LHCenter",
-          "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT=145 BBDEPTH=19"
+          "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         }
       },
       "right": {
         "finished": {
           "partName": "FMLHRight",
-          "params": "THRU=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "SHELVES={SHELVES} THRU=1 BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toCorner": {
           "partName": "FMLHRight",
-          "params": "THRU=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "SHELVES={SHELVES} THRU=1 BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
+        },
+        "toShelves": {
+          "partName": "FMGableLeft",
+          "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toDH": {
           "partName": "FMDH-LHCenter",
-          "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT=145 BBDEPTH=19"
+          "params": "SHELVES={SHELVES} LH=1 LHSHELVES={SHELVES} BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         }
       }
     }
@@ -191,11 +221,13 @@
   "DH": {
     "WH": {
       "center": {
-        "partName": "WHDHCenter"
+        "partName": "WHDHCenter",
+        "params": ""
       },
       "left": {
         "finished": {
-          "partName": "WHDHLeft"
+          "partName": "WHDHLeft",
+          "params": ""
         },
         "toLH": {
           "partName": "WHDH-LH",
@@ -206,12 +238,14 @@
           "params": "LHHEIGHT={HEIGHT} LHSHELVES={SHELVES}"
         },
         "toCorner": {
-          "partName": "WHDHCenter"
+          "partName": "WHDHCenter",
+          "params": ""
         }
       },
       "right": {
         "finished": {
-          "partName": "WHDHRight"
+          "partName": "WHDHRight",
+          "params": ""
         },
         "toLH": {
           "partName": "WHDH-LH",
@@ -222,49 +256,50 @@
           "params": "LHHEIGHT={HEIGHT} LHSHELVES={SHELVES}"
         },
         "toCorner": {
-          "partName": "WHDHCenter"
+          "partName": "WHDHCenter",
+          "params": ""
         }
       }
     },
     "FM": {
       "center": {
         "partName": "FMDHCenter",
-        "params": "DH=1 BBHEIGHT=145 BBDEPTH=19"
+        "params": "DH=1 BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
       },
       "left": {
         "finished": {
           "partName": "FMDHLeft",
-          "params": "DH=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "DH=1 BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toShelves": {
           "partName": "FMGableRight",
-          "params": "DH=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "DH=1 BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toLH": {
           "partName": "FMDH-LHCenter",
-          "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT=145 BBDEPTH=19"
+          "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toCorner": {
           "partName": "FMDHLeft",
-          "params": "THRU=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "THRU=1 BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         }
       },
       "right": {
         "finished": {
           "partName": "FMDHRight",
-          "params": "DH=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "DH=1 BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toShelves": {
           "partName": "FMGableLeft",
-          "params": "DH=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "DH=1 BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toLH": {
           "partName": "FMDH-LHCenter",
-          "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT=145 BBDEPTH=19"
+          "params": "LH=1 LHSHELVES={SHELVES} BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         },
         "toCorner": {
           "partName": "FMDHRight",
-          "params": "THRU=1 BBHEIGHT=145 BBDEPTH=19"
+          "params": "THRU=1 BBHEIGHT={BBHEIGHT} BBDEPTH={BBDEPTH}"
         }
       }
     }

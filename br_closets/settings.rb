@@ -207,6 +207,7 @@ module FVCC::Closets
       # new copy
       FileUtils.cp(src, dest)
 
+      init_settings
       @parts_dialog.close
     end
   end

@@ -120,7 +120,7 @@ module FVCC::Closets
     end
     
     def set_part
-      @part = FVCC::Closets.cnc_parts['drawer']['front']
+      @part = FVCC::Closets.cnc_parts['drawer']['front']['large']
     end
     
     def set_overlay
@@ -133,7 +133,7 @@ module FVCC::Closets
     end	
     
     def set_name
-      "#{@width} x #{@height} Drawer Front"
+      "#{@width} x #{@depth} Drawer Front"
     end
     
     def make_face
