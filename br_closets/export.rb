@@ -75,7 +75,7 @@ module FVCC::Closets
 
 
         # file << ["Name", "Qty", "Width", "Height", "Depth", "Unit Price", "Price"]
-        if (name.include? "Gable")
+        if (["WH", "FM"].any?{|piece| name.include? piece})
           cost = c*h.to_f*d.to_f*@@opts['cost'].to_f
           @@parts[group] << ["Gable", c, h, d, w, sprintf("$%2.2f", @@opts['cost']), sprintf("$%2.2f", cost)]
           @@edgetape +=  c*(d.to_f + h.to_f)
